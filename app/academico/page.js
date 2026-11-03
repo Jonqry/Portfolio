@@ -1,25 +1,34 @@
 export default function Academico() {
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-fade-in-up">
-      <h1 className="text-4xl font-bold text-gray-900 border-b-2 border-blue-600 pb-2">
-        Experiência Acadêmica
-      </h1>
-      
-      <div className="space-y-6">
-        <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-600 hover:shadow-md transition-shadow">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-xl font-bold text-gray-900">Tecnólogo em Sistemas para Internet</h3>
-            <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">Atual</span>
-          </div>
-          <p className="text-gray-500 text-sm mb-4">Universidade Católica de Pernambuco (Unicap) · mar/2025 – jul/2027</p>
-          <p className="text-gray-700 leading-relaxed">
-            Estudos aprofundados em engenharia de software, englobando tanto metodologias ágeis quanto tradicionais. Na parte de infraestrutura e base tecnológica, foco sólido em redes de computadores e na arquitetura da internet.
-          </p>
-          <p className="text-gray-700 leading-relaxed mt-4">
-            No Projeto Integrador, desenvolvo em equipe a plataforma da Place Brokers, imobiliária de Recife, com React, Tailwind, Supabase e Node.js.
-          </p>
-        </div>
-      </div>
+    <div className="pagina space-y-8">
+      <header>
+        <h1 className="titulo-pagina">Formação</h1>
+      </header>
+
+      <section className="bloco border-l-4 border-l-[color:var(--sol)]">
+        <p className="text-sm text-[color:var(--tinta-suave)] mb-1">Março de 2025 a julho de 2027</p>
+        <h2 className="text-2xl font-bold mb-1">Tecnólogo em Sistemas para Internet</h2>
+        <p className="text-[color:var(--tinta-suave)] mb-4">Universidade Católica de Pernambuco (Unicap), 4º período</p>
+        <p className="max-w-3xl">
+          Disciplinas de desenvolvimento web e mobile, banco de dados e análise de projetos de software.
+          No Projeto Integrador, desenvolvo em equipe a plataforma da Place Brokers, com React, Tailwind,
+          Supabase e Node.js.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-semibold mb-4">Cursos</h2>
+        <ul className="grid sm:grid-cols-2 gap-4">
+          <li className="bloco">
+            <h3 className="text-lg font-semibold">Office 365 e Power BI</h3>
+            <p className="text-[color:var(--tinta-suave)]">Eduliv</p>
+          </li>
+          <li className="bloco">
+            <h3 className="text-lg font-semibold">Multimídia</h3>
+            <p className="text-[color:var(--tinta-suave)]">Escola Técnica Estadual Cícero Dias</p>
+          </li>
+        </ul>
+      </section>
     </div>
   );
 }
