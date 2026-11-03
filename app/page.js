@@ -27,6 +27,22 @@ export default function Home() {
             >
               Ver Meus Projetos
             </Link>
+            <a
+              href="https://www.linkedin.com/in/joaovictorvarela"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="border border-gray-300 text-gray-800 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-300 text-center"
+            >
+              LinkedIn
+            </a>
+            <a
+              href="https://github.com/Jonqry"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="border border-gray-300 text-gray-800 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-300 text-center"
+            >
+              GitHub
+            </a>
           </div>
         </div>
 
