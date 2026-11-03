@@ -17,7 +17,7 @@ export default function Home() {
             </span>
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto md:mx-0">
-            Desenvolvedor Full-Stack apaixonado por tecnologia, focado em criar soluções modernas e eficientes com React, Next.js e Node.js.
+            Desenvolvedor front-end em Recife, focado em React e TypeScript. Também sou corretor de imóveis, e uso essa vivência para criar sistemas que fazem sentido para quem vai usar.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 pt-6 justify-center md:justify-start">
