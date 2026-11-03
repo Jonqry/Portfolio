@@ -1,54 +1,53 @@
 const experiencias = [
   {
-    cargo: "Consultor de Vendas (corretor de imóveis)",
-    empresa: "Place Brokers · out/2025 – atual",
-    cor: "border-l-blue-600",
+    cargo: 'Consultor de vendas (corretor de imóveis)',
+    empresa: 'Place Brokers',
+    periodo: 'desde outubro de 2025',
+    atual: true,
     itens: [
-      "Atendimento de leads de campanhas no Instagram, Facebook e site",
-      "Primeiro contato por ligação e WhatsApp, agendamento de reuniões e visitas",
-      "Análise de crédito com o cliente (entrada e parcelas)",
-      "Acompanhamento dos atendimentos no CRM Dommus",
+      'Atendo leads que chegam pelas campanhas no Instagram, no Facebook e pelo site.',
+      'Faço o primeiro contato por ligação e WhatsApp e agendo reuniões e visitas.',
+      'Faço a análise de crédito com o cliente: entrada e valor das parcelas.',
+      'Acompanho os atendimentos no CRM Dommus.',
     ],
   },
   {
-    cargo: "Jovem Aprendiz",
-    empresa: "Ferreiro Café · fev/2025 – out/2025",
-    cor: "border-l-green-600",
+    cargo: 'Jovem Aprendiz',
+    empresa: 'Ferreiro Café',
+    periodo: 'de fevereiro a outubro de 2025',
     itens: [
-      "Atendimento ao público",
-      "Apoio em compras e operações internas",
-      "Suporte operacional",
-      "Organização e higienização do ambiente",
+      'Atendimento ao público.',
+      'Apoio nas compras e nas operações internas.',
+      'Organização do ambiente e suporte operacional.',
     ],
   },
 ];
 
 export default function Profissional() {
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-fade-in-up">
-      <h1 className="text-4xl font-bold text-gray-900 border-b-2 border-blue-600 pb-2">
-        Experiência Profissional
-      </h1>
+    <div className="pagina space-y-8">
+      <header>
+        <h1 className="titulo-pagina">Experiência</h1>
+        <p className="intro-pagina">
+          Antes da primeira vaga em tecnologia, aprendi a atender gente e a entender o que o cliente precisa.
+        </p>
+      </header>
 
-      <div className="space-y-6">
+      <ol className="linha-tempo space-y-10">
         {experiencias.map((exp) => (
-          <div
-            key={exp.cargo}
-            className={`bg-white p-8 rounded-xl shadow-sm border border-gray-100 border-l-4 ${exp.cor} hover:shadow-md transition-shadow`}
-          >
-            <h3 className="text-xl font-bold text-gray-900 mb-1">{exp.cargo}</h3>
-            <p className="text-gray-500 text-sm mb-4">{exp.empresa}</p>
-            <ul className="space-y-3 text-gray-700">
+          <li key={exp.cargo} className={exp.atual ? 'marco atual' : 'marco'}>
+            <h2 className="text-2xl font-bold">{exp.cargo}</h2>
+            <p className="text-[color:var(--tinta-suave)] mb-3">
+              {exp.empresa}, {exp.periodo}
+            </p>
+            <ul className="space-y-1.5 list-disc pl-5 max-w-2xl">
               {exp.itens.map((item) => (
-                <li key={item} className="flex items-start">
-                  <span className="text-green-600 mr-2">✔</span>
-                  <span>{item}</span>
-                </li>
+                <li key={item}>{item}</li>
               ))}
             </ul>
-          </div>
+          </li>
         ))}
-      </div>
+      </ol>
     </div>
   );
 }
