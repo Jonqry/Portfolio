@@ -5,8 +5,8 @@ import Navbar from "./components/Navbar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Currículo | Portfólio",
-  description: "Portfólio de desenvolvimento web",
+  title: "João Victor Varela | Desenvolvedor Front-end",
+  description: "Portfólio de João Victor Varela, desenvolvedor front-end em Recife",
 };
 
 export default function RootLayout({ children }) {
