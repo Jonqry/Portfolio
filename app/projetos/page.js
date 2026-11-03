@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 const projetos = [
   {
     nome: 'Place Brokers',
@@ -8,6 +10,8 @@ const projetos = [
     site: 'https://placebrokers-frontend.vercel.app',
     github: 'https://github.com/Arthurms-dev/PI4-Place-Brokers-Integrador-FrontEnd',
     destaque: true,
+    imagem: '/place-brokers-empreendimentos.jpg',
+    imagemAlt: 'Lista de empreendimentos do site da Place Brokers',
   },
   {
     nome: 'CashFlow',
@@ -52,6 +56,23 @@ function Projeto({ projeto }) {
         )}
         <a href={projeto.github} target="_blank" rel="noopener noreferrer" className="link-texto">Ver o código</a>
       </div>
+      {projeto.imagem && (
+        <a href={projeto.site} target="_blank" rel="noopener noreferrer" className="block mt-6 rounded-xl overflow-hidden border border-[color:var(--linha)]/60">
+          <Image
+            src={projeto.imagem}
+            alt={projeto.imagemAlt}
+            width={1512}
+            height={785}
+            sizes="(max-width: 768px) 100vw, 900px"
+            className="w-full h-auto"
+          />
+        </a>
+      )}
+      {projeto.site && projeto.destaque && (
+        <p className="text-sm text-[color:var(--tinta-suave)] mt-3">
+          O servidor gratuito pode levar até um minuto para acordar na primeira visita.
+        </p>
+      )}
     </article>
   );
 }
