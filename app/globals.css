@@ -1,19 +1,161 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --papel: #f3f5f8;
+  --tinta: #102a43;
+  --tinta-suave: #486581;
+  --linha: #9fb3c8;
+  --sol: #f0a202;
+  --azul: #1f5fbf;
+  --branco: #ffffff;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--font-corpo), system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+h1, h2, h3, .marca {
+  font-family: var(--font-titulo), var(--font-corpo), sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+a { color: inherit; }
+
+:focus-visible {
+  outline: 3px solid var(--sol);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---------- navegação ---------- */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--papel) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid color-mix(in srgb, var(--linha) 60%, transparent);
+}
+.nav-link {
+  padding: 0.4rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  color: var(--tinta-suave);
+  text-decoration: none;
+  transition: color 0.2s, background 0.2s;
+}
+.nav-link:hover { color: var(--tinta); background: color-mix(in srgb, var(--linha) 25%, transparent); }
+.nav-link[aria-current="page"] { color: var(--tinta); box-shadow: inset 0 -2px 0 var(--sol); border-radius: 0; }
+
+/* ---------- botões ---------- */
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.4rem;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s, background 0.2s, border-color 0.2s;
+}
+.botao:active { transform: translateY(1px); }
+.botao-principal { background: var(--tinta); color: var(--branco); }
+.botao-principal:hover { background: #1c3d5e; }
+.botao-linha { border: 1.5px solid var(--linha); color: var(--tinta); }
+.botao-linha:hover { border-color: var(--tinta); }
+
+/* ---------- herói com planta ---------- */
+.grade-planta {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--linha) 22%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--linha) 22%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.planta-traco {
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+  animation: desenhar 1.6s ease-out forwards;
+}
+.planta-traco.atraso { animation-delay: 0.5s; }
+.planta-cota { opacity: 0; animation: surgir 0.6s ease-out 1.4s forwards; }
+.foto-entrada { opacity: 0; animation: surgir 0.9s ease-out 0.6s forwards; }
+.texto-entrada { opacity: 0; transform: translateY(10px); animation: subir 0.8s ease-out 0.2s forwards; }
+
+@keyframes desenhar { to { stroke-dashoffset: 0; } }
+@keyframes surgir { to { opacity: 1; } }
+@keyframes subir { to { opacity: 1; transform: none; } }
+
+/* ---------- páginas internas ---------- */
+.pagina { max-width: 64rem; margin: 0 auto; }
+.titulo-pagina {
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.intro-pagina { color: var(--tinta-suave); max-width: 40rem; font-size: 1.1rem; }
+.bloco {
+  background: var(--branco);
+  border: 1px solid color-mix(in srgb, var(--linha) 55%, transparent);
+  border-radius: 14px;
+  padding: 1.75rem;
+}
+.etiqueta {
+  display: inline-block;
+  font-size: 0.85rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--linha) 22%, transparent);
+  color: var(--tinta);
+}
+.link-texto {
+  color: var(--azul);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+.link-texto:hover { color: var(--tinta); }
+
+/* linha do tempo */
+.linha-tempo { position: relative; padding-left: 1.75rem; }
+.linha-tempo::before {
+  content: "";
+  position: absolute;
+  left: 0.4rem;
+  top: 0.4rem;
+  bottom: 0.4rem;
+  width: 2px;
+  background: var(--linha);
+}
+.marco { position: relative; }
+.marco::before {
+  content: "";
+  position: absolute;
+  left: -1.62rem;
+  top: 0.45rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  background: var(--papel);
+  border: 2.5px solid var(--tinta);
+}
+.marco.atual::before { background: var(--sol); border-color: var(--sol); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .planta-traco, .planta-cota, .foto-entrada, .texto-entrada {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    stroke-dashoffset: 0;
+  }
 }
