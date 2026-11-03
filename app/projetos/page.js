@@ -19,7 +19,6 @@ const projetos = [
     descricao:
       "Plataforma de logística reversa e descarte inteligente, feita em equipe nas disciplinas de Front-end, Programação Orientada a Objetos e Análise de Projetos.",
     tags: ["React", "Next.js", "Leaflet"],
-    site: "https://eco-ciclo-brown.vercel.app",
     github: "https://github.com/Arthurms-dev/eco-ciclo-pfe-poo-aps",
   },
 ];
