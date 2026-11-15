@@ -51,6 +51,8 @@ const projetos = [
     descricao:
       'API feita com Node.js, Express e PostgreSQL (NeonDB) como atividade da faculdade.',
     tags: ['Node.js', 'Express', 'PostgreSQL'],
+    site: 'https://curriculo-express-eta.vercel.app',
+    siteRotulo: 'Testar a API',
     github: 'https://github.com/Jonqry/curriculo-express',
   },
   {
@@ -80,7 +82,7 @@ function Projeto({ projeto }) {
       </ul>
       <div className="flex flex-wrap gap-5">
         {projeto.site && (
-          <a href={projeto.site} target="_blank" rel="noopener noreferrer" className="link-texto">Abrir o site</a>
+          <a href={projeto.site} target="_blank" rel="noopener noreferrer" className="link-texto">{projeto.siteRotulo ?? 'Abrir o site'}</a>
         )}
         <a href={projeto.github} target="_blank" rel="noopener noreferrer" className="link-texto">Ver o código</a>
         {projeto.estudoDeCaso && (
