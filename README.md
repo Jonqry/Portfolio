@@ -1,31 +1,33 @@
-# Portfólio – João Victor Varela
+# Portfólio de João Victor Varela
 
 Meu site pessoal: quem eu sou, o que eu construí e como falar comigo.
 
-🔗 **[joaovictorvarela.vercel.app](https://joaovictorvarela.vercel.app)**
+**[joaovictorvarela.vercel.app](https://joaovictorvarela.vercel.app)**
 
 ![Página inicial do portfólio](public/preview-portfolio.jpg)
 
 ## A ideia do visual
 
-Além de estudar Sistemas para Internet, eu trabalho como corretor de imóveis e lido todo dia com lançamentos vendidos ainda na planta. Por isso a home trata a minha foto como um cômodo de planta baixa: as paredes se desenham e as medidas aparecem quando a página abre.
+Além de estudar Sistemas para Internet, eu trabalho como corretor de imóveis e mostro plantas de lançamentos aos clientes todo dia. Por isso a home é a planta de um apartamento: cada cômodo leva a uma parte do site (Projetos, Sobre, Experiência, Currículo e Contato), e o cômodo fica amarelo ao passar o mouse, como o marca-texto que o corretor usa para destacar a unidade do cliente.
 
-A animação acontece uma vez só e é desligada para quem ativou a opção de reduzir movimento no sistema.
+As outras páginas seguem a mesma linguagem: paredes em grafite, linhas de cota separando as seções e a fonte Archivo, larga nos títulos e estreita nas legendas.
+
+As paredes se desenham uma vez quando a página abre. A animação é desligada para quem ativou a opção de reduzir movimento no sistema.
 
 ## Páginas
 
-- **Home:** apresentação e links de contato
-- **Sobre:** minha história, formação, as tecnologias que uso e contato
-- **Projetos:** Place Brokers, Simulador de Financiamento, CashFlow, Currículo Express e EcoCiclo
+- **Home:** a planta do site e um resumo do que estou fazendo agora
+- **Projetos:** Simulador de Financiamento e Place Brokers em destaque, mais CashFlow, Currículo Express e EcoCiclo
+- **Sobre:** minha história, formação, tecnologias e contato
 - **Experiência:** linha do tempo profissional
-
+- **Currículo:** PDF de uma página, para baixar
 
 ## Tecnologias
 
 - Next.js 16 (App Router)
 - React 19
 - Tailwind CSS 4
-- Fontes Bricolage Grotesque e IBM Plex Sans com `next/font`
+- Fonte Archivo, instalada com Fontsource (sem depender do Google Fonts no build)
 - Publicado na Vercel
 
 ## Como rodar
