@@ -65,72 +65,99 @@ const projetos = [
   },
 ];
 
-function Projeto({ projeto }) {
+function Links({ projeto }) {
   return (
-    <article className={projeto.destaque ? 'bloco md:col-span-2 border-l-4 border-l-[color:var(--sol)]' : 'bloco'}>
-      <p className="text-sm text-[color:var(--tinta-suave)] mb-1">{projeto.resumo}</p>
-      {projeto.destaque ? (
-        <h2 className="text-3xl font-bold mb-3">{projeto.nome}</h2>
-      ) : (
-        <h3 className="text-xl font-bold mb-3">{projeto.nome}</h3>
+    <div className="flex flex-wrap gap-5">
+      {projeto.site && (
+        <a href={projeto.site} target="_blank" rel="noopener noreferrer" className="link-texto">{projeto.siteRotulo ?? 'Abrir o site'}</a>
       )}
-      <p className="text-[color:var(--tinta-suave)] mb-4 max-w-3xl">{projeto.descricao}</p>
-      <ul className="flex flex-wrap gap-2 mb-5">
-        {projeto.tags.map((tag) => (
-          <li key={tag} className="etiqueta">{tag}</li>
-        ))}
-      </ul>
-      <div className="flex flex-wrap gap-5">
-        {projeto.site && (
-          <a href={projeto.site} target="_blank" rel="noopener noreferrer" className="link-texto">{projeto.siteRotulo ?? 'Abrir o site'}</a>
-        )}
-        <a href={projeto.github} target="_blank" rel="noopener noreferrer" className="link-texto">Ver o código</a>
-        {projeto.estudoDeCaso && (
-          <Link href={projeto.estudoDeCaso} className="link-texto">Ler o estudo de caso</Link>
+      <a href={projeto.github} target="_blank" rel="noopener noreferrer" className="link-texto">Ver o código</a>
+      {projeto.estudoDeCaso && (
+        <Link href={projeto.estudoDeCaso} className="link-texto">Ler o estudo de caso</Link>
+      )}
+    </div>
+  );
+}
+
+function Tags({ tags }) {
+  return (
+    <ul className="flex flex-wrap gap-2 mb-5">
+      {tags.map((tag) => (
+        <li key={tag} className="etiqueta">{tag}</li>
+      ))}
+    </ul>
+  );
+}
+
+// Projeto em destaque: imagem e texto lado a lado, como a ficha de um empreendimento
+function Destaque({ projeto, invertido }) {
+  return (
+    <article className="bloco grid md:grid-cols-2 gap-8 items-start">
+      <div className={invertido ? 'md:order-2' : undefined}>
+        <p className="estreito text-[color:var(--tinta-suave)] mb-1">{projeto.resumo}</p>
+        <h2 className="text-3xl font-extrabold mb-3">{projeto.nome}</h2>
+        <p className="text-[color:var(--tinta-suave)] mb-4">{projeto.descricao}</p>
+        <Tags tags={projeto.tags} />
+        <Links projeto={projeto} />
+        {projeto.avisoServidor && (
+          <p className="estreito text-sm text-[color:var(--tinta-suave)] mt-3">
+            O servidor gratuito pode levar até um minuto para acordar na primeira visita.
+          </p>
         )}
       </div>
-      {projeto.imagem && (
-        <a href={projeto.site} target="_blank" rel="noopener noreferrer" className="block mt-6 rounded-xl overflow-hidden border border-[color:var(--linha)]/60">
-          <Image
-            src={projeto.imagem}
-            alt={projeto.imagemAlt}
-            width={projeto.imagemLargura}
-            height={projeto.imagemAltura}
-            sizes="(max-width: 768px) 100vw, 900px"
-            className="w-full h-auto"
-          />
-        </a>
-      )}
-      {projeto.avisoServidor && (
-        <p className="text-sm text-[color:var(--tinta-suave)] mt-3">
-          O servidor gratuito pode levar até um minuto para acordar na primeira visita.
-        </p>
-      )}
+      <a href={projeto.site} target="_blank" rel="noopener noreferrer" className="imagem-projeto" tabIndex={-1} aria-hidden="true">
+        <Image
+          src={projeto.imagem}
+          alt=""
+          width={projeto.imagemLargura}
+          height={projeto.imagemAltura}
+          sizes="(max-width: 768px) 100vw, 500px"
+          className="w-full h-auto"
+        />
+      </a>
     </article>
+  );
+}
+
+function Outro({ projeto }) {
+  return (
+    <li className="grid md:grid-cols-[14rem_1fr] gap-x-8 gap-y-2 py-6 border-b border-[color:var(--linha)]">
+      <div>
+        <h3 className="text-xl font-bold">{projeto.nome}</h3>
+        <p className="estreito text-[color:var(--tinta-suave)]">{projeto.resumo}</p>
+      </div>
+      <div>
+        <p className="text-[color:var(--tinta-suave)] mb-3">{projeto.descricao}</p>
+        <Tags tags={projeto.tags} />
+        <Links projeto={projeto} />
+      </div>
+    </li>
   );
 }
 
 export default function Projetos() {
   return (
-    <div className="pagina space-y-8">
+    <div className="pagina space-y-10">
       <header>
         <h1 className="titulo-pagina">Projetos</h1>
         <p className="intro-pagina">O que eu construí na faculdade e por conta própria.</p>
       </header>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {projetos.filter((projeto) => projeto.destaque).map((projeto) => (
-          <Projeto key={projeto.nome} projeto={projeto} />
+      <div className="cota-linha" aria-hidden="true" />
+
+      <div className="space-y-14">
+        {projetos.filter((projeto) => projeto.destaque).map((projeto, i) => (
+          <Destaque key={projeto.nome} projeto={projeto} invertido={i % 2 === 1} />
         ))}
       </div>
 
-      <section>
-        <h2 className="text-2xl font-bold mb-4">Outros projetos</h2>
-        <div className="grid md:grid-cols-3 gap-6">
+      <section className="bloco">
+        <h2 className="text-2xl font-extrabold">Outros projetos</h2>
+        <ul>
           {projetos.filter((projeto) => !projeto.destaque).map((projeto) => (
-            <Projeto key={projeto.nome} projeto={projeto} />
+            <Outro key={projeto.nome} projeto={projeto} />
           ))}
-        </div>
+        </ul>
       </section>
 
       <p className="text-[color:var(--tinta-suave)]">

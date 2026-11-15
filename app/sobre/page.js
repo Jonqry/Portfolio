@@ -15,6 +15,7 @@ export default function Sobre() {
     <div className="pagina space-y-10">
       <header>
         <h1 className="titulo-pagina">Sobre mim</h1>
+        <div className="cota-linha" aria-hidden="true" />
       </header>
 
       <div className="grid md:grid-cols-[1.4fr_1fr] gap-8">
@@ -51,7 +52,7 @@ export default function Sobre() {
 
       <section id="formacao" className="scroll-mt-24 space-y-4">
         <h2 className="text-2xl font-bold">Formação</h2>
-        <div className="bloco border-l-4 border-l-[color:var(--sol)]">
+        <div className="bloco">
           <p className="text-sm text-[color:var(--tinta-suave)] mb-1">Março de 2025 a julho de 2027</p>
           <h3 className="text-xl font-bold mb-1">Tecnólogo em Sistemas para Internet</h3>
           <p className="text-[color:var(--tinta-suave)] mb-3">Universidade Católica de Pernambuco (Unicap), 4º período</p>

@@ -62,6 +62,7 @@ export default function PlaceBrokers() {
           Como construí a área do corretor da plataforma da imobiliária onde eu trabalho, no Projeto
           Integrador da Unicap.
         </p>
+        <div className="cota-linha" aria-hidden="true" />
       </header>
 
       <section className="bloco">
@@ -121,7 +122,7 @@ export default function PlaceBrokers() {
       </section>
 
       {resultado && (
-        <section className="bloco border-l-4 border-l-[color:var(--sol)]">
+        <section className="bloco">
           <h2 className="text-2xl font-bold mb-3">Resultado</h2>
           <p className="text-[color:var(--tinta-suave)] mb-4 max-w-3xl">{resultado.texto}</p>
           {resultado.itens && (
@@ -139,7 +140,7 @@ export default function PlaceBrokers() {
           href="https://placebrokers-frontend.vercel.app"
           target="_blank"
           rel="noopener noreferrer"
-          className="block rounded-xl overflow-hidden border border-[color:var(--linha)]/60"
+          className="imagem-projeto"
         >
           <Image
             src="/place-brokers-home.jpg"
@@ -154,7 +155,7 @@ export default function PlaceBrokers() {
           href="https://placebrokers-frontend.vercel.app"
           target="_blank"
           rel="noopener noreferrer"
-          className="block rounded-xl overflow-hidden border border-[color:var(--linha)]/60"
+          className="imagem-projeto"
         >
           <Image
             src="/place-brokers-empreendimentos.jpg"

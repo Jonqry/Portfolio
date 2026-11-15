@@ -36,6 +36,7 @@ export default function Profissional() {
         <p className="intro-pagina">
           Antes da primeira vaga em tecnologia, aprendi a atender gente e a entender o que o cliente precisa.
         </p>
+        <div className="cota-linha" aria-hidden="true" />
       </header>
 
       <ol className="linha-tempo space-y-10">

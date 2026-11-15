@@ -1,9 +1,7 @@
-import { Bricolage_Grotesque, IBM_Plex_Sans } from "next/font/google";
+import "@fontsource-variable/archivo/wdth.css";
 import "./globals.css";
 import Navbar from "./components/Navbar";
 
-const titulo = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-titulo" });
-const corpo = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-corpo" });
 
 const descricao =
   "Desenvolvedor em Recife, estudante de Sistemas para Internet na Unicap. Projetos em React, TypeScript, Node.js e C# com .NET.";
@@ -34,11 +32,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pt-BR" className={`${titulo.variable} ${corpo.variable}`}>
+    <html lang="pt-BR">
       <body className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-grow w-full px-5 sm:px-8 py-10 md:py-14">{children}</main>
-        <footer className="border-t border-[color:var(--linha)]/50 px-5 sm:px-8 py-8">
+        <footer className="border-t-2 border-[color:var(--tinta)] px-5 sm:px-8 py-8">
           <div className="max-w-6xl mx-auto flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between text-sm text-[color:var(--tinta-suave)]">
             <p>João Victor Varela, em Recife</p>
             <div className="flex gap-5">

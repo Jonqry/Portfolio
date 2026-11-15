@@ -1,13 +1,20 @@
 @import "tailwindcss";
 
+/*
+  Identidade: planta baixa de lançamento imobiliário.
+  Paredes em grafite, cotas em cinza, piso claro e o marca-texto amarelo
+  que o corretor usa para destacar a unidade do cliente.
+*/
 :root {
-  --papel: #f3f5f8;
-  --tinta: #102a43;
-  --tinta-suave: #486581;
-  --linha: #9fb3c8;
-  --sol: #f0a202;
-  --azul: #1f5fbf;
+  --papel: #f4f6f5;
+  --piso: #e4e9e6;
+  --tinta: #22292b;
+  --tinta-suave: #55636a;
+  --linha: #8d9a9e;
+  --sol: #f5d547;
+  --azul: #1e5a8c;
   --branco: #ffffff;
+  --fonte: "Archivo Variable", system-ui, sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -17,43 +24,56 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--papel);
   color: var(--tinta);
-  font-family: var(--font-corpo), system-ui, sans-serif;
+  font-family: var(--fonte);
+  font-size: 1.0625rem;
   line-height: 1.6;
 }
 
+/* Títulos largos, como o letreiro de um lançamento */
 h1, h2, h3, .marca {
-  font-family: var(--font-titulo), var(--font-corpo), sans-serif;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  font-family: var(--fonte);
+  font-stretch: 118%;
+  letter-spacing: -0.01em;
+  line-height: 1.08;
+}
+
+/* Texto estreito, como as legendas escritas dentro da planta */
+.estreito {
+  font-stretch: 75%;
+  letter-spacing: 0.01em;
 }
 
 a { color: inherit; }
 
 :focus-visible {
-  outline: 3px solid var(--sol);
+  outline: 3px solid var(--tinta);
   outline-offset: 3px;
-  border-radius: 4px;
+  box-shadow: 0 0 0 6px var(--sol);
 }
+
+::selection { background: var(--sol); color: var(--tinta); }
 
 /* ---------- navegação ---------- */
 .nav {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: color-mix(in srgb, var(--papel) 88%, transparent);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid color-mix(in srgb, var(--linha) 60%, transparent);
+  background: color-mix(in srgb, var(--papel) 92%, transparent);
+  backdrop-filter: blur(6px);
+  border-bottom: 2px solid var(--tinta);
 }
 .nav-link {
-  padding: 0.4rem 0.7rem;
-  border-radius: 6px;
-  font-size: 0.95rem;
+  padding: 0.35rem 0.6rem;
+  font-stretch: 85%;
+  font-weight: 500;
   color: var(--tinta-suave);
   text-decoration: none;
-  transition: color 0.2s, background 0.2s;
 }
-.nav-link:hover { color: var(--tinta); background: color-mix(in srgb, var(--linha) 25%, transparent); }
-.nav-link[aria-current="page"] { color: var(--tinta); box-shadow: inset 0 -2px 0 var(--sol); border-radius: 0; }
+.nav-link:hover { color: var(--tinta); }
+.nav-link[aria-current="page"] {
+  color: var(--tinta);
+  background: linear-gradient(transparent 55%, var(--sol) 55%, var(--sol) 90%, transparent 90%);
+}
 
 /* ---------- botões ---------- */
 .botao {
@@ -61,59 +81,101 @@ a { color: inherit; }
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.8rem 1.4rem;
-  border-radius: 10px;
+  padding: 0.75rem 1.3rem;
+  border-radius: 2px;
   font-weight: 600;
+  font-stretch: 90%;
   text-decoration: none;
-  transition: transform 0.15s, background 0.2s, border-color 0.2s;
+  border: 2px solid var(--tinta);
 }
 .botao:active { transform: translateY(1px); }
 .botao-principal { background: var(--tinta); color: var(--branco); }
-.botao-principal:hover { background: #1c3d5e; }
-.botao-linha { border: 1.5px solid var(--linha); color: var(--tinta); }
-.botao-linha:hover { border-color: var(--tinta); }
+.botao-principal:hover { background: var(--sol); color: var(--tinta); }
+.botao-linha { color: var(--tinta); background: transparent; }
+.botao-linha:hover { background: var(--branco); }
 
-/* ---------- herói com planta ---------- */
+/* ---------- planta da home ---------- */
 .grade-planta {
   background-image:
-    linear-gradient(color-mix(in srgb, var(--linha) 22%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--linha) 22%, transparent) 1px, transparent 1px);
-  background-size: 32px 32px;
+    linear-gradient(color-mix(in srgb, var(--linha) 18%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--linha) 18%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
+.planta { width: 100%; height: auto; display: block; overflow: visible; }
+.planta .parede { fill: none; stroke: var(--tinta); stroke-width: 7; stroke-linejoin: miter; }
+.planta .parede-fina { fill: none; stroke: var(--tinta); stroke-width: 3; }
+.planta .porta { fill: none; stroke: var(--tinta-suave); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.planta .janela { fill: var(--papel); stroke: var(--tinta); stroke-width: 1.5; }
+.planta .cota { stroke: var(--linha); stroke-width: 1.2; fill: none; }
+.planta .cota-texto { fill: var(--tinta-suave); font-size: 13px; font-stretch: 75%; }
+.planta .comodo-fundo { fill: var(--piso); transition: fill 0.2s; }
+.planta .comodo-nome { fill: var(--tinta); font-size: 20px; font-weight: 700; font-stretch: 110%; }
+.planta .comodo-info { fill: var(--tinta-suave); font-size: 15px; font-stretch: 75%; }
+.planta a { cursor: pointer; outline: none; }
+.planta a:hover .comodo-fundo,
+.planta a:focus-visible .comodo-fundo { fill: var(--sol); }
+.planta a:focus-visible .comodo-nome { text-decoration: underline; }
+@media (max-width: 640px) {
+  .planta .comodo-nome { font-size: 25px; font-stretch: 95%; }
+  .planta .comodo-info { font-size: 21px; }
+  .planta .cota-texto { font-size: 18px; }
+}
+.planta .foto-moldura { fill: none; stroke: var(--tinta); stroke-width: 2; }
+
 .planta-traco {
-  stroke-dasharray: 1200;
-  stroke-dashoffset: 1200;
-  animation: desenhar 1.6s ease-out forwards;
+  stroke-dasharray: 2400;
+  stroke-dashoffset: 2400;
+  animation: desenhar 1.8s ease-out forwards;
 }
-.planta-traco.atraso { animation-delay: 0.5s; }
-.planta-cota { opacity: 0; animation: surgir 0.6s ease-out 1.4s forwards; }
-.foto-entrada { opacity: 0; animation: surgir 0.9s ease-out 0.6s forwards; }
-.texto-entrada { opacity: 0; transform: translateY(10px); animation: subir 0.8s ease-out 0.2s forwards; }
+.planta-surge { opacity: 0; animation: surgir 0.6s ease-out 1.2s forwards; }
 
 @keyframes desenhar { to { stroke-dashoffset: 0; } }
 @keyframes surgir { to { opacity: 1; } }
-@keyframes subir { to { opacity: 1; transform: none; } }
+
+/* legenda abaixo da planta */
+.legenda dt { font-weight: 700; font-stretch: 110%; }
+.legenda dd { color: var(--tinta-suave); margin: 0.25rem 0 0; }
 
 /* ---------- páginas internas ---------- */
 .pagina { max-width: 64rem; margin: 0 auto; }
 .titulo-pagina {
-  font-size: clamp(2.2rem, 5vw, 3.2rem);
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+  font-size: clamp(2.4rem, 6vw, 3.6rem);
+  font-weight: 800;
+  margin-bottom: 0.6rem;
 }
 .intro-pagina { color: var(--tinta-suave); max-width: 40rem; font-size: 1.1rem; }
+
+/* linha de cota: a régua usada em todas as páginas */
+.cota-linha {
+  position: relative;
+  height: 14px;
+  margin-top: 1.25rem;
+  border-bottom: 1.2px solid var(--linha);
+}
+.cota-linha::before,
+.cota-linha::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  width: 1.2px;
+  height: 12px;
+  background: var(--linha);
+}
+.cota-linha::before { left: 0; }
+.cota-linha::after { right: 0; }
+
+/* seção de prancha: título com parede em cima, sem caixa */
 .bloco {
-  background: var(--branco);
-  border: 1px solid color-mix(in srgb, var(--linha) 55%, transparent);
-  border-radius: 14px;
-  padding: 1.75rem;
+  border-top: 3px solid var(--tinta);
+  padding-top: 1.25rem;
 }
 .etiqueta {
   display: inline-block;
-  font-size: 0.85rem;
-  padding: 0.2rem 0.65rem;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--linha) 22%, transparent);
+  font-size: 0.9rem;
+  font-stretch: 80%;
+  padding: 0.15rem 0.55rem;
+  border: 1.2px solid var(--linha);
+  background: var(--branco);
   color: var(--tinta);
 }
 .link-texto {
@@ -123,7 +185,13 @@ a { color: inherit; }
   text-decoration-thickness: 1.5px;
   text-underline-offset: 4px;
 }
-.link-texto:hover { color: var(--tinta); }
+.link-texto:hover { color: var(--tinta); background: var(--sol); }
+
+.imagem-projeto {
+  display: block;
+  border: 2px solid var(--tinta);
+  background: var(--branco);
+}
 
 /* linha do tempo */
 .linha-tempo { position: relative; padding-left: 1.75rem; }
@@ -133,29 +201,27 @@ a { color: inherit; }
   left: 0.4rem;
   top: 0.4rem;
   bottom: 0.4rem;
-  width: 2px;
-  background: var(--linha);
+  width: 3px;
+  background: var(--tinta);
 }
 .marco { position: relative; }
 .marco::before {
   content: "";
   position: absolute;
-  left: -1.62rem;
-  top: 0.45rem;
-  width: 0.85rem;
-  height: 0.85rem;
-  border-radius: 50%;
+  left: -1.66rem;
+  top: 0.4rem;
+  width: 0.95rem;
+  height: 0.95rem;
   background: var(--papel);
-  border: 2.5px solid var(--tinta);
+  border: 3px solid var(--tinta);
 }
-.marco.atual::before { background: var(--sol); border-color: var(--sol); }
+.marco.atual::before { background: var(--sol); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .planta-traco, .planta-cota, .foto-entrada, .texto-entrada {
+  .planta-traco, .planta-surge {
     animation: none;
     opacity: 1;
-    transform: none;
     stroke-dashoffset: 0;
   }
 }
