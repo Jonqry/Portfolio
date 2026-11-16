@@ -15,6 +15,7 @@ const projetos = [
     tags: ['React', 'TypeScript', 'Vite', 'Tailwind', 'Recharts', 'Vitest', 'Playwright'],
     site: 'https://simulador-financiamento-blush.vercel.app',
     github: 'https://github.com/Jonqry/simulador-financiamento',
+    marca: 'mais de 250 testes automatizados',
     destaque: true,
     imagem: '/simulador-financiamento.jpg',
     imagemAlt: 'Tela do simulador comparando SAC e PRICE, com tabela e gráficos',
@@ -79,9 +80,23 @@ function Links({ projeto }) {
   );
 }
 
+// Passa o marca-texto no trecho indicado em projeto.marca, se houver.
+function Descricao({ projeto }) {
+  const { descricao, marca } = projeto;
+  if (!marca || !descricao.includes(marca)) return descricao;
+  const [antes, depois] = descricao.split(marca);
+  return (
+    <>
+      {antes}
+      <span className="marca-texto">{marca}</span>
+      {depois}
+    </>
+  );
+}
+
 function Tags({ tags }) {
   return (
-    <ul className="flex flex-wrap gap-2 mb-5">
+    <ul className="flex flex-wrap gap-x-2 gap-y-1 mb-5">
       {tags.map((tag) => (
         <li key={tag} className="etiqueta">{tag}</li>
       ))}
@@ -96,7 +111,7 @@ function Destaque({ projeto, invertido }) {
       <div className={invertido ? 'md:order-2' : undefined}>
         <p className="estreito text-[color:var(--tinta-suave)] mb-1">{projeto.resumo}</p>
         <h2 className="text-3xl font-extrabold mb-3">{projeto.nome}</h2>
-        <p className="text-[color:var(--tinta-suave)] mb-4">{projeto.descricao}</p>
+        <p className="text-[color:var(--tinta-suave)] mb-4"><Descricao projeto={projeto} /></p>
         <Tags tags={projeto.tags} />
         <Links projeto={projeto} />
         {projeto.avisoServidor && (

@@ -12,7 +12,7 @@ Além de estudar Sistemas para Internet, eu trabalho como corretor de imóveis e
 
 As outras páginas seguem a mesma linguagem: paredes em grafite, linhas de cota separando as seções e a fonte Archivo, larga nos títulos e estreita nas legendas.
 
-As paredes se desenham uma vez quando a página abre. A animação é desligada para quem ativou a opção de reduzir movimento no sistema.
+As paredes se desenham uma vez quando a página abre, e a porta de cada cômodo abre quando ele recebe o mouse ou o foco do teclado. Nas outras páginas, a linha de cota se mede ao abrir e o marca-texto passa nos números mais importantes. Tudo em CSS, sem biblioteca de animação, e desligado para quem ativou a opção de reduzir movimento no sistema.
 
 ## Páginas
 
@@ -20,7 +20,7 @@ As paredes se desenham uma vez quando a página abre. A animação é desligada 
 - **Projetos:** Simulador de Financiamento e Place Brokers em destaque, mais CashFlow, Currículo Express e EcoCiclo
 - **Sobre:** minha história, formação, tecnologias e contato
 - **Experiência:** linha do tempo profissional
-- **Currículo:** PDF de uma página, para baixar
+- **Currículo:** PDF de uma página, para baixar. A fonte está em `curriculo/curriculo.html`; para gerar o PDF de novo, abra o arquivo no Chrome e use Imprimir > Salvar como PDF (sem cabeçalho e rodapé)
 
 ## Tecnologias
 

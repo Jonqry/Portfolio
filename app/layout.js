@@ -34,8 +34,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pt-BR">
       <body className="min-h-screen flex flex-col">
+        <a href="#conteudo" className="pular">Pular para o conteúdo</a>
         <Navbar />
-        <main className="flex-grow w-full px-5 sm:px-8 py-10 md:py-14">{children}</main>
+        <main id="conteudo" className="flex-grow w-full px-5 sm:px-8 py-10 md:py-14">{children}</main>
         <footer className="border-t-2 border-[color:var(--tinta)] px-5 sm:px-8 py-8">
           <div className="max-w-6xl mx-auto flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between text-sm text-[color:var(--tinta-suave)]">
             <p>João Victor Varela, em Recife</p>

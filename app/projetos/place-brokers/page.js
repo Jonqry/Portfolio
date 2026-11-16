@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Place Brokers: estudo de caso | João Victor Varela',
+  title: 'Place Brokers: estudo de caso',
   description:
     'Como construí a área do corretor da plataforma de uma imobiliária real de Recife, no Projeto Integrador da Unicap.',
 };
@@ -114,7 +114,7 @@ export default function PlaceBrokers() {
           Os dados ficam no PostgreSQL do Supabase, com as mudanças de tabela versionadas em migrations.
           A equipe trabalha em um repositório compartilhado, com divisão clara de telas entre os integrantes.
         </p>
-        <ul className="flex flex-wrap gap-2">
+        <ul className="flex flex-wrap gap-x-2 gap-y-1">
           {tecnologias.map((tec) => (
             <li key={tec} className="etiqueta">{tec}</li>
           ))}

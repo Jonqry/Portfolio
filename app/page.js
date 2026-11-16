@@ -6,6 +6,7 @@ const comodos = [
   {
     href: '/projetos',
     nome: 'Projetos',
+    id: 'projetos',
     rotulo: 'Ver os 5 projetos',
     x: 40, y: 40, w: 320, h: 240,
     info: ['Simulador de Financiamento', 'Place Brokers', 'CashFlow e mais 2'],
@@ -13,6 +14,7 @@ const comodos = [
   {
     href: '/sobre',
     nome: 'Sobre',
+    id: 'sobre',
     rotulo: 'Sobre mim',
     x: 360, y: 40, w: 240, h: 240,
     info: [],
@@ -21,6 +23,7 @@ const comodos = [
   {
     href: '/profissional',
     nome: 'Experiência',
+    id: 'experiencia',
     rotulo: 'Ver a experiência profissional',
     x: 40, y: 280, w: 260, h: 180,
     info: ['Corretor desde out/2025', 'Jovem aprendiz em 2025'],
@@ -28,6 +31,7 @@ const comodos = [
   {
     href: '/curriculo-joao-victor-varela.pdf',
     nome: 'Currículo',
+    id: 'curriculo',
     rotulo: 'Abrir o currículo em PDF',
     x: 300, y: 280, w: 150, h: 180,
     info: ['PDF, 1 página'],
@@ -36,6 +40,7 @@ const comodos = [
   {
     href: 'mailto:joaovictorvarela321@gmail.com',
     nome: 'Contato',
+    id: 'contato',
     rotulo: 'Enviar e-mail',
     x: 450, y: 280, w: 150, h: 180,
     info: ['E-mail'],
@@ -61,6 +66,7 @@ function Planta() {
           key={c.nome}
           href={c.href}
           aria-label={c.rotulo}
+          data-comodo={c.id}
           {...(c.externo ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         >
           <rect className="comodo-fundo" x={c.x + 3.5} y={c.y + 3.5} width={c.w - 7} height={c.h - 7} />
@@ -107,12 +113,16 @@ function Planta() {
       />
 
       <g className="planta-surge" aria-hidden="true">
-        {/* portas: folha e arco de abertura */}
+        {/* portas: arco de abertura e folha. A folha gira na dobradiça (--dobradica) quando o
+            cômodo dela recebe o mouse ou o foco; --fechada é o ângulo da porta fechada. */}
         <path className="porta" d="M360 200 A50 50 0 0 0 310 250" />
-        <path className="porta" d="M250 280 A50 50 0 0 0 300 330" />
+        <path className="porta" d="M300 280 A50 50 0 0 1 250 330" />
         <path className="porta" d="M450 380 A50 50 0 0 1 500 430" />
         <path className="porta" d="M500 460 A60 60 0 0 1 560 400" />
-        <path className="parede-fina" d="M560 460 V400" />
+        <path className="folha folha-a" d="M360 250 H310" style={{ '--dobradica': '360px 250px', '--fechada': '90deg' }} />
+        <path className="folha folha-b" d="M250 280 V330" style={{ '--dobradica': '250px 280px', '--fechada': '-90deg' }} />
+        <path className="folha folha-c" d="M450 430 H500" style={{ '--dobradica': '450px 430px', '--fechada': '-90deg' }} />
+        <path className="folha folha-d" d="M560 460 V400" style={{ '--dobradica': '560px 460px', '--fechada': '-90deg' }} />
 
         {/* janelas */}
         <rect className="janela" x="120" y="36" width="140" height="8" />
@@ -143,7 +153,8 @@ export default function Home() {
             Desenvolvo com React, TypeScript e C# com .NET, e estudo Sistemas para Internet na Unicap.
           </p>
           <p className="text-lg sm:text-xl text-[color:var(--tinta-suave)] max-w-xl mb-8">
-            De dia sou corretor de imóveis na Place Brokers. Por isso a minha casa aqui é uma planta: é
+            De dia sou corretor de imóveis na Place Brokers. Por isso a minha casa aqui é{' '}
+            <span className="marca-texto ao-abrir">uma planta</span>: é
             o que eu mostro aos clientes todo dia. Hoje estou construindo, em equipe, o sistema da própria
             imobiliária, e fiquei com a área que eu mesmo uso, a do corretor.
           </p>

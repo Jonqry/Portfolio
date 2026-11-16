@@ -5,9 +5,15 @@ export const metadata = {
   description: 'Quem é João Victor Varela: formação na Unicap, tecnologias que usa e o que está buscando.',
 };
 
+// Mesmo formato do quadro de áreas de uma planta: uma linha por área.
 const tecnologias = [
-  'React', 'TypeScript', 'JavaScript', 'Tailwind CSS', 'Next.js',
-  'React Native e Expo', 'Node.js', 'C# e .NET', 'PostgreSQL e Supabase', 'Git',
+  { area: 'Front-end', itens: 'React, TypeScript, JavaScript, Tailwind CSS e Next.js' },
+  { area: 'Back-end', itens: 'C# com .NET, Node.js e Express' },
+  { area: 'Dados', itens: 'PostgreSQL, Supabase e SQLite' },
+  { area: 'Mobile', itens: 'React Native e Expo' },
+  { area: 'Testes', itens: 'Vitest, Playwright e xUnit' },
+  { area: 'Segurança', itens: 'JWT, validação de entrada e OWASP API Security Top 10' },
+  { area: 'Ferramentas', itens: 'Git e GitHub' },
 ];
 
 export default function Sobre() {
@@ -32,7 +38,8 @@ export default function Sobre() {
           </p>
           <p>
             Comecei pelo front-end e estou indo para o back-end e o full-stack: já fiz APIs em Node.js e
-            em C# com .NET. A área que mais me interessa é segurança de aplicações.
+            em C# com .NET. A área que mais me interessa é segurança de aplicações: no CashFlow, protegi a
+            API seguindo o OWASP API Security Top 10 e cobri os controles principais com testes de integração.
           </p>
           <p>
             Busco estágio ou vaga júnior em desenvolvimento, em Recife. Posso começar logo e estagiar
@@ -42,11 +49,14 @@ export default function Sobre() {
 
         <aside className="bloco h-fit">
           <h2 className="text-xl font-semibold mb-4">Tecnologias que uso</h2>
-          <ul className="flex flex-wrap gap-2">
+          <dl className="quadro">
             {tecnologias.map((tec) => (
-              <li key={tec} className="etiqueta">{tec}</li>
+              <div key={tec.area}>
+                <dt>{tec.area}</dt>
+                <dd>{tec.itens}</dd>
+              </div>
             ))}
-          </ul>
+          </dl>
         </aside>
       </div>
 
