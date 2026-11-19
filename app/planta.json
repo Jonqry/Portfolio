@@ -1,6 +1,6 @@
 {
   "unidade": "cm, eixo das paredes; y cresce para baixo, como no SVG",
-  "alturas": { "peDireito": 260, "verga": 210, "peitoril": 100, "guardaCorpo": 110 },
+  "alturas": { "peDireito": 260, "verga": 210, "peitoril": 100, "guardaCorpo": 110, "baseGuardaCorpo": 10, "meiaParede": 110 },
   "espessuraParede": 14,
   "comodos": [
     { "id": "simulador", "nome": "Simulador", "tipo": "quarto 1", "x": 0, "y": 0, "largura": 300, "profundidade": 300, "piso": "taco" },
@@ -11,7 +11,8 @@
     { "id": "experiencia", "nome": "Experiência e currículo", "tipo": "mesa de jantar", "x": 210, "y": 300, "largura": 210, "profundidade": 300, "piso": "porcelanato" },
     { "id": "cashflow", "nome": "CashFlow", "tipo": "cozinha", "x": 420, "y": 300, "largura": 300, "profundidade": 150, "piso": "ceramica" },
     { "id": "mais-projetos", "nome": "Mais projetos", "tipo": "área de serviço", "x": 420, "y": 450, "largura": 300, "profundidade": 150, "piso": "ceramica" },
-    { "id": "contato", "nome": "Contato", "tipo": "varanda", "x": 0, "y": 600, "largura": 300, "profundidade": 140, "piso": "varanda" }
+    { "id": "contato", "nome": "Contato", "tipo": "varanda", "x": 0, "y": 600, "largura": 300, "profundidade": 140, "piso": "varanda" },
+    { "id": "corredor", "nome": "", "tipo": "corredor do prédio", "x": -160, "y": 380, "largura": 160, "profundidade": 240, "piso": "laje" }
   ],
   "paredes": [
     [[0, 450], [0, 0], [720, 0], [720, 600], [270, 600]],
@@ -27,6 +28,9 @@
     [[420, 450], [540, 450]],
     [[620, 450], [720, 450]],
     [[420, 450], [420, 600]]
+  ],
+  "meiasParedes": [
+    [[420, 380], [420, 450]]
   ],
   "guardaCorpo": [
     [[0, 600], [0, 740], [300, 740], [300, 600]]

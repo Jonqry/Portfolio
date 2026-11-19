@@ -15,7 +15,7 @@ O problema de muito portfólio hoje é ser bonito no post do LinkedIn e ninguém
 
 ## 2. Suposições
 
-- No fim da rolagem, o fundo vira o **estande escuro**, como no protótipo. Se você preferir ficar no gramado até o fim, muda só a seção 4 (a cor `Estande` sai).
+- O fundo é o **estande escuro** do começo ao fim. A casa é um apartamento, então não tem terreno: a unidade aparece como a maquete de planta do estande, e o prédio inteiro aparece na abertura da rolagem.
 - O seu nome continua na home. O portfólio é a sua casa.
 - Nos sites dos projetos, a sua autoria aparece só no carimbo do rodapé (seção 9).
 
@@ -25,30 +25,46 @@ A planta fica fixa na tela (`position: sticky`) numa seção de cerca de 250vh. 
 
 | Etapa | Rolagem | O que se vê |
 |---|---|---|
-| 0. Chegada | 0% | Nome, uma frase e o botão "Testar o simulador". A planta humanizada vista de cima, com os nomes no piso e as paredes como traço de grafite. Tudo isso aparece sem rolar. |
-| 1. Planta | 0–25% | A câmera desce um pouco. O cômodo sob o mouse ou o foco acende como o marca-texto do corretor. |
+| 0. Chegada | 0% | Nome, uma frase, o botão "Testar o simulador" e os cômodos como links. Atrás, a maquete do prédio com a sua unidade marcada em marca-texto. Tudo isso aparece sem rolar. Até o prédio ficar pronto (passo 9 do plano), a chegada mostra direto a planta da unidade. |
+| 1. Planta | 0–25% | A câmera desce até a unidade marcada, o prédio sai de cena e fica a planta humanizada vista de cima, com os nomes no piso e as paredes como traço de grafite. O cômodo sob o mouse ou o foco acende em marca-texto. |
 | 2. As paredes sobem | 25–60% | As paredes externas sobem primeiro e as internas depois, passando do grafite ao branco de maquete. Os móveis vêm por último. |
-| 3. Maquete | 60–100% | A câmera inclina para uns 35° e gira devagar. O terreno se revela uma placa de maquete com borda de MDF, e o fundo escurece até o estande. A luz é o spot quente do estande. |
+| 3. Maquete | 60–100% | A câmera inclina para uns 35° e gira devagar. A planta se revela a maquete da unidade: laje recortada, trecho do corredor do prédio e base de MDF, sob o spot quente do estande. |
 | 4. Saída | depois | O "Agora / Formação / Procurando" atual, e a demo do Simulador se ela não estiver acima. |
 
 **Entrar num cômodo, em qualquer etapa:** a porta abre, a câmera mergulha no cômodo em cerca de 900 ms e a navegação acontece com View Transition. O piso do cômodo vira o fundo da página nova, e as paredes do cômodo viram a moldura da página. Voltar faz o caminho inverso.
+
+### A planta
+
+A casa é um apartamento de 2 quartos com varanda, sem suíte: 43,2 m² mais 4,2 m² de varanda, o tipo de imóvel do MCMV. As medidas estão em `app/planta.json`. Uma meia parede de 1,10 m separa a cozinha do jantar, a varanda tem guarda-corpo de vidro e um trecho do corredor do prédio fica na porta de entrada. No piso, o nome da seção vem grande e o tipo do cômodo vem pequeno embaixo, para quem não conhece a metáfora entender igual.
+
+| Cômodo | Seção |
+|---|---|
+| Quarto 1 | Simulador |
+| Quarto 2 | Place Brokers |
+| Cozinha | CashFlow (as contas da casa) |
+| Área de serviço | Mais projetos (Currículo Express e EcoCiclo) |
+| Sala de estar | Sobre |
+| Mesa de jantar | Experiência e currículo |
+| Varanda | Contato |
+| Banheiro e circulação | Nenhuma: só dão realismo à planta |
 
 ## 4. Tokens
 
 ### Cor
 
-**Cor dominante:** o verde do gramado no começo e o azul-ardósia do estande no fim. A transição entre os dois é o arco da rolagem.
+**Cor dominante:** o azul-ardósia do estande, do começo ao fim. O calor vem dos materiais da maquete (MDF, taco e a luz do spot), e o marca-texto aparece só para marcar a sua unidade e o cômodo em foco.
 
 | Nome | Hex | Uso |
 |---|---|---|
-| Gramado | `#3F6B40` | Terreno, fundo da etapa 0 e cabeçalho (texto branco: 6,2:1) |
-| Copa | `#2B4D2E` | Árvores e sombras no gramado |
-| Estande | `#26313A` | Fundo da etapa 3 e das transições |
+| Estande | `#26313A` | Fundo da home e das transições (texto Maquete por cima: 11,8:1) |
+| Marca-texto | `#F5D547` | A sua unidade no prédio e o cômodo em foco (texto Tinta por cima: 10,3:1) |
 | Maquete | `#F3F2EE` | Paredes, móveis e fundo das páginas internas (texto Tinta: 13:1 ou mais) |
 | Porcelanato | `#D8D6CF` | Piso dos cômodos neutros |
-| Taco | `#B98A57` | Piso do cômodo Sobre e detalhes em madeira (nunca fundo de texto) |
+| Taco | `#B98A57` | Piso dos quartos e detalhes em madeira (nunca fundo de texto) |
+| Cerâmica | `#E4E2DC` | Piso da cozinha, do banheiro e da área de serviço |
+| Laje | `#BDBAB2` | Corte da laje e o corredor do prédio |
 | MDF | `#B0916A` | Borda da placa da maquete (só texto grande por cima: 4,5:1) |
-| Spot | `#FFE9B8` | A luz do estande, o realce de cômodo e o anel de foco |
+| Spot | `#FFE9B8` | A luz do estande e o anel de foco |
 | Tinta | `#1E2A22` | Texto |
 | Grafite | `#23292B` | Paredes na etapa de planta e as cotas |
 
@@ -72,7 +88,7 @@ O 3D anterior ficou simples porque eram caixas com luz calculada em tempo real. 
 
 1. **`planta.json` é a fonte única.** Cômodos, paredes, portas e janelas em metros. O SVG da planta e o modelo 3D saem do mesmo arquivo, então nunca ficam diferentes.
 2. **`blender/maquete.py`** lê o JSON e monta a base no Blender. As paredes saem com chanfro e vãos de porta, as folhas de porta ficam como objetos separados com a dobradiça no lugar certo, e o script cria também a placa com borda de MDF, o piso por cômodo e as coleções organizadas.
-3. **Sua etapa de arte, no Blender:** móveis, árvores, materiais (isopor fosco, MDF com veio, acrílico nas janelas) e a luz do spot. É aqui que o resultado sai do "programador fez 3D".
+3. **Sua etapa de arte, no Blender:** móveis, materiais (isopor fosco, MDF com veio, acrílico nas janelas) e a luz do spot. É aqui que o resultado sai do "programador fez 3D".
 4. **Bake:** lightmap por coleção (paredes e móveis numa, pisos noutra, placa noutra), em Cycles. O piso de cada projeto fica numa textura separada, para trocar sem refazer o bake.
 5. **Exportação:** glTF binário (`.glb`) com compressão de geometria (Draco ou meshopt) e texturas KTX2 ou WebP.
 6. **Render parado:** uma imagem da etapa 3 em alta, que serve como pôster, fallback e imagem de compartilhamento.
@@ -140,7 +156,7 @@ O primeiro projeto a ganhar identidade própria é o **Simulador**, porque ele a
 
 ## 10. Plano
 
-1. `planta.json` + SVG da home lendo dele → verificar: a planta atual continua idêntica.
+1. `planta.json` + SVG da home lendo dele → verificar: a planta atual continua idêntica. Feito; o apartamento novo está em `planta.json`, e a home atual lê `planta-antiga.json` até o redesenho, quando esse arquivo é apagado.
 2. `blender/maquete.py` → verificar: rodando no seu Blender, a base sai com paredes, vãos, portas e placa nas medidas do JSON.
 3. Sua etapa de arte e bake no Blender → verificar: render parado aprovado por você e `.glb` dentro do orçamento da seção 5.
 4. Cena 3D na home com a rolagem → verificar: funciona com teclado, sem WebGL e com movimento reduzido; LCP dentro da meta.
@@ -148,3 +164,4 @@ O primeiro projeto a ganhar identidade própria é o **Simulador**, porque ele a
 6. Demo do Simulador na home → verificar: os testes da função copiada passam e os valores batem com o Simulador completo.
 7. Identidade própria do Simulador + carimbo → verificar: nada do portfólio aparece no Simulador além do carimbo.
 8. Tokens e páginas internas como cômodos → verificar: contraste e navegação por teclado em todas as páginas.
+9. Abertura com o prédio: script que gera os andares a partir da mesma planta, com a unidade marcada em marca-texto → verificar: o prédio pesa pouco (só volumes), a câmera desce até a unidade certa e os cômodos continuam clicáveis desde a chegada.

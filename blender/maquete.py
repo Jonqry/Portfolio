@@ -18,23 +18,25 @@ import math
 import os
 
 COLECAO = "Maquete (gerada)"
-MARGEM_PLACA = 300      # cm de terreno em volta da casa
+MARGEM_PLACA = 60       # cm de MDF em volta do apartamento
 ESPESSURA_PLACA = 30    # cm de MDF
+ESPESSURA_LAJE = 12     # cm do corte da laje
 ESPESSURA_FOLHA = 4     # cm
 FOLGA_PORTA = 1         # cm entre a folha e o batente
 ESPESSURA_VIDRO = 2     # cm
-ALTURA_PISO = 0.2       # cm acima do gramado, para não brigar com ele
+ALTURA_PISO = 0.2       # cm acima da laje, para não brigar com ela
 
 CORES = {
     "Parede": "#F3F2EE",
     "Porta": "#F3F2EE",
     "Acrilico": "#CFE3E6",
-    "Gramado": "#3F6B40",
+    "Laje": "#BDBAB2",
     "MDF": "#B0916A",
     "porcelanato": "#D8D6CF",
     "taco": "#B98A57",
     "ceramica": "#E4E2DC",
     "varanda": "#C7C4BA",
+    "laje": "#BDBAB2",
 }
 
 
@@ -67,12 +69,13 @@ def _retangulo_linha(a, b, t, esticar_a=0, esticar_b=0):
 
 
 def blocos_paredes(planta):
-    """Blocos (x0, x1, y0, y1, z0, z1) que somados formam as paredes, o guarda-corpo e as vergas
-    de portas e vãos, e os vãos de janela que devem ser retirados deles."""
+    """Blocos (x0, x1, y0, y1, z0, z1) que somados formam as paredes, a meia parede da cozinha, a base
+    do guarda-corpo e as vergas de portas e vãos, e os vãos de janela que devem ser retirados deles."""
     t = planta["espessuraParede"]
     alt = planta["alturas"]
     trechos = [(s, alt["peDireito"]) for s in segmentos(planta["paredes"])]
-    trechos += [(s, alt["guardaCorpo"]) for s in segmentos(planta.get("guardaCorpo", []))]
+    trechos += [(s, alt["meiaParede"]) for s in segmentos(planta.get("meiasParedes", []))]
+    trechos += [(s, alt["baseGuardaCorpo"]) for s in segmentos(planta.get("guardaCorpo", []))]
     blocos = []
     for i, ((a, b), altura) in enumerate(trechos):
         outros = [s for j, (s, _) in enumerate(trechos) if j != i]
@@ -120,9 +123,12 @@ def _menos(intervalos, retirar):
 
 
 def malha_paredes(planta):
-    """Uma malha fechada só, sem faces internas, para o chanfro e o bake saírem limpos.
+    return malha_de_blocos(*blocos_paredes(planta))
+
+
+def malha_de_blocos(blocos, vaos):
+    """Junta os blocos numa malha fechada só, sem faces internas, para o chanfro e o bake saírem limpos.
     Devolve vértices (cm, coordenadas da planta) e faces com a normal para fora."""
-    blocos, vaos = blocos_paredes(planta)
     xs = sorted({v for r in blocos + vaos for v in r[0:2]})
     ys = sorted({v for r in blocos + vaos for v in r[2:4]})
 
@@ -180,6 +186,12 @@ def _entre(p, a, b):
         return False
     e = eixos[0]
     return all(p[d] == a[d] for d in range(3) if d != e) and min(a[e], b[e]) < p[e] < max(a[e], b[e])
+
+
+def malha_laje(planta):
+    blocos = [(c["x"], c["x"] + c["largura"], c["y"], c["y"] + c["profundidade"], -ESPESSURA_LAJE, 0)
+              for c in planta["comodos"]]
+    return malha_de_blocos(blocos, [])
 
 
 def centro(planta):
@@ -310,7 +322,7 @@ def construir():
     with open(caminho_planta(), encoding="utf-8") as f:
         planta = json.load(f)
     col = _colecao_limpa(bpy)
-    mat = {nome: _material(bpy, nome, CORES[nome]) for nome in ("Parede", "Porta", "Gramado", "MDF")}
+    mat = {nome: _material(bpy, nome, CORES[nome]) for nome in ("Parede", "Porta", "Laje", "MDF")}
     mat["Acrilico"] = _material(bpy, "Acrilico", CORES["Acrilico"], rugosidade=0.05, transmissao=0.9)
     cx, cy, (bx0, bx1, by0, by1) = centro(planta)
     alt = planta["alturas"]
@@ -328,11 +340,20 @@ def construir():
     chanfro.segments = 2
     chanfro.limit_method = "ANGLE"
 
-    # Placa da maquete: topo de gramado, laterais de MDF
+    # Laje recortada sob os cômodos e o corredor, como na maquete da unidade do estande
+    vs, fs = para_blender(planta, *malha_laje(planta))
+    laje = _objeto(bpy, col, "Laje", vs, fs, [mat["Laje"]])
+    bm = bmesh.new()
+    bm.from_mesh(laje.data)
+    bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(1), verts=bm.verts[:], edges=bm.edges[:])
+    bm.to_mesh(laje.data)
+    bm.free()
+
+    # Base de MDF da maquete, logo abaixo da laje
     m = MARGEM_PLACA
     vs, fs = caixa((bx0 - m - cx) / 100, (bx1 + m - cx) / 100, -(by1 + m - cy) / 100, -(by0 - m - cy) / 100,
-                   -ESPESSURA_PLACA / 100, 0.0)
-    _objeto(bpy, col, "Placa", vs, fs, [mat["MDF"], mat["Gramado"]], indices=[0, 1, 0, 0, 0, 0])
+                   -(ESPESSURA_LAJE + ESPESSURA_PLACA) / 100, -ESPESSURA_LAJE / 100)
+    _objeto(bpy, col, "Base", vs, fs, [mat["MDF"]])
 
     # Pisos: um objeto e um material por cômodo, para trocar a textura de cada projeto sem refazer o bake.
     # Vão até o eixo das paredes, para não sobrar fresta entre cômodos abertos (sala, jantar, cozinha).
@@ -354,13 +375,14 @@ def construir():
         ob.rotation_euler[2] = d["rotacao"]
         ob["fechada_graus"] = d["fechada_graus"]
 
-    # Janelas e portas de vidro: placa de acrílico no meio da parede, entre o peitoril e a verga
-    vidros = [(j["de"], j["ate"], j.get("peitoril", alt["peitoril"])) for j in planta["janelas"]]
-    vidros += [(v["de"], v["ate"], 0) for v in planta.get("vaos", []) if v["vidro"]]
-    for i, (a, b, peitoril) in enumerate(vidros, start=1):
+    # Janelas, portas de vidro e guarda-corpo: placa de acrílico no meio da parede
+    vidros = [(j["de"], j["ate"], j.get("peitoril", alt["peitoril"]), alt["verga"]) for j in planta["janelas"]]
+    vidros += [(v["de"], v["ate"], 0, alt["verga"]) for v in planta.get("vaos", []) if v["vidro"]]
+    vidros += [(a, b, alt["baseGuardaCorpo"], alt["guardaCorpo"]) for a, b in segmentos(planta.get("guardaCorpo", []))]
+    for i, (a, b, z0, z1) in enumerate(vidros, start=1):
         x0, x1, y0, y1 = _retangulo_linha(a, b, ESPESSURA_VIDRO)
         vs, fs = caixa((x0 - cx) / 100, (x1 - cx) / 100, -(y1 - cy) / 100, -(y0 - cy) / 100,
-                       peitoril / 100, alt["verga"] / 100)
+                       z0 / 100, z1 / 100)
         _objeto(bpy, col, f"Vidro_{i}", vs, fs, [mat["Acrilico"]])
 
     print(f"Maquete montada: {len(col.objects)} objetos em '{COLECAO}'.")
