@@ -1,33 +1,52 @@
 {
-  "unidade": "cm; no SVG da home, 1 cm = 0,5 px (escala de 50 px por metro)",
-  "alturas": { "peDireito": 260, "verga": 210, "peitoril": 100 },
+  "unidade": "cm, eixo das paredes; y cresce para baixo, como no SVG",
+  "alturas": { "peDireito": 260, "verga": 210, "peitoril": 100, "guardaCorpo": 110 },
   "espessuraParede": 14,
   "comodos": [
-    { "id": "projetos", "nome": "Projetos", "x": 80, "y": 80, "largura": 640, "profundidade": 480, "piso": "porcelanato" },
-    { "id": "sobre", "nome": "Sobre", "x": 720, "y": 80, "largura": 480, "profundidade": 480, "piso": "taco" },
-    { "id": "experiencia", "nome": "Experiência", "x": 80, "y": 560, "largura": 520, "profundidade": 360, "piso": "porcelanato" },
-    { "id": "curriculo", "nome": "Currículo", "x": 600, "y": 560, "largura": 300, "profundidade": 360, "piso": "porcelanato" },
-    { "id": "contato", "nome": "Contato", "x": 900, "y": 560, "largura": 300, "profundidade": 360, "piso": "porcelanato" }
+    { "id": "simulador", "nome": "Simulador", "tipo": "quarto 1", "x": 0, "y": 0, "largura": 300, "profundidade": 300, "piso": "taco" },
+    { "id": "banheiro", "nome": "WC", "tipo": "banheiro", "x": 300, "y": 0, "largura": 150, "profundidade": 190, "piso": "ceramica" },
+    { "id": "circulacao", "nome": "", "tipo": "circulação", "x": 300, "y": 190, "largura": 150, "profundidade": 110, "piso": "porcelanato" },
+    { "id": "place-brokers", "nome": "Place Brokers", "tipo": "quarto 2", "x": 450, "y": 0, "largura": 270, "profundidade": 300, "piso": "taco" },
+    { "id": "sobre", "nome": "Sobre", "tipo": "sala de estar", "x": 0, "y": 300, "largura": 210, "profundidade": 300, "piso": "porcelanato" },
+    { "id": "experiencia", "nome": "Experiência e currículo", "tipo": "mesa de jantar", "x": 210, "y": 300, "largura": 210, "profundidade": 300, "piso": "porcelanato" },
+    { "id": "cashflow", "nome": "CashFlow", "tipo": "cozinha", "x": 420, "y": 300, "largura": 300, "profundidade": 150, "piso": "ceramica" },
+    { "id": "mais-projetos", "nome": "Mais projetos", "tipo": "área de serviço", "x": 420, "y": 450, "largura": 300, "profundidade": 150, "piso": "ceramica" },
+    { "id": "contato", "nome": "Contato", "tipo": "varanda", "x": 0, "y": 600, "largura": 300, "profundidade": 140, "piso": "varanda" }
   ],
-  "paredesExternas": [[1000, 920], [80, 920], [80, 80], [1200, 80], [1200, 920], [1120, 920]],
-  "paredesInternas": [
-    [[720, 80], [720, 400]],
-    [[720, 500], [720, 560]],
-    [[500, 560], [80, 560]],
-    [[600, 560], [1200, 560]],
-    [[600, 560], [600, 920]],
-    [[900, 560], [900, 760]],
-    [[900, 860], [900, 920]]
+  "paredes": [
+    [[0, 450], [0, 0], [720, 0], [720, 600], [270, 600]],
+    [[30, 600], [0, 600], [0, 550]],
+    [[300, 0], [300, 200]],
+    [[300, 280], [300, 300]],
+    [[450, 0], [450, 200]],
+    [[450, 280], [450, 300]],
+    [[300, 190], [330, 190]],
+    [[400, 190], [450, 190]],
+    [[0, 300], [300, 300]],
+    [[450, 300], [720, 300]],
+    [[420, 450], [540, 450]],
+    [[620, 450], [720, 450]],
+    [[420, 450], [420, 600]]
+  ],
+  "guardaCorpo": [
+    [[0, 600], [0, 740], [300, 740], [300, 600]]
   ],
   "portas": [
-    { "id": "a", "dobradica": [720, 500], "batente": [720, 400], "folhaAberta": [620, 500] },
-    { "id": "b", "dobradica": [500, 560], "batente": [600, 560], "folhaAberta": [500, 660] },
-    { "id": "c", "dobradica": [900, 860], "batente": [900, 760], "folhaAberta": [1000, 860] },
-    { "id": "d", "dobradica": [1120, 920], "batente": [1000, 920], "folhaAberta": [1120, 800] }
+    { "id": "entrada", "dobradica": [0, 550], "batente": [0, 450], "folhaAberta": [100, 550] },
+    { "id": "quarto-1", "dobradica": [300, 280], "batente": [300, 200], "folhaAberta": [220, 280] },
+    { "id": "quarto-2", "dobradica": [450, 280], "batente": [450, 200], "folhaAberta": [530, 280] },
+    { "id": "banheiro", "dobradica": [400, 190], "batente": [330, 190], "folhaAberta": [400, 120] }
+  ],
+  "vaos": [
+    { "de": [30, 600], "ate": [270, 600], "vidro": true },
+    { "de": [540, 450], "ate": [620, 450], "vidro": false }
   ],
   "janelas": [
-    [[240, 80], [520, 80]],
-    [[1200, 200], [1200, 440]],
-    [[200, 920], [440, 920]]
+    { "de": [80, 0], "ate": [220, 0] },
+    { "de": [340, 0], "ate": [410, 0], "peitoril": 160 },
+    { "de": [520, 0], "ate": [660, 0] },
+    { "de": [720, 330], "ate": [720, 420] },
+    { "de": [720, 480], "ate": [720, 570] },
+    { "de": [0, 330], "ate": [0, 420] }
   ]
 }

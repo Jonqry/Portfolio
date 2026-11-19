@@ -1,5 +1,4 @@
-// Converte a planta.json (em cm) para o desenho SVG da home, na escala de 50 px por metro.
-// O mesmo arquivo alimenta a maquete do Blender (blender/maquete.py).
+// Converte a planta (em cm) para o desenho SVG da home, na escala de 50 px por metro.
 
 export const px = (cm) => cm / 2;
 

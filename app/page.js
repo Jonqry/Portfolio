@@ -1,9 +1,10 @@
 import Link from 'next/link';
-import planta from './planta.json';
+import planta from './planta-antiga.json';
 import { px, caminhoContinuo, caminhoDeTrechos, porta, janela } from './planta-svg';
 
 // A home é a planta de um apartamento: cada cômodo leva a uma parte do site.
-// A geometria (em cm) vem da planta.json; aqui ficam só os textos e os links.
+// A geometria (em cm) vem da planta-antiga.json; aqui ficam só os textos e os links.
+// O apartamento novo (planta.json) substitui esta planta no redesenho da home.
 const textos = [
   {
     href: '/projetos',

@@ -33,15 +33,15 @@ CORES = {
     "MDF": "#B0916A",
     "porcelanato": "#D8D6CF",
     "taco": "#B98A57",
+    "ceramica": "#E4E2DC",
+    "varanda": "#C7C4BA",
 }
 
 
 # ---------- geometria (Python puro, em cm, coordenadas da planta) ----------
 
-def segmentos(planta):
-    ext = planta["paredesExternas"]
-    trechos = [(ext[i], ext[i + 1]) for i in range(len(ext) - 1)]
-    return trechos + [tuple(t) for t in planta["paredesInternas"]]
+def segmentos(linhas):
+    return [(linha[i], linha[i + 1]) for linha in linhas for i in range(len(linha) - 1)]
 
 
 def _no_segmento(p, a, b):
@@ -67,23 +67,27 @@ def _retangulo_linha(a, b, t, esticar_a=0, esticar_b=0):
 
 
 def blocos_paredes(planta):
-    """Blocos (x0, x1, y0, y1, z0, z1) que somados formam as paredes e as vergas das portas,
-    e os vãos de janela que devem ser retirados deles."""
+    """Blocos (x0, x1, y0, y1, z0, z1) que somados formam as paredes, o guarda-corpo e as vergas
+    de portas e vãos, e os vãos de janela que devem ser retirados deles."""
     t = planta["espessuraParede"]
     alt = planta["alturas"]
-    trechos = segmentos(planta)
+    trechos = [(s, alt["peDireito"]) for s in segmentos(planta["paredes"])]
+    trechos += [(s, alt["guardaCorpo"]) for s in segmentos(planta.get("guardaCorpo", []))]
     blocos = []
-    for i, (a, b) in enumerate(trechos):
-        outros = [s for j, s in enumerate(trechos) if j != i]
+    for i, ((a, b), altura) in enumerate(trechos):
+        outros = [s for j, (s, _) in enumerate(trechos) if j != i]
         # A ponta que encosta em outra parede estica meia espessura para fechar o canto.
         # A ponta solta (vão de porta) fica no eixo, como no SVG.
         ea = t / 2 if any(_no_segmento(a, *s) for s in outros) else 0
         eb = t / 2 if any(_no_segmento(b, *s) for s in outros) else 0
-        blocos.append((*_retangulo_linha(a, b, t, ea, eb), 0, alt["peDireito"]))
+        blocos.append((*_retangulo_linha(a, b, t, ea, eb), 0, altura))
     for p in planta["portas"]:
         blocos.append((*_retangulo_linha(p["batente"], p["dobradica"], t), alt["verga"], alt["peDireito"]))
-    vaos = [(*_retangulo_linha(j[0], j[1], t), alt["peitoril"], alt["verga"]) for j in planta["janelas"]]
-    return blocos, vaos
+    for v in planta.get("vaos", []):
+        blocos.append((*_retangulo_linha(v["de"], v["ate"], t), alt["verga"], alt["peDireito"]))
+    janelas = [(*_retangulo_linha(j["de"], j["ate"], t), j.get("peitoril", alt["peitoril"]), alt["verga"])
+               for j in planta["janelas"]]
+    return blocos, janelas
 
 
 def _uniao(intervalos):
@@ -309,7 +313,6 @@ def construir():
     mat = {nome: _material(bpy, nome, CORES[nome]) for nome in ("Parede", "Porta", "Gramado", "MDF")}
     mat["Acrilico"] = _material(bpy, "Acrilico", CORES["Acrilico"], rugosidade=0.05, transmissao=0.9)
     cx, cy, (bx0, bx1, by0, by1) = centro(planta)
-    t = planta["espessuraParede"]
     alt = planta["alturas"]
 
     # Paredes: uma malha só, com chanfro não destrutivo
@@ -331,10 +334,11 @@ def construir():
                    -ESPESSURA_PLACA / 100, 0.0)
     _objeto(bpy, col, "Placa", vs, fs, [mat["MDF"], mat["Gramado"]], indices=[0, 1, 0, 0, 0, 0])
 
-    # Pisos: um objeto e um material por cômodo, para trocar a textura de cada projeto sem refazer o bake
+    # Pisos: um objeto e um material por cômodo, para trocar a textura de cada projeto sem refazer o bake.
+    # Vão até o eixo das paredes, para não sobrar fresta entre cômodos abertos (sala, jantar, cozinha).
     for c in planta["comodos"]:
-        x0, x1 = (c["x"] + t / 2 - cx) / 100, (c["x"] + c["largura"] - t / 2 - cx) / 100
-        y0, y1 = -(c["y"] + c["profundidade"] - t / 2 - cy) / 100, -(c["y"] + t / 2 - cy) / 100
+        x0, x1 = (c["x"] - cx) / 100, (c["x"] + c["largura"] - cx) / 100
+        y0, y1 = -(c["y"] + c["profundidade"] - cy) / 100, -(c["y"] - cy) / 100
         z = ALTURA_PISO / 100
         piso = _material(bpy, f"Piso_{c['id']}", CORES[c["piso"]], rugosidade=0.7)
         _objeto(bpy, col, f"Piso_{c['id']}", [(x0, y0, z), (x1, y0, z), (x1, y1, z), (x0, y1, z)], [(0, 1, 2, 3)],
@@ -350,12 +354,14 @@ def construir():
         ob.rotation_euler[2] = d["rotacao"]
         ob["fechada_graus"] = d["fechada_graus"]
 
-    # Janelas: placa de acrílico no meio da parede, entre o peitoril e a verga
-    for i, (a, b) in enumerate(planta["janelas"], start=1):
+    # Janelas e portas de vidro: placa de acrílico no meio da parede, entre o peitoril e a verga
+    vidros = [(j["de"], j["ate"], j.get("peitoril", alt["peitoril"])) for j in planta["janelas"]]
+    vidros += [(v["de"], v["ate"], 0) for v in planta.get("vaos", []) if v["vidro"]]
+    for i, (a, b, peitoril) in enumerate(vidros, start=1):
         x0, x1, y0, y1 = _retangulo_linha(a, b, ESPESSURA_VIDRO)
         vs, fs = caixa((x0 - cx) / 100, (x1 - cx) / 100, -(y1 - cy) / 100, -(y0 - cy) / 100,
-                       alt["peitoril"] / 100, alt["verga"] / 100)
-        _objeto(bpy, col, f"Janela_{i}", vs, fs, [mat["Acrilico"]])
+                       peitoril / 100, alt["verga"] / 100)
+        _objeto(bpy, col, f"Vidro_{i}", vs, fs, [mat["Acrilico"]])
 
     print(f"Maquete montada: {len(col.objects)} objetos em '{COLECAO}'.")
 
