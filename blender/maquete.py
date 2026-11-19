@@ -4,8 +4,9 @@ Monta a base da maquete no Blender a partir de app/planta.json.
 Como usar (Blender 5.3):
   1. Na aba Scripting, abra este arquivo e clique em Run Script.
      Pelo terminal também funciona: blender --python blender/maquete.py
-  2. O script cria a coleção "Maquete (gerada)". Rodar de novo apaga e refaz só essa coleção,
-     então tudo que você modelar à mão (móveis, árvores, luz, câmera) fica em outras coleções.
+  2. O script cria três coleções: "Maquete (gerada)", "Móveis (gerados)" e "Estúdio (gerado)" (luz,
+     câmera e fundo). Rodar de novo apaga e refaz só essas três, então o que você modelar ou ajustar
+     à mão fica em outras coleções: para refinar um móvel ou uma luz, mova-o para uma coleção sua antes.
      Materiais que já existem com o mesmo nome não são alterados.
 
 Convenções: 1 unidade do Blender = 1 m e o centro da casa fica na origem. Na planta o eixo y
@@ -18,6 +19,8 @@ import math
 import os
 
 COLECAO = "Maquete (gerada)"
+COLECAO_MOVEIS = "Móveis (gerados)"
+COLECAO_ESTUDIO = "Estúdio (gerado)"
 MARGEM_PLACA = 60       # cm de MDF em volta do apartamento
 ESPESSURA_PLACA = 30    # cm de MDF
 ESPESSURA_LAJE = 12     # cm do corte da laje
@@ -37,7 +40,37 @@ CORES = {
     "ceramica": "#E4E2DC",
     "varanda": "#C7C4BA",
     "laje": "#BDBAB2",
+    "Estande": "#26313A",
+    "Spot": "#FFE9B8",
 }
+
+# Móveis de maquete em blocos brancos: nome, canto (x, y) na planta, largura, profundidade e altura, em cm.
+# São um ponto de partida para o render de teste, longe do giro das portas.
+MOVEIS = [
+    ("Cama casal", 80, 20, 140, 190, 45),
+    ("Criado-mudo", 25, 20, 45, 40, 50),
+    ("Criado-mudo", 230, 20, 45, 40, 50),
+    ("Guarda-roupa", 20, 238, 180, 55, 220),
+    ("Cama de solteiro", 615, 20, 90, 190, 45),
+    ("Escrivaninha", 465, 15, 110, 55, 75),
+    ("Guarda-roupa", 560, 238, 150, 55, 220),
+    ("Vaso sanitário", 310, 10, 40, 60, 40),
+    ("Pia do banheiro", 388, 10, 50, 40, 85),
+    ("Sofá", 20, 310, 180, 85, 80),
+    ("Mesa de centro", 105, 420, 80, 50, 40),
+    ("Mesa de jantar", 255, 410, 120, 80, 75),
+    ("Cadeira", 270, 360, 45, 45, 45),
+    ("Cadeira", 315, 360, 45, 45, 45),
+    ("Cadeira", 270, 495, 45, 45, 45),
+    ("Cadeira", 315, 495, 45, 45, 45),
+    ("Bancada da cozinha", 450, 307, 190, 60, 90),
+    ("Geladeira", 643, 307, 65, 68, 180),
+    ("Máquina de lavar", 580, 528, 60, 60, 85),
+    ("Tanque", 650, 533, 60, 55, 90),
+    ("Mesa da varanda", 120, 650, 50, 50, 70),
+    ("Cadeira da varanda", 60, 650, 45, 45, 45),
+    ("Cadeira da varanda", 185, 650, 45, 45, 45),
+]
 
 
 # ---------- geometria (Python puro, em cm, coordenadas da planta) ----------
@@ -265,17 +298,21 @@ def _material(bpy, nome, hexa, rugosidade=0.9, transmissao=0.0):
     return m
 
 
-def _colecao_limpa(bpy):
-    col = bpy.data.collections.get(COLECAO)
+def _colecao_limpa(bpy, nome=COLECAO):
+    col = bpy.data.collections.get(nome)
     if col is None:
-        col = bpy.data.collections.new(COLECAO)
+        col = bpy.data.collections.new(nome)
         bpy.context.scene.collection.children.link(col)
         return col
     for ob in list(col.all_objects):
-        malha = ob.data
+        dados = ob.data
         bpy.data.objects.remove(ob, do_unlink=True)
-        if isinstance(malha, bpy.types.Mesh) and malha.users == 0:
-            bpy.data.meshes.remove(malha)
+        if dados is None or dados.users:
+            continue
+        for tipo, lista in ((bpy.types.Mesh, bpy.data.meshes), (bpy.types.Light, bpy.data.lights),
+                            (bpy.types.Camera, bpy.data.cameras)):
+            if isinstance(dados, tipo):
+                lista.remove(dados)
     return col
 
 
@@ -388,5 +425,73 @@ def construir():
     print(f"Maquete montada: {len(col.objects)} objetos em '{COLECAO}'.")
 
 
+def construir_moveis():
+    import bpy
+
+    with open(caminho_planta(), encoding="utf-8") as f:
+        planta = json.load(f)
+    col = _colecao_limpa(bpy, COLECAO_MOVEIS)
+    mat = _material(bpy, "Movel", CORES["Parede"], rugosidade=0.95)
+    cx, cy, _ = centro(planta)
+    z = ALTURA_PISO / 100
+    for nome, x, y, w, d, h in MOVEIS:
+        vs, fs = caixa((x - cx) / 100, (x + w - cx) / 100, -(y + d - cy) / 100, -(y - cy) / 100, z, z + h / 100)
+        _objeto(bpy, col, nome, vs, fs, [mat])
+
+
+def construir_estudio():
+    """Fundo do estande, spot quente por cima, preenchimento frio e a câmera da etapa de maquete."""
+    import bpy
+
+    cena = bpy.context.scene
+    col = _colecao_limpa(bpy, COLECAO_ESTUDIO)
+    alvo = bpy.data.objects.new("Alvo", None)
+    alvo.location = (0, 0, 0.6)
+    col.objects.link(alvo)
+
+    def mirar(ob):
+        restricao = ob.constraints.new("TRACK_TO")
+        restricao.target = alvo
+        restricao.track_axis = "TRACK_NEGATIVE_Z"
+        restricao.up_axis = "UP_Y"
+
+    for nome, cor, potencia, tamanho, local in (("Spot do estande", CORES["Spot"], 2000, 3.0, (-1.5, -1.0, 6.5)),
+                                                ("Preenchimento", CORES["Acrilico"], 300, 4.0, (7.0, -6.0, 4.0))):
+        luz = bpy.data.lights.new(nome, type="AREA")
+        luz.energy = potencia
+        luz.size = tamanho
+        luz.color = _linear(cor)
+        ob = bpy.data.objects.new(nome, luz)
+        ob.location = local
+        col.objects.link(ob)
+        mirar(ob)
+
+    lente = bpy.data.cameras.new("Câmera do estande")
+    lente.lens = 50
+    camera = bpy.data.objects.new("Câmera do estande", lente)
+    camera.location = (-6.5, -9.3, 8.5)
+    col.objects.link(camera)
+    mirar(camera)
+    cena.camera = camera
+
+    mundo = cena.world or bpy.data.worlds.new("Estande")
+    cena.world = mundo
+    if hasattr(mundo, "use_nodes") and not mundo.use_nodes:
+        mundo.use_nodes = True
+    if mundo.node_tree:
+        fundo = next((n for n in mundo.node_tree.nodes if n.type == "BACKGROUND"), None)
+        if fundo:
+            fundo.inputs["Color"].default_value = (*_linear(CORES["Estande"]), 1.0)
+            fundo.inputs["Strength"].default_value = 1.0
+
+    cena.render.engine = "CYCLES"
+    cena.cycles.samples = 128
+    cena.cycles.use_denoising = True
+    cena.render.resolution_x, cena.render.resolution_y = 1920, 1080
+
+
 if __name__ == "__main__":
     construir()
+    construir_moveis()
+    construir_estudio()
+    print("Móveis e estúdio prontos. Aperte F12 para o render de teste.")
