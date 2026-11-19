@@ -1,0 +1,150 @@
+# DESIGN.md: redesenho do portfólio
+
+Direção escolhida: **da planta à maquete**. A rolagem conta o que acontece no estande de vendas: o cliente vê a planta humanizada do folder, as paredes sobem e a planta vira a maquete iluminada. O 3D é modelado e iluminado no Blender, e não montado com caixas em código.
+
+Este arquivo é a referência do projeto. Toda decisão visual nova entra aqui antes de entrar no código.
+
+## 1. A estratégia antes do visual
+
+O problema de muito portfólio hoje é ser bonito no post do LinkedIn e ninguém abrir de verdade. Este site precisa fazer o contrário:
+
+1. **A home é uma porta, não uma vitrine.** Em qualquer ponto da home, um projeto funcionando está a um clique, e a demo do Simulador está na própria página (seção 7).
+2. **O 3D tem que puxar a pessoa para dentro.** Ele é a planta navegável, e não uma animação para assistir. Todo cômodo é clicável desde o primeiro quadro.
+3. **O destaque é a história:** você é corretor e constrói as ferramentas que usa no trabalho. O visual existe para contar isso, e não para competir com isso.
+4. **No LinkedIn, divulgue projeto, não portfólio.** Um vídeo curto de um projeto resolvendo um caso real, com link direto para testar. O portfólio fica para quem quiser ver mais.
+
+## 2. Suposições
+
+- No fim da rolagem, o fundo vira o **estande escuro**, como no protótipo. Se você preferir ficar no gramado até o fim, muda só a seção 4 (a cor `Estande` sai).
+- O seu nome continua na home. O portfólio é a sua casa.
+- Nos sites dos projetos, a sua autoria aparece só no carimbo do rodapé (seção 9).
+
+## 3. A home, quadro a quadro
+
+A planta fica fixa na tela (`position: sticky`) numa seção de cerca de 250vh. A rolagem conduz a câmera e as paredes. **Os cômodos são clicáveis em todas as etapas.**
+
+| Etapa | Rolagem | O que se vê |
+|---|---|---|
+| 0. Chegada | 0% | Nome, uma frase e o botão "Testar o simulador". A planta humanizada vista de cima, com os nomes no piso e as paredes como traço de grafite. Tudo isso aparece sem rolar. |
+| 1. Planta | 0–25% | A câmera desce um pouco. O cômodo sob o mouse ou o foco acende como o marca-texto do corretor. |
+| 2. As paredes sobem | 25–60% | As paredes externas sobem primeiro e as internas depois, passando do grafite ao branco de maquete. Os móveis vêm por último. |
+| 3. Maquete | 60–100% | A câmera inclina para uns 35° e gira devagar. O terreno se revela uma placa de maquete com borda de MDF, e o fundo escurece até o estande. A luz é o spot quente do estande. |
+| 4. Saída | depois | O "Agora / Formação / Procurando" atual, e a demo do Simulador se ela não estiver acima. |
+
+**Entrar num cômodo, em qualquer etapa:** a porta abre, a câmera mergulha no cômodo em cerca de 900 ms e a navegação acontece com View Transition. O piso do cômodo vira o fundo da página nova, e as paredes do cômodo viram a moldura da página. Voltar faz o caminho inverso.
+
+## 4. Tokens
+
+### Cor
+
+**Cor dominante:** o verde do gramado no começo e o azul-ardósia do estande no fim. A transição entre os dois é o arco da rolagem.
+
+| Nome | Hex | Uso |
+|---|---|---|
+| Gramado | `#3F6B40` | Terreno, fundo da etapa 0 e cabeçalho (texto branco: 6,2:1) |
+| Copa | `#2B4D2E` | Árvores e sombras no gramado |
+| Estande | `#26313A` | Fundo da etapa 3 e das transições |
+| Maquete | `#F3F2EE` | Paredes, móveis e fundo das páginas internas (texto Tinta: 13:1 ou mais) |
+| Porcelanato | `#D8D6CF` | Piso dos cômodos neutros |
+| Taco | `#B98A57` | Piso do cômodo Sobre e detalhes em madeira (nunca fundo de texto) |
+| MDF | `#B0916A` | Borda da placa da maquete (só texto grande por cima: 4,5:1) |
+| Spot | `#FFE9B8` | A luz do estande, o realce de cômodo e o anel de foco |
+| Tinta | `#1E2A22` | Texto |
+| Grafite | `#23292B` | Paredes na etapa de planta e as cotas |
+
+### Tipografia
+
+**Bricolage Grotesque** variável, com os eixos de tamanho óptico, largura e peso. É uma família só: o tamanho óptico separa título de corpo. Os nomes dos cômodos ficam escritos no piso, na mesma fonte (vão como textura no 3D e como `<text>` no SVG). Antes de instalar, confirmar que o pacote existe no Fontsource. Se não existir, usar os arquivos do repositório oficial, auto-hospedados.
+
+Escala: 16 / 20 / 25 / 31 / 39 / 61 px (razão de 1,25, com saltos no topo). O corpo fica em 17px com altura de linha de 1,6 e no máximo 70 caracteres por linha.
+
+### Tratamento de imagem
+
+- **Na planta:** o projeto aparece no piso do cômodo, como tapete, na identidade do próprio projeto. A textura do piso sai de um print real e é estilizada no Blender ou no Figma.
+- **Nas páginas:** prints em cor cheia e sem moldura de navegador falsa. Cada print vem acompanhado de um vídeo curto (5–8 s, sem som, em loop) mostrando o uso real. O vídeo para quando há movimento reduzido.
+- **A sua foto:** aparece só no cômodo Sobre, em cor natural, sem filtro.
+
+## 5. O 3D: como fica bonito
+
+O 3D anterior ficou simples porque eram caixas com luz calculada em tempo real. Maquete digital bonita é **luz assada (baked)** no Blender: sombra suave, oclusão nos cantos e luz rebatida ficam gravadas na textura. O navegador só mostra a imagem pronta. Fica com cara de render e quase não pesa.
+
+### Pipeline
+
+1. **`planta.json` é a fonte única.** Cômodos, paredes, portas e janelas em metros. O SVG da planta e o modelo 3D saem do mesmo arquivo, então nunca ficam diferentes.
+2. **`blender/maquete.py`** lê o JSON e monta a base no Blender. As paredes saem com chanfro e vãos de porta, as folhas de porta ficam como objetos separados com a dobradiça no lugar certo, e o script cria também a placa com borda de MDF, o piso por cômodo e as coleções organizadas.
+3. **Sua etapa de arte, no Blender:** móveis, árvores, materiais (isopor fosco, MDF com veio, acrílico nas janelas) e a luz do spot. É aqui que o resultado sai do "programador fez 3D".
+4. **Bake:** lightmap por coleção (paredes e móveis numa, pisos noutra, placa noutra), em Cycles. O piso de cada projeto fica numa textura separada, para trocar sem refazer o bake.
+5. **Exportação:** glTF binário (`.glb`) com compressão de geometria (Draco ou meshopt) e texturas KTX2 ou WebP.
+6. **Render parado:** uma imagem da etapa 3 em alta, que serve como pôster, fallback e imagem de compartilhamento.
+
+### No site
+
+- React Three Fiber + drei, carregados **só na home** e **só depois** que a página está interativa (`dynamic import` com `ssr: false`).
+- Materiais sem luz em tempo real (`MeshBasicMaterial` com o lightmap). As únicas partes vivas são o realce do cômodo, as portas abrindo e as paredes subindo.
+- A câmera segue uma curva definida no Blender, exportada como animação e lida pela rolagem. Assim você ajusta o movimento de câmera no lugar onde sabe trabalhar.
+
+### Orçamento
+
+| Item | Meta |
+|---|---|
+| Modelo `.glb` | até 1 MB |
+| Texturas somadas | até 1,5 MB |
+| Polígonos | até 150 mil |
+| JS do 3D | carregado depois do LCP e fora do caminho crítico |
+| LCP da home | abaixo de 2,5 s em 4G, com o pôster ou o SVG como elemento do LCP |
+| Taxa de quadros | 60 fps em notebook comum e 30 fps no mínimo em celular médio |
+
+## 6. Acessibilidade e "ninguém passa direto"
+
+- **A planta SVG é a página.** Ela é renderizada no servidor, vem com links reais e funciona sem JavaScript. O 3D entra por cima como camada visual, com `aria-hidden`, e aponta para os mesmos links. Foco de teclado num link do SVG acende o cômodo no 3D.
+- **Movimento reduzido:** sem rolagem conduzida e sem 3D animado. Aparece o render parado da maquete com a planta clicável por cima.
+- **Celular:** o 3D só liga se o aparelho aguenta (checagem simples de GPU e memória). Senão, aparecem o render parado e os cômodos como lista de links.
+- **Sem WebGL ou com erro no 3D:** a planta SVG fica, e nada quebra.
+- **O que se vê sem rolar:** o nome, uma frase, "Testar o simulador" e a planta clicável. Quem não rolar nada ainda chega aos projetos.
+- O contraste do texto corrido fica em 4,5:1 ou mais (os valores da seção 4 já foram conferidos).
+
+## 7. A demo do Simulador na home
+
+É o que faz o recrutador parar: em 10 segundos ele mexe numa ferramenta real.
+
+- Tem **dois campos:** renda bruta mensal e valor do imóvel. Mostra três resultados: a faixa do MCMV, a parcela estimada e se cabe nos 30% da renda.
+- Usa **a mesma função de cálculo do Simulador**, copiada do repositório dele (só o necessário), com os testes dela.
+- Termina em **"Abrir o simulador completo"**, com os valores preenchidos via parâmetros na URL.
+- Aparece na identidade do Simulador, e não na do portfólio, com uma moldura de cômodo em volta.
+
+## 8. Páginas internas
+
+- Cada página é um cômodo. A moldura é a parede grossa nas bordas, com uma abertura de porta onde fica "Voltar à planta".
+- O fundo é o piso do cômodo de onde a pessoa veio.
+- A página de projeto mostra o vídeo de uso, o problema, o que você fez e os links ("Testar", "Ver o código", "Ler o estudo de caso").
+
+## 9. Identidade dos projetos e o carimbo
+
+O portfólio **emoldura** os projetos e não os **marca**. Nos sites dos projetos não entram o seu nome no cabeçalho, as cores do portfólio nem a fonte do portfólio.
+
+A assinatura é o **carimbo**, o selo do canto de uma prancha de arquitetura:
+
+```
+┌──────────────────────────────┐
+│ Projeto e desenvolvimento    │
+│ João Victor Varela, 2026     │
+└──────────────────────────────┘
+```
+
+- Fica no rodapé, à direita, com borda de 1px e texto de 12–13px. O nome leva ao portfólio.
+- Usa as cores e a fonte do projeto, com contraste de pelo menos 4,5:1.
+- Em projeto de equipe, diz qual parte é sua ("Área do corretor: João Victor Varela").
+- É um componente `<Carimbo />` copiado em cada repositório, sem pacote compartilhado.
+
+O primeiro projeto a ganhar identidade própria é o **Simulador**, porque ele aparece na home.
+
+## 10. Plano
+
+1. `planta.json` + SVG da home lendo dele → verificar: a planta atual continua idêntica.
+2. `blender/maquete.py` → verificar: rodando no seu Blender, a base sai com paredes, vãos, portas e placa nas medidas do JSON.
+3. Sua etapa de arte e bake no Blender → verificar: render parado aprovado por você e `.glb` dentro do orçamento da seção 5.
+4. Cena 3D na home com a rolagem → verificar: funciona com teclado, sem WebGL e com movimento reduzido; LCP dentro da meta.
+5. Mergulho no cômodo + View Transition → verificar: ida, volta e botão voltar do navegador.
+6. Demo do Simulador na home → verificar: os testes da função copiada passam e os valores batem com o Simulador completo.
+7. Identidade própria do Simulador + carimbo → verificar: nada do portfólio aparece no Simulador além do carimbo.
+8. Tokens e páginas internas como cômodos → verificar: contraste e navegação por teclado em todas as páginas.

@@ -1,14 +1,15 @@
 import Link from 'next/link';
+import planta from './planta.json';
+import { px, caminhoContinuo, caminhoDeTrechos, porta, janela } from './planta-svg';
 
 // A home é a planta de um apartamento: cada cômodo leva a uma parte do site.
-// Escala da planta: 50 px = 1 m.
-const comodos = [
+// A geometria (em cm) vem da planta.json; aqui ficam só os textos e os links.
+const textos = [
   {
     href: '/projetos',
     nome: 'Projetos',
     id: 'projetos',
     rotulo: 'Ver os 5 projetos',
-    x: 40, y: 40, w: 320, h: 240,
     info: ['Simulador de Financiamento', 'Place Brokers', 'CashFlow e mais 2'],
   },
   {
@@ -16,7 +17,6 @@ const comodos = [
     nome: 'Sobre',
     id: 'sobre',
     rotulo: 'Sobre mim',
-    x: 360, y: 40, w: 240, h: 240,
     info: [],
     foto: true,
   },
@@ -25,7 +25,6 @@ const comodos = [
     nome: 'Experiência',
     id: 'experiencia',
     rotulo: 'Ver a experiência profissional',
-    x: 40, y: 280, w: 260, h: 180,
     info: ['Corretor desde out/2025', 'Jovem aprendiz em 2025'],
   },
   {
@@ -33,7 +32,6 @@ const comodos = [
     nome: 'Currículo',
     id: 'curriculo',
     rotulo: 'Abrir o currículo em PDF',
-    x: 300, y: 280, w: 150, h: 180,
     info: ['PDF, 1 página'],
     externo: true,
   },
@@ -42,10 +40,15 @@ const comodos = [
     nome: 'Contato',
     id: 'contato',
     rotulo: 'Enviar e-mail',
-    x: 450, y: 280, w: 150, h: 180,
     info: ['E-mail'],
   },
 ];
+
+const comodos = textos.map((t) => {
+  const g = planta.comodos.find((c) => c.id === t.id);
+  return { ...t, x: px(g.x), y: px(g.y), w: px(g.largura), h: px(g.profundidade) };
+});
+const portas = planta.portas.map((p) => ({ id: p.id, ...porta(p) }));
 
 function Planta() {
   return (
@@ -102,32 +105,35 @@ function Planta() {
       {/* paredes externas, com a abertura da porta de entrada no Contato */}
       <path
         className="parede planta-traco"
-        d="M500 460 H40 V40 H600 V460 H560"
+        d={caminhoContinuo(planta.paredesExternas)}
         aria-hidden="true"
       />
       {/* paredes internas, com vãos de porta */}
       <path
         className="parede planta-traco"
-        d="M360 40 V200 M360 250 V280 M250 280 H40 M300 280 H600 M300 280 V460 M450 280 V380 M450 430 V460"
+        d={caminhoDeTrechos(planta.paredesInternas)}
         aria-hidden="true"
       />
 
       <g className="planta-surge" aria-hidden="true">
         {/* portas: arco de abertura e folha. A folha gira na dobradiça (--dobradica) quando o
             cômodo dela recebe o mouse ou o foco; --fechada é o ângulo da porta fechada. */}
-        <path className="porta" d="M360 200 A50 50 0 0 0 310 250" />
-        <path className="porta" d="M300 280 A50 50 0 0 1 250 330" />
-        <path className="porta" d="M450 380 A50 50 0 0 1 500 430" />
-        <path className="porta" d="M500 460 A60 60 0 0 1 560 400" />
-        <path className="folha folha-a" d="M360 250 H310" style={{ '--dobradica': '360px 250px', '--fechada': '90deg' }} />
-        <path className="folha folha-b" d="M250 280 V330" style={{ '--dobradica': '250px 280px', '--fechada': '-90deg' }} />
-        <path className="folha folha-c" d="M450 430 H500" style={{ '--dobradica': '450px 430px', '--fechada': '-90deg' }} />
-        <path className="folha folha-d" d="M560 460 V400" style={{ '--dobradica': '560px 460px', '--fechada': '-90deg' }} />
+        {portas.map((p) => (
+          <path key={`arco-${p.id}`} className="porta" d={p.arco} />
+        ))}
+        {portas.map((p) => (
+          <path
+            key={`folha-${p.id}`}
+            className={`folha folha-${p.id}`}
+            d={p.folha}
+            style={{ '--dobradica': p.dobradica, '--fechada': p.fechada }}
+          />
+        ))}
 
         {/* janelas */}
-        <rect className="janela" x="120" y="36" width="140" height="8" />
-        <rect className="janela" x="596" y="100" width="8" height="120" />
-        <rect className="janela" x="100" y="456" width="120" height="8" />
+        {planta.janelas.map((j, i) => (
+          <rect key={i} className="janela" {...janela(j)} />
+        ))}
 
         {/* cotas */}
         <path className="cota" d="M40 14 H600 M40 8 V20 M360 8 V20 M600 8 V20" />
