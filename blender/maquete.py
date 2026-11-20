@@ -440,6 +440,7 @@ def construir_moveis():
     cx, cy, _ = centro(planta)
     z = ALTURA_PISO / 100
     for nome, x, y, w, d, h in MOVEIS:
+        h = min(h, ALTURA_CORTE)  # móvel alto também é cortado, como as paredes
         vs, fs = caixa((x - cx) / 100, (x + w - cx) / 100, -(y + d - cy) / 100, -(y - cy) / 100, z, z + h / 100)
         _objeto(bpy, col, nome, vs, fs, [mat])
 
