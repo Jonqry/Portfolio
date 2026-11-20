@@ -32,7 +32,7 @@ ALTURA_PISO = 0.2       # cm acima da laje, para não brigar com ela
 CORES = {
     "Parede": "#F3F2EE",
     "Porta": "#F3F2EE",
-    "Acrilico": "#CFE3E6",
+    "Acrilico": "#F2F6F7",
     "Laje": "#BDBAB2",
     "MDF": "#B0916A",
     "porcelanato": "#D8D6CF",
@@ -446,7 +446,7 @@ def construir_estudio():
     cena = bpy.context.scene
     col = _colecao_limpa(bpy, COLECAO_ESTUDIO)
     alvo = bpy.data.objects.new("Alvo", None)
-    alvo.location = (0, 0, 0.6)
+    alvo.location = (0, 0, 0.4)
     col.objects.link(alvo)
 
     def mirar(ob):
@@ -456,7 +456,7 @@ def construir_estudio():
         restricao.up_axis = "UP_Y"
 
     for nome, cor, potencia, tamanho, local in (("Spot do estande", CORES["Spot"], 2000, 3.0, (-1.5, -1.0, 6.5)),
-                                                ("Preenchimento", CORES["Acrilico"], 300, 4.0, (7.0, -6.0, 4.0))):
+                                                ("Preenchimento", "#CFE3E6", 300, 4.0, (7.0, -6.0, 4.0))):
         luz = bpy.data.lights.new(nome, type="AREA")
         luz.energy = potencia
         luz.size = tamanho
@@ -469,7 +469,7 @@ def construir_estudio():
     lente = bpy.data.cameras.new("Câmera do estande")
     lente.lens = 50
     camera = bpy.data.objects.new("Câmera do estande", lente)
-    camera.location = (-6.5, -9.3, 8.5)
+    camera.location = (-8.5, -12.0, 15.0)  # uns 45° de cima, a maquete inteira no quadro
     col.objects.link(camera)
     mirar(camera)
     cena.camera = camera
