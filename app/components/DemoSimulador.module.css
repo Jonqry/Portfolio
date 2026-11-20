@@ -1,0 +1,241 @@
+/*
+  Por fora, a parede grossa da planta do portfólio (o cômodo).
+  Por dentro, a identidade do Simulador: papel azul-claro, folha branca,
+  tinta azul-carbono, Bitter nos títulos e números, e o carimbo.
+*/
+.comodo {
+  --papel: #eef1f7;
+  --tinta: #1f2433;
+  --tinta-suave: #5b6275;
+  --linha: #8b93a7;
+  --carbono: #2e43b8;
+  --bom: #1f7a4d;
+  --atencao: #b7791f;
+  --critico: #c0352b;
+
+  border: 7px solid #22292b;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  scroll-margin-top: 6rem;
+}
+
+.comodo ::selection {
+  background: #dfe5fb;
+  color: var(--tinta);
+}
+
+.via {
+  display: grid;
+  gap: 2rem;
+  padding: 1.25rem 1rem;
+}
+@media (min-width: 768px) {
+  .via {
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    padding: 2.5rem;
+  }
+}
+
+.titulo,
+.parcela,
+.programa,
+.carimbo {
+  font-family: var(--fonte-via), Georgia, serif;
+}
+
+.titulo {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.75rem;
+}
+
+.texto > p {
+  color: var(--tinta-suave);
+  max-width: 34rem;
+}
+
+.campo {
+  margin-top: 1.25rem;
+}
+.campo label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.entrada {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ffffff;
+  border: 1px solid var(--linha);
+  border-radius: 6px;
+  padding: 0 0.85rem;
+  max-width: 20rem;
+}
+.entrada:focus-within {
+  outline: 3px solid var(--carbono);
+  outline-offset: 2px;
+}
+.entrada span {
+  color: var(--tinta-suave);
+}
+.entrada input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 0.7rem 0;
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--tinta);
+}
+.entrada input:focus,
+.entrada input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.texto > .nota {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+/* A folha da via: papel branco sobre o azul-claro. */
+.folha {
+  align-self: start;
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--linha) 35%, transparent),
+    0 2px 0 color-mix(in srgb, var(--linha) 25%, transparent);
+  padding: 1.25rem 1rem;
+}
+@media (min-width: 480px) {
+  .folha {
+    padding: 1.5rem;
+  }
+}
+
+.cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px dashed color-mix(in srgb, var(--linha) 55%, transparent);
+}
+
+.cabecalho > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.programa {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.sistema,
+.rotulo {
+  color: var(--tinta-suave);
+  font-size: 0.95rem;
+}
+
+.parcela {
+  font-size: 2.6rem;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  margin: 0.15rem 0 0.75rem;
+}
+
+.renda {
+  border-left: 4px solid currentColor;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1.25rem;
+}
+.ok {
+  color: var(--bom);
+}
+.atencao {
+  color: #8a5a10;
+  background: #fbf3e4;
+  border-left-color: var(--atencao);
+}
+.acima {
+  color: var(--critico);
+  background: #fbecea;
+}
+
+.vazio {
+  color: var(--tinta-suave);
+}
+
+/* O carimbo do veredito, igual ao do Simulador. */
+.carimbo {
+  flex-shrink: 0;
+  padding: 0.3rem 0.55rem;
+  border: 3px solid currentColor;
+  border-radius: 4px;
+  outline: 1px solid currentColor;
+  outline-offset: 3px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-transform: uppercase;
+  max-width: 6.5rem;
+  opacity: 0.9;
+  transform: rotate(-6deg);
+  animation: carimbar 0.3s cubic-bezier(0.3, 1.4, 0.6, 1);
+}
+.bom {
+  color: var(--bom);
+}
+.critico {
+  color: var(--critico);
+}
+@media (min-width: 480px) {
+  .carimbo {
+    font-size: 0.9rem;
+    max-width: 7.5rem;
+  }
+}
+@keyframes carimbar {
+  from {
+    opacity: 0;
+    transform: rotate(-6deg) scale(1.6);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .carimbo {
+    animation: none;
+  }
+}
+
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--carbono);
+  border-radius: 6px;
+  background: var(--carbono);
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+}
+.botao:hover {
+  background: #22339a;
+}
+.botao:focus-visible {
+  outline: 3px solid var(--carbono);
+  outline-offset: 3px;
+}
