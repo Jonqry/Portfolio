@@ -28,6 +28,7 @@ ESPESSURA_FOLHA = 4     # cm
 FOLGA_PORTA = 1         # cm entre a folha e o batente
 ESPESSURA_VIDRO = 2     # cm
 ALTURA_PISO = 0.2       # cm acima da laje, para não brigar com ela
+ALTURA_CORTE = 150      # cm: as paredes são cortadas aqui, como na planta humanizada 3D, para os cômodos aparecerem
 
 CORES = {
     "Parede": "#F3F2EE",
@@ -123,6 +124,9 @@ def blocos_paredes(planta):
         blocos.append((*_retangulo_linha(v["de"], v["ate"], t), alt["verga"], alt["peDireito"]))
     janelas = [(*_retangulo_linha(j["de"], j["ate"], t), j.get("peitoril", alt["peitoril"]), alt["verga"])
                for j in planta["janelas"]]
+    # Corte da maquete: o que fica acima de ALTURA_CORTE (vergas, topo das paredes) sai
+    blocos = [(*b[:5], min(b[5], ALTURA_CORTE)) for b in blocos if b[4] < ALTURA_CORTE]
+    janelas = [(*j[:5], min(j[5], ALTURA_CORTE)) for j in janelas if j[4] < ALTURA_CORTE]
     return blocos, janelas
 
 
@@ -406,7 +410,7 @@ def construir():
     for p in planta["portas"]:
         d = dados_porta(planta, p)
         e = ESPESSURA_FOLHA / 100
-        vs, fs = caixa(0, d["largura"], -e / 2, e / 2, 0, (alt["verga"] - FOLGA_PORTA) / 100)
+        vs, fs = caixa(0, d["largura"], -e / 2, e / 2, 0, min(alt["verga"] - FOLGA_PORTA, ALTURA_CORTE) / 100)
         ob = _objeto(bpy, col, f"Porta_{p['id']}", vs, fs, [mat["Porta"]])
         ob.location = d["local"]
         ob.rotation_euler[2] = d["rotacao"]
@@ -416,6 +420,7 @@ def construir():
     vidros = [(j["de"], j["ate"], j.get("peitoril", alt["peitoril"]), alt["verga"]) for j in planta["janelas"]]
     vidros += [(v["de"], v["ate"], 0, alt["verga"]) for v in planta.get("vaos", []) if v["vidro"]]
     vidros += [(a, b, alt["baseGuardaCorpo"], alt["guardaCorpo"]) for a, b in segmentos(planta.get("guardaCorpo", []))]
+    vidros = [(a, b, z0, min(z1, ALTURA_CORTE)) for a, b, z0, z1 in vidros if z0 < ALTURA_CORTE]
     for i, (a, b, z0, z1) in enumerate(vidros, start=1):
         x0, x1, y0, y1 = _retangulo_linha(a, b, ESPESSURA_VIDRO)
         vs, fs = caixa((x0 - cx) / 100, (x1 - cx) / 100, -(y1 - cy) / 100, -(y0 - cy) / 100,
@@ -455,8 +460,8 @@ def construir_estudio():
         restricao.track_axis = "TRACK_NEGATIVE_Z"
         restricao.up_axis = "UP_Y"
 
-    for nome, cor, potencia, tamanho, local in (("Spot do estande", CORES["Spot"], 2000, 3.0, (-1.5, -1.0, 6.5)),
-                                                ("Preenchimento", "#CFE3E6", 300, 4.0, (7.0, -6.0, 4.0))):
+    for nome, cor, potencia, tamanho, local in (("Spot do estande", CORES["Spot"], 900, 3.0, (-1.5, -1.0, 6.5)),
+                                                ("Preenchimento", "#CFE3E6", 120, 4.0, (7.0, -6.0, 4.0))):
         luz = bpy.data.lights.new(nome, type="AREA")
         luz.energy = potencia
         luz.size = tamanho
@@ -469,7 +474,7 @@ def construir_estudio():
     lente = bpy.data.cameras.new("Câmera do estande")
     lente.lens = 50
     camera = bpy.data.objects.new("Câmera do estande", lente)
-    camera.location = (-8.5, -12.0, 15.0)  # uns 45° de cima, a maquete inteira no quadro
+    camera.location = (-9.9, -13.9, 17.4)  # uns 45° de cima, a maquete inteira no quadro
     col.objects.link(camera)
     mirar(camera)
     cena.camera = camera
