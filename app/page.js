@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import DemoSimulador from './components/DemoSimulador';
 
 // A home é a planta de um apartamento: cada cômodo leva a uma parte do site.
 // Escala da planta: 50 px = 1 m.
@@ -161,6 +162,7 @@ export default function Home() {
           <div className="flex flex-wrap gap-3">
             <Link href="/projetos" className="botao botao-principal">Ver projetos</Link>
             <a href="/curriculo-joao-victor-varela.pdf" download className="botao botao-linha">Baixar currículo</a>
+            <a href="#simulador" className="botao botao-linha">Testar o simulador</a>
           </div>
         </div>
 
@@ -168,6 +170,10 @@ export default function Home() {
           <Planta />
         </div>
       </section>
+
+      <div className="mt-14">
+        <DemoSimulador />
+      </div>
 
       <div className="cota-linha mt-14" aria-hidden="true" />
       <dl className="legenda grid sm:grid-cols-3 gap-8 pt-8">
