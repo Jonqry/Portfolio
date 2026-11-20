@@ -185,7 +185,7 @@ export default function Home() {
         <div>
           <dt className="text-xl">Procurando</dt>
           <dd>
-            Estágio ou vaga júnior em desenvolvimento, em Recife.{' '}
+            Estágio em desenvolvimento, em Recife.{' '}
             <a href="mailto:joaovictorvarela321@gmail.com" className="link-texto">Fale comigo</a>
           </dd>
         </div>
