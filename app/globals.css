@@ -6,15 +6,45 @@
   que o corretor usa para destacar a unidade do cliente.
 */
 :root {
-  --papel: #f4f6f5;
-  --piso: #e4e9e6;
-  --tinta: #22292b;
-  --tinta-suave: #55636a;
+  /* Tokens do DESIGN.md, seção 4 */
+  --estande: #26313a;
+  --marca-texto: #f5d547;
+  --maquete: #f3f2ee;
+  --porcelanato: #d8d6cf;
+  --taco: #b98a57;
+  --ceramica: #e4e2dc;
+  --laje: #bdbab2;
+  --mdf: #b0916a;
+  --spot: #ffe9b8;
+  --tinta: #1e2a22;
+  --grafite: #23292b;
+
+  /* Nomes que o código já usa, apontando para os tokens.
+     Tinta suave e azul: 6,3:1 sobre Maquete e 4,9:1 sobre Porcelanato. */
+  --papel: var(--maquete);
+  --piso: var(--ceramica);
+  --tinta-suave: #4f5b54;
   --linha: #8d9a9e;
-  --sol: #f5d547;
+  --sol: var(--marca-texto);
   --azul: #1e5a8c;
   --branco: #ffffff;
-  --fonte: "Archivo Variable", system-ui, sans-serif;
+  --fonte: var(--fonte-bricolage), system-ui, sans-serif;
+}
+
+/* Escala do DESIGN.md: 16 / 20 / 25 / 31 / 39 / 61 px, com o corpo em 17 px */
+@theme {
+  --text-sm: 1rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5625rem;
+  --text-2xl: 1.9375rem;
+  --text-3xl: 2.4375rem;
+}
+
+/* No máximo 70 caracteres por linha no texto corrido das páginas internas.
+   Fica na camada base para um max-w-* do próprio parágrafo continuar valendo. */
+@layer base {
+  .pagina p { max-width: 70ch; }
 }
 
 * { box-sizing: border-box; }
@@ -181,7 +211,7 @@ a { color: inherit; }
 /* ---------- páginas internas ---------- */
 .pagina { max-width: 64rem; margin: 0 auto; }
 .titulo-pagina {
-  font-size: clamp(2.4rem, 6vw, 3.6rem);
+  font-size: clamp(2.4375rem, 6vw, 3.8125rem);
   font-weight: 800;
   margin-bottom: 0.6rem;
 }
@@ -306,8 +336,78 @@ a { color: inherit; }
 }
 .marco.atual::before { background: var(--sol); }
 
+/* ---------- página interna como cômodo ----------
+   Parede grossa em volta, o piso do cômodo aparecendo entre a parede e o conteúdo,
+   e a porta de saída na parede de cima. O texto fica sempre sobre a Maquete:
+   o Taco nunca é fundo de texto. */
+.comodo-pagina {
+  --parede: 8px;
+  --vao: 3rem;
+  position: relative;
+  max-width: 68rem;
+  margin: calc(var(--vao) + 0.5rem) auto 0;
+  border: var(--parede) solid var(--grafite);
+  background: var(--piso-comodo, var(--porcelanato));
+  padding: 0.6rem;
+}
+.comodo-pagina > .pagina {
+  background: var(--maquete);
+  padding: 2rem 1.25rem 2.5rem;
+}
+@media (min-width: 768px) {
+  .comodo-pagina { --parede: 12px; padding: 0.9rem; }
+  .comodo-pagina > .pagina { padding: 3rem 3rem 3.5rem; }
+}
+
+/* A porta abre para fora do cômodo, como numa planta: folha, arco e o vão na parede. */
+.porta-saida {
+  position: absolute;
+  left: 2rem;
+  top: calc(-1 * var(--parede) - var(--vao));
+  height: var(--vao);
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6rem;
+  padding-bottom: 0.35rem;
+  color: var(--tinta);
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+}
+.porta-saida:hover { text-decoration: underline; text-underline-offset: 4px; }
+.porta-saida::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 100%;
+  width: var(--vao);
+  height: var(--parede);
+  background: var(--piso-comodo, var(--porcelanato));
+}
+.porta-simbolo {
+  flex: none;
+  align-self: flex-end;
+  width: var(--vao);
+  height: var(--vao);
+  margin-bottom: -0.35rem;
+  overflow: visible;
+}
+.porta-arco { fill: none; stroke: var(--tinta-suave); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.porta-folha {
+  fill: none;
+  stroke: var(--grafite);
+  stroke-width: 3;
+  transform-box: view-box;
+  transform-origin: 0 48px;
+  --fechada: 90deg;
+}
+.porta-saida:is(:hover, :focus-visible) .porta-folha {
+  animation: abrir-porta 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .porta-folha { animation: none !important; }
   .planta-traco, .planta-surge {
     animation: none;
     opacity: 1;

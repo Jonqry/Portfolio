@@ -157,10 +157,10 @@ export default function Home() {
       <section className="grid md:grid-cols-[1fr_1.15fr] gap-10 md:gap-14 items-center">
         <div>
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold mb-6">João Victor Varela</h1>
-          <p className="text-lg sm:text-xl text-[color:var(--tinta-suave)] max-w-xl mb-4">
+          <p className="text-lg text-[color:var(--tinta-suave)] max-w-xl mb-4">
             Desenvolvo com React, TypeScript e C# com .NET, e estudo Sistemas para Internet na Unicap.
           </p>
-          <p className="text-lg sm:text-xl text-[color:var(--tinta-suave)] max-w-xl mb-8">
+          <p className="text-lg text-[color:var(--tinta-suave)] max-w-xl mb-8">
             De dia sou corretor de imóveis na Place Brokers. Por isso a minha casa aqui é{' '}
             <span className="marca-texto ao-abrir">uma planta</span>: é
             o que eu mostro aos clientes todo dia. Hoje estou construindo, em equipe, o sistema da própria

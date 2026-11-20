@@ -1,7 +1,14 @@
-import "@fontsource-variable/archivo/wdth.css";
+import { Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
 
+// Uma família só: o tamanho óptico separa título de corpo (DESIGN.md, seção 4).
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  axes: ["opsz", "wdth"],
+  variable: "--fonte-bricolage",
+  display: "swap",
+});
 
 const descricao =
   "Desenvolvedor em Recife, estudante de Sistemas para Internet na Unicap. Projetos em React, TypeScript, Node.js e C# com .NET.";
@@ -32,7 +39,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className={bricolage.variable}>
       <body className="min-h-screen flex flex-col">
         <a href="#conteudo" className="pular">Pular para o conteúdo</a>
         <Navbar />

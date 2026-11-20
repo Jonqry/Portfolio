@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import Comodo from '../components/Comodo';
 
 export const metadata = {
   title: 'Projetos',
@@ -152,7 +153,7 @@ function Outro({ projeto }) {
 
 export default function Projetos() {
   return (
-    <div className="pagina space-y-10">
+    <Comodo piso="porcelanato" className="space-y-10">
       <header>
         <h1 className="titulo-pagina">Projetos</h1>
         <p className="intro-pagina">O que eu construí na faculdade e por conta própria.</p>
@@ -179,6 +180,6 @@ export default function Projetos() {
         Outros estudos estão no meu{' '}
         <a href="https://github.com/Jonqry" target="_blank" rel="noopener noreferrer" className="link-texto">GitHub</a>.
       </p>
-    </div>
+    </Comodo>
   );
 }

@@ -64,13 +64,13 @@ A casa é um apartamento de 2 quartos com varanda, sem suíte: 43,2 m² mais 4,2
 | Cerâmica | `#E4E2DC` | Piso da cozinha, do banheiro e da área de serviço |
 | Laje | `#BDBAB2` | Corte da laje e o corredor do prédio |
 | MDF | `#B0916A` | Borda da placa da maquete (só texto grande por cima: 4,5:1) |
-| Spot | `#FFE9B8` | A luz do estande e o anel de foco |
+| Spot | `#FFE9B8` | A luz do estande e o anel de foco sobre o Estande (nas páginas claras, o anel de foco é o Marca-texto) |
 | Tinta | `#1E2A22` | Texto |
 | Grafite | `#23292B` | Paredes na etapa de planta e as cotas |
 
 ### Tipografia
 
-**Bricolage Grotesque** variável, com os eixos de tamanho óptico, largura e peso. É uma família só: o tamanho óptico separa título de corpo. Os nomes dos cômodos ficam escritos no piso, na mesma fonte (vão como textura no 3D e como `<text>` no SVG). Antes de instalar, confirmar que o pacote existe no Fontsource. Se não existir, usar os arquivos do repositório oficial, auto-hospedados.
+**Bricolage Grotesque** variável, com os eixos de tamanho óptico, largura e peso. É uma família só: o tamanho óptico separa título de corpo. Os nomes dos cômodos ficam escritos no piso, na mesma fonte (vão como textura no 3D e como `<text>` no SVG). Carregada com `next/font/google` (eixos `opsz` e `wdth`), que hospeda os arquivos junto com o site, como a Bitter da demo do Simulador.
 
 Escala: 16 / 20 / 25 / 31 / 39 / 61 px (razão de 1,25, com saltos no topo). O corpo fica em 17px com altura de linha de 1,6 e no máximo 70 caracteres por linha.
 
@@ -131,7 +131,8 @@ O 3D anterior ficou simples porque eram caixas com luz calculada em tempo real. 
 ## 8. Páginas internas
 
 - Cada página é um cômodo. A moldura é a parede grossa nas bordas, com uma abertura de porta onde fica "Voltar à planta".
-- O fundo é o piso do cômodo de onde a pessoa veio.
+- O piso do cômodo aparece como uma faixa entre a parede e o conteúdo, e o texto fica sempre sobre a Maquete. Hoje cada página usa o piso do próprio cômodo: Projetos, Sobre e Experiência em Porcelanato, Place Brokers em Taco. Com o mergulho do passo 5, passa a ser o piso do cômodo de onde a pessoa veio.
+- É o componente `<Comodo piso="...">`, em `app/components/Comodo.js`.
 - A página de projeto mostra o vídeo de uso, o problema, o que você fez e os links ("Testar", "Ver o código", "Ler o estudo de caso").
 
 ## 9. Identidade dos projetos e o carimbo
@@ -161,7 +162,7 @@ O primeiro projeto a ganhar identidade própria é o **Simulador**, porque ele a
 3. Sua etapa de arte e bake no Blender → verificar: render parado aprovado por você e `.glb` dentro do orçamento da seção 5.
 4. Cena 3D na home com a rolagem → verificar: funciona com teclado, sem WebGL e com movimento reduzido; LCP dentro da meta.
 5. Mergulho no cômodo + View Transition → verificar: ida, volta e botão voltar do navegador.
-6. Demo do Simulador na home → verificar: os testes da função copiada passam e os valores batem com o Simulador completo.
+6. Demo do Simulador na home → verificar: os testes da função copiada passam e os valores batem com o Simulador completo. Feito.
 7. Identidade própria do Simulador + carimbo → verificar: nada do portfólio aparece no Simulador além do carimbo.
-8. Tokens e páginas internas como cômodos → verificar: contraste e navegação por teclado em todas as páginas.
+8. Tokens e páginas internas como cômodos → verificar: contraste e navegação por teclado em todas as páginas. Feito; o fundo Estande entra na home com o passo 4.
 9. Abertura com o prédio: script que gera os andares a partir da mesma planta, com a unidade marcada em marca-texto → verificar: o prédio pesa pouco (só volumes), a câmera desce até a unidade certa e os cômodos continuam clicáveis desde a chegada.

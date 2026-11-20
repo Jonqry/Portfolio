@@ -14,7 +14,7 @@ export default function Navbar() {
   return (
     <nav className="nav">
       <div className="max-w-6xl mx-auto px-5 sm:px-8 flex flex-col md:flex-row md:items-center md:justify-between gap-1 py-3">
-        <Link href="/" className="marca text-xl font-extrabold no-underline">
+        <Link href="/" className="marca text-lg font-extrabold no-underline">
           João Victor Varela
         </Link>
         <div className="flex flex-wrap gap-1 -mx-2 md:mx-0">

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Comodo from '../components/Comodo';
 
 export const metadata = {
   title: 'Experiência',
@@ -59,7 +60,7 @@ const pontes = [
 
 export default function Profissional() {
   return (
-    <div className="pagina space-y-8">
+    <Comodo piso="porcelanato" className="space-y-8">
       <header>
         <h1 className="titulo-pagina">Experiência</h1>
         <p className="intro-pagina">
@@ -110,6 +111,6 @@ export default function Profissional() {
           ))}
         </dl>
       </section>
-    </div>
+    </Comodo>
   );
 }

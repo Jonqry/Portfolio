@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import Comodo from '../../components/Comodo';
 
 export const metadata = {
   title: 'Place Brokers: estudo de caso',
@@ -54,7 +55,7 @@ const entregas = [
 
 export default function PlaceBrokers() {
   return (
-    <div className="pagina space-y-10">
+    <Comodo piso="taco" className="space-y-10">
       <header>
         <p className="text-sm text-[color:var(--tinta-suave)] mb-1">Estudo de caso</p>
         <h1 className="titulo-pagina">Place Brokers</h1>
@@ -177,6 +178,6 @@ export default function PlaceBrokers() {
       <p className="text-sm text-[color:var(--tinta-suave)]">
         O servidor gratuito pode levar até um minuto para acordar na primeira visita.
       </p>
-    </div>
+    </Comodo>
   );
 }
