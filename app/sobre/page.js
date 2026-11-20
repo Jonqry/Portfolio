@@ -42,7 +42,7 @@ export default function Sobre() {
             API seguindo o OWASP API Security Top 10 e cobri os controles principais com testes de integração.
           </p>
           <p>
-            Busco estágio ou vaga júnior em desenvolvimento, em Recife. Posso começar logo e estagiar
+            Busco estágio em desenvolvimento, em Recife. Posso começar logo e estagiar
             até o fim da faculdade.
           </p>
         </div>
@@ -85,7 +85,7 @@ export default function Sobre() {
       <section className="bloco">
         <h2 className="text-xl font-semibold mb-2">Vamos conversar</h2>
         <p className="text-[color:var(--tinta-suave)] mb-5">
-          Estou procurando meu primeiro estágio ou vaga júnior em desenvolvimento, em Recife.
+          Estou procurando meu primeiro estágio em desenvolvimento, em Recife.
         </p>
         <div className="flex flex-wrap gap-3">
           <a href="mailto:joaovictorvarela321@gmail.com" className="botao botao-principal">Enviar e-mail</a>
