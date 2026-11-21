@@ -29,6 +29,7 @@ FOLGA_PORTA = 1         # cm entre a folha e o batente
 ESPESSURA_VIDRO = 2     # cm
 ALTURA_PISO = 0.2       # cm acima da laje, para não brigar com ela
 ALTURA_CORTE = 150      # cm: as paredes são cortadas aqui, como na planta humanizada 3D, para os cômodos aparecerem
+ALTURA_CORTE_MOVEIS = 110  # cm: móveis altos e folhas de porta são cortados abaixo das paredes, para não se confundirem com elas
 
 CORES = {
     "Parede": "#F3F2EE",
@@ -416,7 +417,7 @@ def construir():
     for p in planta["portas"]:
         d = dados_porta(planta, p)
         e = ESPESSURA_FOLHA / 100
-        vs, fs = caixa(0, d["largura"], -e / 2, e / 2, 0, min(alt["verga"] - FOLGA_PORTA, ALTURA_CORTE) / 100)
+        vs, fs = caixa(0, d["largura"], -e / 2, e / 2, 0, min(alt["verga"] - FOLGA_PORTA, ALTURA_CORTE_MOVEIS) / 100)
         ob = _objeto(bpy, col, f"Porta_{p['id']}", vs, fs, [mat["Porta"]])
         ob.location = d["local"]
         ob.rotation_euler[2] = d["rotacao"]
@@ -446,7 +447,7 @@ def construir_moveis():
     cx, cy, _ = centro(planta)
     z = ALTURA_PISO / 100
     for nome, x, y, w, d, h in MOVEIS:
-        h = min(h, ALTURA_CORTE)  # móvel alto também é cortado, como as paredes
+        h = min(h, ALTURA_CORTE_MOVEIS)  # móvel alto é cortado abaixo das paredes, para não se confundir com elas
         vs, fs = caixa((x - cx) / 100, (x + w - cx) / 100, -(y + d - cy) / 100, -(y - cy) / 100, z, z + h / 100)
         _objeto(bpy, col, nome, vs, fs, [mat])
 
