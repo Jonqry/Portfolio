@@ -35,18 +35,18 @@ A planta fica fixa na tela (`position: sticky`) numa seção de cerca de 250vh. 
 
 ### A planta
 
-A casa é um apartamento de 2 quartos com varanda, sem suíte: 43,2 m² mais 4,2 m² de varanda, o tipo de imóvel do MCMV. As medidas estão em `app/planta.json`. Uma meia parede de 1,10 m separa a cozinha do jantar, a varanda tem guarda-corpo de vidro e um trecho do corredor do prédio fica na porta de entrada. No piso, o nome da seção vem grande e o tipo do cômodo vem pequeno embaixo, para quem não conhece a metáfora entender igual.
+A casa é a planta tipo de um apartamento de 2 quartos, um deles suíte, com varanda gourmet: 9,20 × 5,30 m por fora, o tipo de imóvel do MCMV. A base é uma planta cotada real, sem o nome do empreendimento nem da construtora. As medidas estão em `app/planta.json`, com paredes de 10 cm (a parede entre a varanda e a sala tem 15 cm na planta cotada e ficou com 10, centrada). A sala é em L e se divide na linha da parede do quarto: o estar de um lado e o jantar do outro. A cozinha e a área de serviço são abertas para a sala, a varanda tem guarda-corpo de vidro de 1,10 m, a laje técnica fica atrás dos quartos e um trecho do corredor do prédio fica na porta de entrada. No folder dessa planta, o canto do jantar junto ao banheiro é uma parede curva; por enquanto ele fica reto, como na planta cotada, e a curva entra depois como `paredesCurvas` no JSON, desenhada pelo SVG e pelo `maquete.py`. No piso, o nome da seção vem grande e o tipo do cômodo vem pequeno embaixo, para quem não conhece a metáfora entender igual.
 
 | Cômodo | Seção |
 |---|---|
-| Quarto 1 | Simulador |
-| Quarto 2 | Place Brokers |
+| Suíte | Simulador |
+| Quarto | Place Brokers |
 | Cozinha | CashFlow (as contas da casa) |
 | Área de serviço | Mais projetos (Currículo Express e EcoCiclo) |
 | Sala de estar | Sobre |
 | Mesa de jantar | Experiência e currículo |
-| Varanda | Contato |
-| Banheiro e circulação | Nenhuma: só dão realismo à planta |
+| Varanda gourmet | Contato |
+| Banheiros, circulações, laje técnica e corredor | Nenhuma: só dão realismo à planta |
 
 ## 4. Tokens
 
