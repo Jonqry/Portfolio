@@ -117,11 +117,23 @@ def exportar(pasta):
     objetos = [ob for ob in bpy.context.view_layer.objects if ob.type == "MESH"
                and ({c.name for c in ob.users_collection} & {"Maquete (gerada)", "Móveis (gerados)"})]
     _selecionar(objetos)
+    # Cor desenhada por nós (como o ripado do arte.py) não vai para o glTF, e o material sairia branco:
+    # durante a exportação, a cor base vira a cor de viewport do material.
+    trocas = []
+    for m in {s.material for ob in objetos for s in ob.material_slots if s.material and s.material.node_tree}:
+        bsdf = next((n for n in m.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
+        if bsdf and bsdf.inputs["Base Color"].is_linked:
+            ligacao = bsdf.inputs["Base Color"].links[0]
+            trocas.append((m, ligacao.from_socket, bsdf.inputs["Base Color"]))
+            m.node_tree.links.remove(ligacao)
+            bsdf.inputs["Base Color"].default_value = m.diffuse_color
     caminho = os.path.join(pasta, "maquete.glb")
     bpy.ops.export_scene.gltf(filepath=caminho, export_format="GLB", use_selection=True, export_apply=True,
                               export_texcoords=True, export_normals=False, export_materials="EXPORT",
                               export_extras=True, export_draco_mesh_compression_enable=True,
                               export_draco_mesh_compression_level=6)
+    for m, origem, entrada in trocas:
+        m.node_tree.links.new(origem, entrada)
     dg = bpy.context.evaluated_depsgraph_get()
     triangulos = 0
     for ob in objetos:
