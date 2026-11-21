@@ -62,22 +62,33 @@ MOVEIS = [
     ("Vaso sanitário", 240, 455, 40, 60, 40),
     ("Pia do banheiro", 305, 470, 50, 45, 85),
     ("Rack da TV", 505, 150, 40, 130, 50),
-    ("Sofá", 640, 160, 85, 200, 80),
-    ("Mesa de centro", 565, 220, 50, 80, 40),
-    ("Mesa de jantar", 420, 380, 80, 80, 75),
-    ("Cadeira", 440, 340, 40, 40, 45),
-    ("Cadeira", 500, 400, 40, 40, 45),
-    ("Cadeira", 440, 460, 40, 40, 45),
-    ("Bancada da pia", 845, 300, 60, 125, 90),
-    ("Bancada do fogão", 757, 445, 81, 50, 90),
+    ("Sofá", 630, 150, 80, 190, 80),
+    ("Mesa lateral", 595, 205, 32, 32, 50),
+    ("Aparador", 717, 155, 40, 182, 75),
+    ("Mesa de jantar", 482, 372, 96, 96, 75),
+    ("Cadeira", 510, 330, 40, 40, 45),
+    ("Cadeira", 510, 468, 40, 40, 45),
+    ("Cadeira", 440, 400, 40, 40, 45),
+    ("Cadeira", 580, 400, 40, 40, 45),
+    ("Armário do café", 370, 385, 42, 40, 90),
+    ("Bancada do café", 370, 425, 40, 40, 90),
+    ("Painel ripado", 420, 509, 230, 6, 260),
+    ("Bancada da cozinha", 845, 210, 60, 220, 90),
     ("Geladeira", 840, 430, 65, 65, 180),
     ("Tanque", 836, 140, 44, 52, 90),
-    ("Máquina de lavar", 845, 215, 60, 60, 85),
     ("Bancada gourmet", 845, 5, 60, 122, 90),
-    ("Balcão da varanda", 560, 5, 280, 35, 105),
-    ("Banqueta", 600, 45, 40, 40, 75),
-    ("Banqueta", 680, 45, 40, 40, 75),
-    ("Banqueta", 760, 45, 40, 40, 75),
+    ("Balcão da varanda", 505, 5, 335, 35, 105),
+    ("Banqueta", 530, 45, 40, 40, 75),
+    ("Banqueta", 590, 45, 40, 40, 75),
+    ("Banqueta", 650, 45, 40, 40, 75),
+    ("Condensadora do ar", 188, -55, 38, 36, 55),
+    ("Condensadora do ar", 328, -55, 38, 36, 55),
+]
+
+# Móveis curvos: nome, centro (x, y) e raio do arco na planta, ângulos "de" e "ate" em graus (0° para +x e 90° para +y,
+# que cresce para baixo) e altura, em cm. O quarto de círculo arredonda o canto entre duas paredes, e o canto fica cheio.
+MOVEIS_CURVOS = [
+    ("Painel curvo do café", (420, 465), 50, 90, 180, 260),
 ]
 
 
@@ -230,6 +241,24 @@ def _entre(p, a, b):
         return False
     e = eixos[0]
     return all(p[d] == a[d] for d in range(3) if d != e) and min(a[e], b[e]) < p[e] < max(a[e], b[e])
+
+
+def malha_curva(centro, raio, de, ate, altura, segmentos=16):
+    """Quarto de círculo que arredonda um canto, com o canto cheio até o arco (cm, coordenadas da planta).
+    Devolve vértices e faces com a normal para fora."""
+    (cx, cy), r = centro, raio
+    angulos = [math.radians(de + (ate - de) * i / segmentos) for i in range(segmentos + 1)]
+    canto = (cx + r * (math.cos(angulos[0]) + math.cos(angulos[-1])),
+             cy + r * (math.sin(angulos[0]) + math.sin(angulos[-1])))
+    perfil = [canto] + [(cx + r * math.cos(a), cy + r * math.sin(a)) for a in angulos]
+    area = sum(x1 * y2 - x2 * y1 for (x1, y1), (x2, y2) in zip(perfil, perfil[1:] + perfil[:1]))
+    if area < 0:
+        perfil.reverse()  # anti-horário, para a normal do topo apontar para cima
+    n = len(perfil)
+    vertices = [(x, y, 0) for x, y in perfil] + [(x, y, altura) for x, y in perfil]
+    faces = [tuple(n + i for i in range(n)), tuple(reversed(range(n)))]
+    faces += [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)]
+    return vertices, faces
 
 
 def malha_laje(planta):
@@ -449,6 +478,9 @@ def construir_moveis():
     for nome, x, y, w, d, h in MOVEIS:
         h = min(h, ALTURA_CORTE_MOVEIS)  # móvel alto é cortado abaixo das paredes, para não se confundir com elas
         vs, fs = caixa((x - cx) / 100, (x + w - cx) / 100, -(y + d - cy) / 100, -(y - cy) / 100, z, z + h / 100)
+        _objeto(bpy, col, nome, vs, fs, [mat])
+    for nome, centro_arco, raio, de, ate, h in MOVEIS_CURVOS:
+        vs, fs = para_blender(planta, *malha_curva(centro_arco, raio, de, ate, min(h, ALTURA_CORTE_MOVEIS)))
         _objeto(bpy, col, nome, vs, fs, [mat])
 
 
