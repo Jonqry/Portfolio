@@ -543,7 +543,8 @@ def construir_estudio():
         mirar(ob)
 
     lente = bpy.data.cameras.new("Câmera do estande")
-    lente.lens = 50
+    lente.lens = 46
+    lente.shift_y = -0.062  # sobe a maquete no quadro: a frente aparece maior na perspectiva e ela ficava baixa
     camera = bpy.data.objects.new("Câmera do estande", lente)
     camera.location = (10.89, 15.29, 19.1)  # do lado da varanda, uns 45° de cima, a maquete inteira no quadro
     col.objects.link(camera)
