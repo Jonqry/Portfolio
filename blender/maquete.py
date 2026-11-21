@@ -36,7 +36,7 @@ ALTURA_CORTE_MOVEIS = 100  # cm: móveis altos e folhas de porta são cortados a
 CORES = {
     "Parede": "#F3F2EE",
     "Porta": "#F3F2EE",
-    "Movel": "#C9AE84",
+    "Movel": "#EEEBE4",
     "Acrilico": "#F2F6F7",
     "Laje": "#BDBAB2",
     "MDF": "#B0916A",
@@ -50,40 +50,63 @@ CORES = {
     "Spot": "#FFE9B8",
 }
 
-# Móveis de maquete em blocos: nome, canto (x, y) na planta, largura, profundidade e altura, em cm.
-# São um ponto de partida para o render de teste, longe do giro das portas. Os que aparecem primeiro na câmera
-# vêm em partes (cabeceira, travesseiros, encosto, braços) para serem reconhecidos de longe.
+def _cadeira(x, y, encosto=None, assento=45, lado=40, nome="cadeira"):
+    """Assento, quatro pés e, se pedido, o encosto do lado "norte", "sul", "oeste" ou "leste" (y cresce para o sul).
+    Canto (x, y) e medidas em cm; serve também para banqueta, sem encosto."""
+    pe, chapa = 3, 4
+    pecas = [(f"Assento da {nome}", x, y, lado, lado, assento, assento - chapa)]
+    pecas += [(f"Pé da {nome}", px, py, pe, pe, assento - chapa)
+              for px in (x + 1, x + lado - pe - 1) for py in (y + 1, y + lado - pe - 1)]
+    if encosto:
+        ex, ey, ew, ed = {"norte": (x, y, lado, chapa), "sul": (x, y + lado - chapa, lado, chapa),
+                          "oeste": (x, y, chapa, lado), "leste": (x + lado - chapa, y, chapa, lado)}[encosto]
+        pecas.append((f"Encosto da {nome}", ex, ey, ew, ed, assento + 40, assento))
+    return pecas
+
+
+# Móveis de maquete em blocos: nome, canto (x, y) na planta, largura, profundidade, topo e, se não começar no
+# piso, a base, em cm. São um ponto de partida para o render de teste, longe do giro das portas. Os que aparecem
+# na câmera vêm em partes (base, colchão, almofadas, pés) para serem reconhecidos de longe.
 MOVEIS = [
     ("Cabeceira", 5, 55, 8, 150, 100),
-    ("Travesseiro", 13, 60, 37, 70, 55),
-    ("Travesseiro", 13, 130, 37, 70, 55),
-    ("Cama casal", 50, 60, 145, 140, 45),
+    ("Cama casal", 13, 60, 182, 140, 28),
+    ("Colchão", 15, 62, 178, 136, 46, 28),
+    ("Travesseiro", 18, 66, 30, 62, 56, 46),
+    ("Travesseiro", 18, 132, 30, 62, 56, 46),
+    ("Edredom", 90, 61, 104, 138, 50, 46),
     ("Criado-mudo", 5, 15, 40, 40, 50),
     ("Criado-mudo", 5, 205, 40, 40, 50),
     ("Guarda-roupa", 5, 250, 130, 55, 220),
     ("Cabeceira", 262, 5, 90, 6, 90),
-    ("Cama de solteiro", 262, 11, 90, 184, 45),
+    ("Cama de solteiro", 262, 11, 90, 184, 28),
+    ("Colchão", 263, 12, 88, 182, 46, 28),
+    ("Travesseiro", 270, 15, 74, 30, 56, 46),
     ("Cabeceira", 400, 5, 90, 6, 90),
-    ("Cama de solteiro", 400, 11, 90, 184, 45),
+    ("Cama de solteiro", 400, 11, 90, 184, 28),
+    ("Colchão", 401, 12, 88, 182, 46, 28),
+    ("Travesseiro", 408, 15, 74, 30, 56, 46),
     ("Guarda-roupa", 345, 230, 150, 55, 220),
-    ("Vaso sanitário", 5, 380, 60, 40, 40),
+    ("Caixa acoplada", 5, 382, 18, 36, 75),
+    ("Vaso sanitário", 23, 385, 40, 30, 40),
     ("Pia do banheiro", 5, 320, 45, 45, 85),
-    ("Vaso sanitário", 240, 455, 40, 60, 40),
+    ("Caixa acoplada", 242, 497, 36, 18, 75),
+    ("Vaso sanitário", 245, 457, 30, 40, 40),
     ("Pia do banheiro", 305, 470, 50, 45, 85),
     ("Rack da TV", 505, 150, 40, 130, 50),
-    ("Sofá", 630, 165, 62, 160, 42),
-    ("Encosto do sofá", 692, 150, 18, 190, 80),
-    ("Braço do sofá", 630, 150, 62, 15, 60),
-    ("Braço do sofá", 630, 325, 62, 15, 60),
+    ("TV", 508, 165, 4, 100, 100, 50),
+    ("Sofá", 630, 150, 80, 190, 20),
+    ("Encosto do sofá", 692, 150, 18, 190, 80, 20),
+    ("Braço do sofá", 630, 150, 62, 15, 60, 20),
+    ("Braço do sofá", 630, 325, 62, 15, 60, 20),
+    ("Almofada do assento", 632, 167, 58, 77, 42, 20),
+    ("Almofada do assento", 632, 246, 58, 77, 42, 20),
+    ("Almofada do encosto", 677, 167, 15, 77, 72, 42),
+    ("Almofada do encosto", 677, 246, 15, 77, 72, 42),
     ("Aparador", 717, 155, 40, 182, 75),
-    ("Cadeira", 510, 336, 40, 34, 45),
-    ("Encosto da cadeira", 510, 330, 40, 6, 85),
-    ("Cadeira", 510, 470, 40, 32, 45),
-    ("Encosto da cadeira", 510, 502, 40, 6, 85),
-    ("Cadeira", 446, 400, 34, 40, 45),
-    ("Encosto da cadeira", 440, 400, 6, 40, 85),
-    ("Cadeira", 580, 400, 34, 40, 45),
-    ("Encosto da cadeira", 614, 400, 6, 40, 85),
+    *_cadeira(510, 330, "norte"),
+    *_cadeira(510, 468, "sul"),
+    *_cadeira(440, 400, "oeste"),
+    *_cadeira(580, 400, "leste"),
     ("Armário do café", 370, 385, 42, 40, 90),
     ("Bancada do café", 370, 425, 40, 40, 90),
     ("Painel ripado", 420, 509, 230, 6, 260),
@@ -92,9 +115,9 @@ MOVEIS = [
     ("Tanque", 836, 140, 44, 52, 90),
     ("Bancada gourmet", 845, 5, 60, 122, 90),
     ("Balcão da varanda", 505, 5, 335, 35, 105),
-    ("Banqueta", 530, 45, 40, 40, 75),
-    ("Banqueta", 590, 45, 40, 40, 75),
-    ("Banqueta", 650, 45, 40, 40, 75),
+    *_cadeira(530, 45, assento=75, nome="banqueta"),
+    *_cadeira(590, 45, assento=75, nome="banqueta"),
+    *_cadeira(650, 45, assento=75, nome="banqueta"),
     ("Condensadora do ar", 188, -55, 38, 36, 55),
     ("Condensadora do ar", 328, -55, 38, 36, 55),
 ]
@@ -105,11 +128,22 @@ MOVEIS_CURVOS = [
     ("Painel curvo do café", (420, 465), 50, 90, 180, 260),
 ]
 
-# Móveis redondos: nome, centro (x, y) e raio na planta e altura, em cm.
+# Móveis redondos: nome, centro (x, y) e raio na planta, topo e, se não começar no piso, a base, em cm.
 MOVEIS_REDONDOS = [
     ("Criado-mudo", (376, 28), 18, 50),
-    ("Mesa lateral", (611, 221), 16, 50),
-    ("Mesa de jantar", (530, 420), 50, 75),
+    ("Tampo da mesa lateral", (611, 221), 16, 50, 47),
+    ("Pé da mesa lateral", (611, 221), 3, 47),
+    ("Tampo da mesa de jantar", (530, 420), 50, 75, 72),
+    ("Pé da mesa de jantar", (530, 420), 7, 72, 3),
+    ("Base da mesa de jantar", (530, 420), 28, 3),
+]
+
+# Plantas estilizadas, como nas maquetes de estande: vaso e copa redonda. Nome, centro (x, y), raio e altura do
+# vaso e raio da copa, em cm; a copa fica apoiada no vaso.
+PLANTAS = [
+    ("Planta", (600, 300), 12, 35, 24),
+    ("Planta", (730, 100), 12, 35, 22),
+    ("Planta", (800, 90), 14, 40, 28),
 ]
 
 
@@ -271,13 +305,13 @@ def _entre(p, a, b):
     return all(p[d] == a[d] for d in range(3) if d != e) and min(a[e], b[e]) < p[e] < max(a[e], b[e])
 
 
-def _extrusao(perfil, altura):
-    """Prisma de um polígono da planta, do chão até a altura. Devolve vértices e faces com a normal para fora."""
+def _extrusao(perfil, altura, base=0):
+    """Prisma de um polígono da planta, da base até a altura. Devolve vértices e faces com a normal para fora."""
     area = sum(x1 * y2 - x2 * y1 for (x1, y1), (x2, y2) in zip(perfil, perfil[1:] + perfil[:1]))
     if area < 0:
         perfil.reverse()  # anti-horário, para a normal do topo apontar para cima
     n = len(perfil)
-    vertices = [(x, y, 0) for x, y in perfil] + [(x, y, altura) for x, y in perfil]
+    vertices = [(x, y, base) for x, y in perfil] + [(x, y, altura) for x, y in perfil]
     faces = [tuple(n + i for i in range(n)), tuple(reversed(range(n)))]
     faces += [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)]
     return vertices, faces
@@ -292,11 +326,30 @@ def malha_curva(centro, raio, de, ate, altura, segmentos=16):
     return _extrusao([canto] + [(cx + r * math.cos(a), cy + r * math.sin(a)) for a in angulos], altura)
 
 
-def malha_cilindro(centro, raio, altura, segmentos=24):
+def malha_cilindro(centro, raio, altura, base=0, segmentos=24):
     """Móvel redondo (cm, coordenadas da planta)."""
     (cx, cy), r = centro, raio
     return _extrusao([(cx + r * math.cos(2 * math.pi * i / segmentos), cy + r * math.sin(2 * math.pi * i / segmentos))
-                      for i in range(segmentos)], altura)
+                      for i in range(segmentos)], altura, base)
+
+
+def malha_esfera(centro, raio, z, aneis=8, segmentos=16):
+    """Esfera de centro (x, y) na planta e altura z do centro, em cm. Devolve vértices e faces com a normal para fora."""
+    (cx, cy), r = centro, raio
+    vertices = [(cx, cy, z - r)]
+    for i in range(1, aneis):
+        fi = math.pi * i / aneis - math.pi / 2
+        vertices += [(cx + r * math.cos(fi) * math.cos(2 * math.pi * j / segmentos),
+                      cy + r * math.cos(fi) * math.sin(2 * math.pi * j / segmentos), z + r * math.sin(fi))
+                     for j in range(segmentos)]
+    vertices.append((cx, cy, z + r))
+    anel = lambda i, j: 1 + (i - 1) * segmentos + j % segmentos
+    topo = len(vertices) - 1
+    faces = [(0, anel(1, j + 1), anel(1, j)) for j in range(segmentos)]
+    faces += [(anel(i, j), anel(i, j + 1), anel(i + 1, j + 1), anel(i + 1, j))
+              for i in range(1, aneis - 1) for j in range(segmentos)]
+    faces += [(anel(aneis - 1, j), anel(aneis - 1, j + 1), topo) for j in range(segmentos)]
+    return vertices, faces
 
 
 def malha_laje(planta):
@@ -610,16 +663,21 @@ def construir_moveis():
     mat = _material(bpy, "Movel", CORES["Movel"], rugosidade=0.95)
     cx, cy, _ = centro(planta)
     z = ALTURA_PISO / 100
-    for nome, x, y, w, d, h in MOVEIS:
+    for nome, x, y, w, d, h, *base in MOVEIS:
         h = min(h, ALTURA_CORTE_MOVEIS)  # móvel alto é cortado abaixo das paredes, para não se confundir com elas
-        vs, fs = caixa((x - cx) / 100, (x + w - cx) / 100, -(y + d - cy) / 100, -(y - cy) / 100, z, z + h / 100)
+        vs, fs = caixa((x - cx) / 100, (x + w - cx) / 100, -(y + d - cy) / 100, -(y - cy) / 100,
+                       z + (base[0] if base else 0) / 100, z + h / 100)
         _objeto(bpy, col, nome, vs, fs, [mat])
     for nome, centro_arco, raio, de, ate, h in MOVEIS_CURVOS:
         vs, fs = para_blender(planta, *malha_curva(centro_arco, raio, de, ate, min(h, ALTURA_CORTE_MOVEIS)))
         _objeto(bpy, col, nome, vs, fs, [mat])
-    for nome, centro_mesa, raio, h in MOVEIS_REDONDOS:
-        vs, fs = para_blender(planta, *malha_cilindro(centro_mesa, raio, min(h, ALTURA_CORTE_MOVEIS)))
+    for nome, centro_mesa, raio, h, *base in MOVEIS_REDONDOS:
+        vs, fs = para_blender(planta, *malha_cilindro(centro_mesa, raio, min(h, ALTURA_CORTE_MOVEIS), *base))
         _objeto(bpy, col, nome, vs, fs, [mat])
+    for nome, centro_vaso, raio_vaso, altura_vaso, raio_copa in PLANTAS:
+        _objeto(bpy, col, f"Vaso da {nome.lower()}", *para_blender(planta, *malha_cilindro(centro_vaso, raio_vaso, altura_vaso)), [mat])
+        copa = malha_esfera(centro_vaso, raio_copa, altura_vaso + raio_copa)
+        _objeto(bpy, col, f"Copa da {nome.lower()}", *para_blender(planta, *copa), [mat])
 
 
 def construir_estudio():
@@ -655,7 +713,7 @@ def construir_estudio():
     # Desfoque de miniatura: foco na unidade e o resto do pavimento se perdendo, como maquete fotografada
     lente.dof.use_dof = True
     lente.dof.focus_object = alvo
-    lente.dof.aperture_fstop = 0.05
+    lente.dof.aperture_fstop = 0.08
     camera = bpy.data.objects.new("Câmera do estande", lente)
     camera.location = (10.89, 15.29, 19.1)  # do lado da varanda, uns 45° de cima, a maquete inteira no quadro
     col.objects.link(camera)

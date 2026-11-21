@@ -1,7 +1,7 @@
 """
 Render parado da maquete (DESIGN.md, seção 5, item 6), com o que só o pôster tem: a suíte do Simulador em
-marca-texto, como o cômodo em foco (o piso e um volume translúcido até o corte das paredes), e o nome de
-cada seção acima do cômodo. Os dois existem só durante o render:
+marca-texto, como o cômodo em foco (o piso e um volume translúcido até o corte das paredes), com o nome dele
+acima. Um foco só: os nomes de todos os cômodos ficam para o SVG do site. Os dois existem só durante o render:
 no site o realce acende no cômodo sob o mouse e os nomes vêm do SVG, então nada disso vai para o bake nem
 para o .glb.
 
@@ -31,18 +31,13 @@ ALTURA_ROTULO = 125           # cm: logo acima do corte das paredes (1,20 m), pa
 TAMANHO_MAXIMO = 40           # cm de altura de letra
 
 
-def _cor_base(material):
-    bsdf = next(n for n in material.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
-    return bsdf.inputs["Base Color"]
-
-
 def _rotulos(planta, colecao):
-    """Nome de cada seção deitado sobre o cômodo, lendo da câmera (do lado da varanda)."""
+    """Nome do cômodo em foco deitado sobre ele, lendo da câmera (do lado da varanda)."""
     cx, cy, _ = maquete.centro(planta)
     fonte = bpy.data.fonts.load(FONTE, check_existing=True) if os.path.exists(FONTE) else None
     tinta = maquete._material(bpy, "Rotulo", TINTA)
     for c in planta["comodos"]:
-        if not c["nome"]:
+        if c["id"] != FOCO:
             continue
         # cabe na largura do cômodo: cada letra ocupa uns 55% da altura
         tamanho = min(TAMANHO_MAXIMO, 0.85 * c["largura"] / (0.55 * len(c["nome"])), 0.8 * c["profundidade"])
@@ -94,12 +89,14 @@ def renderizar():
     os.makedirs(pasta, exist_ok=True)
     cena = bpy.context.scene
 
-    foco = _cor_base(bpy.data.materials[f"Piso_{FOCO}"])
-    cor_original = tuple(foco.default_value)
+    # o piso do foco troca de material só durante o render: o material dele é dividido com outros cômodos
+    piso = bpy.data.objects[f"Piso_{FOCO}"]
+    materiais_originais = list(piso.data.materials)
     colecao = bpy.data.collections.new("Rótulos (pôster)")
     cena.collection.children.link(colecao)
     try:
-        foco.default_value = (*maquete._linear(MARCA_TEXTO), 1.0)
+        piso.data.materials.clear()
+        piso.data.materials.append(maquete._material(bpy, "Marca-texto piso", MARCA_TEXTO))
         _rotulos(planta, colecao)
         _volume_foco(planta, colecao)
         cena.render.image_settings.file_format = "WEBP"
@@ -107,7 +104,9 @@ def renderizar():
         cena.render.filepath = os.path.join(pasta, "poster.webp")
         bpy.ops.render.render(write_still=True)
     finally:
-        foco.default_value = cor_original
+        piso.data.materials.clear()
+        for m in materiais_originais:
+            piso.data.materials.append(m)
         for ob in list(colecao.objects):
             dados, malha = ob.data, ob.type == "MESH"  # lidos antes: depois de removido o objeto não existe mais
             bpy.data.objects.remove(ob, do_unlink=True)

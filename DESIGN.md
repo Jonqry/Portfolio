@@ -64,7 +64,7 @@ A casa é a planta tipo de um apartamento de 2 quartos, um deles suíte, com var
 | Cerâmica | `#E4E2DC` | Piso da cozinha, do banheiro e da área de serviço |
 | Laje | `#BDBAB2` | Corte da laje e o corredor do prédio |
 | MDF | `#B0916A` | Borda da placa da maquete (só texto grande por cima: 4,5:1) |
-| Móvel | `#C9AE84` | Móveis da maquete, em madeira clara, para não se confundirem com as paredes (nunca fundo de texto) |
+| Móvel | `#EEEBE4` | Móveis da maquete, em branco fosco com cantos arredondados (nunca fundo de texto) |
 | Spot | `#FFE9B8` | A luz do estande e o anel de foco sobre o Estande (nas páginas claras, o anel de foco é o Marca-texto) |
 | Tinta | `#1E2A22` | Texto |
 | Grafite | `#23292B` | Paredes na etapa de planta e as cotas |
@@ -89,10 +89,10 @@ O 3D anterior ficou simples porque eram caixas com luz calculada em tempo real. 
 
 1. **`planta.json` é a fonte única.** Cômodos, paredes, portas e janelas em metros. O SVG da planta e o modelo 3D saem do mesmo arquivo, então nunca ficam diferentes.
 2. **`blender/maquete.py`** lê o JSON e monta a base no Blender. As paredes saem com chanfro e vãos de porta, as folhas de porta ficam como objetos separados com a dobradiça no lugar certo, e o script cria também a placa com borda de MDF, o piso por cômodo e as coleções organizadas. As paredes são cortadas a 1,20 m, e os móveis altos e as folhas de porta a 1,00 m, como numa planta humanizada 3D, para os cômodos aparecerem de qualquer ângulo da câmera. O estúdio tem o spot baixo e de lado, para as sombras marcarem o volume, e desfoque de miniatura com foco na unidade.
-3. **Sua etapa de arte, no Blender:** móveis, materiais (isopor fosco, MDF com veio, acrílico nas janelas) e a luz do spot. É aqui que o resultado sai do "programador fez 3D". O `blender/arte.py` faz uma primeira passada automática depois do `maquete.py`: roupa de cama clara, ripado no painel do jantar, piso cinza nos banheiros e um pouco mais de contraste.
+3. **Sua etapa de arte, no Blender:** móveis, materiais (isopor fosco, MDF com veio, acrílico nas janelas) e a luz do spot. É aqui que o resultado sai do "programador fez 3D". O `blender/arte.py` faz a direção "maquete premium" depois do `maquete.py`: branco fosco nos móveis, tecido nas camas e no sofá, o topo do corte das paredes em grafite, como numa planta impressa, madeira clara em réguas nos pisos secos da unidade, pedra clara nos molhados e na varanda, os vizinhos e o corredor em branco, o ripado no jantar e um pouco mais de contraste. O único acento de cor é o marca-texto do cômodo em foco.
 4. **Bake:** lightmap por coleção (paredes e móveis numa, pisos noutra, placa noutra), em Cycles. O piso de cada projeto fica numa textura separada, para trocar sem refazer o bake.
 5. **Exportação:** glTF binário (`.glb`) com compressão de geometria (Draco ou meshopt) e texturas KTX2 ou WebP.
-6. **Render parado:** uma imagem da etapa 3 em alta, que serve como pôster, fallback e imagem de compartilhamento. Sai do `blender/poster.py`, que acende a suíte do Simulador em marca-texto e escreve o nome de cada seção sobre o cômodo só durante o render: no site, o realce é dinâmico e os nomes vêm do SVG.
+6. **Render parado:** uma imagem da etapa 3 em alta, que serve como pôster, fallback e imagem de compartilhamento. Sai do `blender/poster.py`, que acende a suíte do Simulador em marca-texto e escreve o nome dela por cima, só durante o render (um foco só no pôster): no site, o realce é dinâmico e os nomes vêm do SVG.
 7. **`blender/bake.py`** faz os passos 4 e 5, depois do `maquete.py` e do `arte.py`: assa só a luz (as cores ficam nos materiais, então o piso de um projeto troca sem refazer o bake), exporta `public/maquete/maquete.glb` com Draco e a UV 1 "Luz", grava `luz-<grupo>.webp` (paredes e móveis, pisos, placa e pavimento) e `luz.json` (arquivo, intensidade e objetos de cada lightmap), e confere o orçamento abaixo.
 
 ### No site
