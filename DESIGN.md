@@ -35,7 +35,7 @@ A planta fica fixa na tela (`position: sticky`) numa seção de cerca de 250vh. 
 
 ### A planta
 
-A casa é a planta tipo de um apartamento de 2 quartos, um deles suíte, com varanda gourmet: 9,20 × 5,30 m por fora, o tipo de imóvel do MCMV. A base é uma planta cotada real, sem o nome do empreendimento nem da construtora. As medidas estão em `app/planta.json`, com paredes de 10 cm (a parede entre a varanda e a sala tem 15 cm na planta cotada e ficou com 10, centrada). A sala é em L e se divide na linha da parede do quarto: o estar de um lado e o jantar do outro. A cozinha e a área de serviço são abertas para a sala, a varanda tem guarda-corpo de vidro de 1,10 m, a laje técnica fica atrás dos quartos e um trecho do corredor do prédio fica na porta de entrada. O canto do jantar junto ao banheiro é reto, como na planta cotada. A curva que aparece ali no folder dessa planta é marcenaria (o painel ripado do cantinho do café), então entra como móvel no `maquete.py`, em `MOVEIS_CURVOS`, e não no JSON. No piso, o nome da seção vem grande e o tipo do cômodo vem pequeno embaixo, para quem não conhece a metáfora entender igual.
+A casa é a planta tipo de um apartamento de 2 quartos, um deles suíte, com varanda gourmet: 9,20 × 5,30 m por fora, o tipo de imóvel do MCMV. A base é uma planta cotada real, sem o nome do empreendimento nem da construtora. As medidas estão em `app/planta.json`, com paredes de 10 cm (a parede entre a varanda e a sala tem 15 cm na planta cotada e ficou com 10, centrada). A sala é em L e se divide na horizontal: o estar fica junto à varanda, e o jantar, com o cantinho do café, junto à parede da entrada. O pedaço entre a circulação e o estar é só passagem. A cozinha e a área de serviço são abertas para a sala, a varanda tem guarda-corpo de vidro de 1,10 m, a laje técnica fica atrás dos quartos e um trecho do corredor do prédio fica na porta de entrada. O canto do jantar junto ao banheiro é reto, como na planta cotada. A curva que aparece ali no folder dessa planta é marcenaria (o painel ripado do cantinho do café), então entra como móvel no `maquete.py`, em `MOVEIS_CURVOS`, e não no JSON. No piso, o nome da seção vem grande e o tipo do cômodo vem pequeno embaixo, para quem não conhece a metáfora entender igual.
 
 | Cômodo | Seção |
 |---|---|
@@ -64,6 +64,7 @@ A casa é a planta tipo de um apartamento de 2 quartos, um deles suíte, com var
 | Cerâmica | `#E4E2DC` | Piso da cozinha, do banheiro e da área de serviço |
 | Laje | `#BDBAB2` | Corte da laje e o corredor do prédio |
 | MDF | `#B0916A` | Borda da placa da maquete (só texto grande por cima: 4,5:1) |
+| Móvel | `#C9AE84` | Móveis da maquete, em madeira clara, para não se confundirem com as paredes (nunca fundo de texto) |
 | Spot | `#FFE9B8` | A luz do estande e o anel de foco sobre o Estande (nas páginas claras, o anel de foco é o Marca-texto) |
 | Tinta | `#1E2A22` | Texto |
 | Grafite | `#23292B` | Paredes na etapa de planta e as cotas |
@@ -87,7 +88,7 @@ O 3D anterior ficou simples porque eram caixas com luz calculada em tempo real. 
 ### Pipeline
 
 1. **`planta.json` é a fonte única.** Cômodos, paredes, portas e janelas em metros. O SVG da planta e o modelo 3D saem do mesmo arquivo, então nunca ficam diferentes.
-2. **`blender/maquete.py`** lê o JSON e monta a base no Blender. As paredes saem com chanfro e vãos de porta, as folhas de porta ficam como objetos separados com a dobradiça no lugar certo, e o script cria também a placa com borda de MDF, o piso por cômodo e as coleções organizadas.
+2. **`blender/maquete.py`** lê o JSON e monta a base no Blender. As paredes saem com chanfro e vãos de porta, as folhas de porta ficam como objetos separados com a dobradiça no lugar certo, e o script cria também a placa com borda de MDF, o piso por cômodo e as coleções organizadas. As paredes são cortadas a 1,20 m, e os móveis altos e as folhas de porta a 1,00 m, como numa planta humanizada 3D, para os cômodos aparecerem de qualquer ângulo da câmera.
 3. **Sua etapa de arte, no Blender:** móveis, materiais (isopor fosco, MDF com veio, acrílico nas janelas) e a luz do spot. É aqui que o resultado sai do "programador fez 3D".
 4. **Bake:** lightmap por coleção (paredes e móveis numa, pisos noutra, placa noutra), em Cycles. O piso de cada projeto fica numa textura separada, para trocar sem refazer o bake.
 5. **Exportação:** glTF binário (`.glb`) com compressão de geometria (Draco ou meshopt) e texturas KTX2 ou WebP.
