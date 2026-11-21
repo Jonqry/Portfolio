@@ -9,8 +9,8 @@ import PlantaViva from './components/PlantaViva';
 const links = {
   simulador: { href: '#simulador', rotulo: 'Simulador: testar a demo nesta página' },
   'place-brokers': { href: '/projetos/place-brokers', rotulo: 'Place Brokers: ver o projeto' },
-  cashflow: { href: '/projetos', rotulo: 'CashFlow: ver nos projetos' },
-  'mais-projetos': { href: '/projetos', rotulo: 'Mais projetos: Currículo Express e EcoCiclo' },
+  cashflow: { href: '/projetos#cashflow', rotulo: 'CashFlow: ver nos projetos' },
+  'mais-projetos': { href: '/projetos#curriculo-express', rotulo: 'Mais projetos: Currículo Express e EcoCiclo' },
   sobre: { href: '/sobre', rotulo: 'Sobre mim' },
   experiencia: { href: '/profissional', rotulo: 'Experiência profissional e currículo' },
   contato: { href: 'mailto:joaovictorvarela321@gmail.com', rotulo: 'Contato: enviar e-mail' },

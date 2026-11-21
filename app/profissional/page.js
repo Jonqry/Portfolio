@@ -66,6 +66,7 @@ export default function Profissional() {
         <p className="intro-pagina">
           Antes da primeira vaga em tecnologia, aprendi a atender gente e a entender o que o cliente precisa.
         </p>
+        <a href="/curriculo-joao-victor-varela.pdf" download className="botao botao-linha mt-5">Baixar currículo em PDF</a>
         <div className="cota-linha" aria-hidden="true" />
       </header>
 

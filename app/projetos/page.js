@@ -9,6 +9,7 @@ export const metadata = {
 
 const projetos = [
   {
+    id: 'simulador',
     nome: 'Simulador de Financiamento',
     resumo: 'Projeto solo, feito para o dia a dia do corretor',
     descricao:
@@ -24,6 +25,7 @@ const projetos = [
     imagemAltura: 1200,
   },
   {
+    id: 'place-brokers',
     nome: 'Place Brokers',
     resumo: 'Plataforma de uma imobiliária real de Recife',
     descricao:
@@ -40,6 +42,7 @@ const projetos = [
     estudoDeCaso: '/projetos/place-brokers',
   },
   {
+    id: 'cashflow',
     nome: 'CashFlow',
     resumo: 'Controle de gastos da casa',
     descricao:
@@ -48,6 +51,7 @@ const projetos = [
     github: 'https://github.com/Jonqry/cashflow-fullstack',
   },
   {
+    id: 'curriculo-express',
     nome: 'Currículo Express',
     resumo: 'API REST de currículo',
     descricao:
@@ -58,6 +62,7 @@ const projetos = [
     github: 'https://github.com/Jonqry/curriculo-express',
   },
   {
+    id: 'ecociclo',
     nome: 'EcoCiclo',
     resumo: 'Logística reversa e descarte de resíduos',
     descricao:
@@ -108,7 +113,7 @@ function Tags({ tags }) {
 // Projeto em destaque: imagem e texto lado a lado, como a ficha de um empreendimento
 function Destaque({ projeto, invertido }) {
   return (
-    <article className="bloco grid md:grid-cols-2 gap-8 items-start">
+    <article id={projeto.id} className="bloco scroll-mt-24 grid md:grid-cols-2 gap-8 items-start">
       <div className={invertido ? 'md:order-2' : undefined}>
         <p className="estreito text-[color:var(--tinta-suave)] mb-1">{projeto.resumo}</p>
         <h2 className="text-3xl font-extrabold mb-3">{projeto.nome}</h2>
@@ -137,7 +142,7 @@ function Destaque({ projeto, invertido }) {
 
 function Outro({ projeto }) {
   return (
-    <li className="grid md:grid-cols-[14rem_1fr] gap-x-8 gap-y-2 py-6 border-b border-[color:var(--linha)]">
+    <li id={projeto.id} className="scroll-mt-24 grid md:grid-cols-[14rem_1fr] gap-x-8 gap-y-2 py-6 border-b border-[color:var(--linha)]">
       <div>
         <h3 className="text-xl font-bold">{projeto.nome}</h3>
         <p className="estreito text-[color:var(--tinta-suave)]">{projeto.resumo}</p>
