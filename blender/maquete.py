@@ -50,74 +50,20 @@ CORES = {
     "Spot": "#FFE9B8",
 }
 
-def _cadeira(x, y, encosto=None, assento=45, lado=40, nome="cadeira"):
-    """Assento, quatro pés e, se pedido, o encosto do lado "norte", "sul", "oeste" ou "leste" (y cresce para o sul).
-    Canto (x, y) e medidas em cm; serve também para banqueta, sem encosto."""
-    pe, chapa = 3, 4
-    pecas = [(f"Assento da {nome}", x, y, lado, lado, assento, assento - chapa)]
-    pecas += [(f"Pé da {nome}", px, py, pe, pe, assento - chapa)
-              for px in (x + 1, x + lado - pe - 1) for py in (y + 1, y + lado - pe - 1)]
-    if encosto:
-        ex, ey, ew, ed = {"norte": (x, y, lado, chapa), "sul": (x, y + lado - chapa, lado, chapa),
-                          "oeste": (x, y, chapa, lado), "leste": (x + lado - chapa, y, chapa, lado)}[encosto]
-        pecas.append((f"Encosto da {nome}", ex, ey, ew, ed, assento + 40, assento))
-    return pecas
-
-
 # Móveis de maquete em blocos: nome, canto (x, y) na planta, largura, profundidade, topo e, se não começar no
-# piso, a base, em cm. São um ponto de partida para o render de teste, longe do giro das portas. Os que aparecem
-# na câmera vêm em partes (base, colchão, almofadas, pés) para serem reconhecidos de longe.
+# piso, a base, em cm. São os que o kit não tem (ou tem pior): guarda-roupas, marcenaria do café, bancadas,
+# geladeira e tanque, longe do giro das portas.
 MOVEIS = [
-    ("Cabeceira", 5, 55, 8, 150, 100),
-    ("Cama casal", 13, 60, 182, 140, 28),
-    ("Colchão", 15, 62, 178, 136, 46, 28),
-    ("Travesseiro", 18, 66, 30, 62, 56, 46),
-    ("Travesseiro", 18, 132, 30, 62, 56, 46),
-    ("Edredom", 90, 61, 104, 138, 50, 46),
-    ("Criado-mudo", 5, 15, 40, 40, 50),
-    ("Criado-mudo", 5, 205, 40, 40, 50),
     ("Guarda-roupa", 5, 250, 130, 55, 220),
-    ("Cabeceira", 262, 5, 90, 6, 90),
-    ("Cama de solteiro", 262, 11, 90, 184, 28),
-    ("Colchão", 263, 12, 88, 182, 46, 28),
-    ("Travesseiro", 270, 15, 74, 30, 56, 46),
-    ("Cabeceira", 400, 5, 90, 6, 90),
-    ("Cama de solteiro", 400, 11, 90, 184, 28),
-    ("Colchão", 401, 12, 88, 182, 46, 28),
-    ("Travesseiro", 408, 15, 74, 30, 56, 46),
     ("Guarda-roupa", 345, 230, 150, 55, 220),
-    ("Caixa acoplada", 5, 382, 18, 36, 75),
-    ("Vaso sanitário", 23, 385, 40, 30, 40),
-    ("Pia do banheiro", 5, 320, 45, 45, 85),
-    ("Caixa acoplada", 242, 497, 36, 18, 75),
-    ("Vaso sanitário", 245, 457, 30, 40, 40),
-    ("Pia do banheiro", 305, 470, 50, 45, 85),
-    ("Rack da TV", 505, 150, 40, 130, 50),
-    ("TV", 508, 165, 4, 100, 100, 50),
-    ("Sofá", 630, 150, 80, 190, 20),
-    ("Encosto do sofá", 692, 150, 18, 190, 80, 20),
-    ("Braço do sofá", 630, 150, 62, 15, 60, 20),
-    ("Braço do sofá", 630, 325, 62, 15, 60, 20),
-    ("Almofada do assento", 632, 167, 58, 77, 42, 20),
-    ("Almofada do assento", 632, 246, 58, 77, 42, 20),
-    ("Almofada do encosto", 677, 167, 15, 77, 72, 42),
-    ("Almofada do encosto", 677, 246, 15, 77, 72, 42),
     ("Aparador", 717, 155, 40, 182, 75),
-    *_cadeira(510, 330, "norte"),
-    *_cadeira(510, 468, "sul"),
-    *_cadeira(440, 400, "oeste"),
-    *_cadeira(580, 400, "leste"),
     ("Armário do café", 370, 385, 42, 40, 90),
     ("Bancada do café", 370, 425, 40, 40, 90),
     ("Painel ripado", 420, 509, 230, 6, 260),
-    ("Bancada da cozinha", 845, 210, 60, 220, 90),
     ("Geladeira", 840, 430, 65, 65, 180),
     ("Tanque", 836, 140, 44, 52, 90),
     ("Bancada gourmet", 845, 5, 60, 122, 90),
     ("Balcão da varanda", 505, 5, 335, 35, 105),
-    *_cadeira(530, 45, assento=75, nome="banqueta"),
-    *_cadeira(590, 45, assento=75, nome="banqueta"),
-    *_cadeira(650, 45, assento=75, nome="banqueta"),
     ("Condensadora do ar", 188, -55, 38, 36, 55),
     ("Condensadora do ar", 328, -55, 38, 36, 55),
 ]
@@ -138,12 +84,39 @@ MOVEIS_REDONDOS = [
     ("Base da mesa de jantar", (530, 420), 28, 3),
 ]
 
-# Plantas estilizadas, como nas maquetes de estande: vaso e copa redonda. Nome, centro (x, y), raio e altura do
-# vaso e raio da copa, em cm; a copa fica apoiada no vaso.
-PLANTAS = [
-    ("Planta", (600, 300), 12, 35, 24),
-    ("Planta", (730, 100), 12, 35, 22),
-    ("Planta", (800, 90), 14, 40, 28),
+# Móveis do Furniture Kit da Kenney (CC0, blender/pecas/kenney): nome, modelo, canto (x, y) na planta, largura,
+# profundidade e topo da caixa onde ele entra, o lado para onde a frente aponta ("norte" é para cima na planta),
+# e, se precisar, a base e o encaixe. O modelo entra inteiro na caixa, sem distorcer ("conter"), com as costas no
+# lado oposto à frente; "preencher" estica até a caixa, para os módulos de cozinha, que no kit são baixos demais.
+MOVEIS_KIT = [
+    ("Cama casal", "bedDouble", 5, 55, 190, 150, 100, "leste"),
+    ("Criado-mudo", "cabinetBed", 5, 15, 40, 40, 50, "leste"),
+    ("Criado-mudo", "cabinetBed", 5, 205, 40, 40, 50, "leste"),
+    ("Cama de solteiro", "bedSingle", 262, 5, 90, 190, 100, "sul"),
+    ("Cama de solteiro", "bedSingle", 400, 5, 90, 190, 100, "sul"),
+    ("Vaso sanitário", "toilet", 5, 380, 60, 40, 80, "leste"),
+    ("Pia do banheiro", "bathroomSink", 5, 320, 45, 45, 85, "leste"),
+    ("Vaso sanitário", "toilet", 240, 455, 40, 60, 80, "norte"),
+    ("Pia do banheiro", "bathroomSink", 305, 470, 50, 45, 85, "norte"),
+    ("Rack da TV", "cabinetTelevision", 505, 150, 40, 130, 50, "leste"),
+    ("TV", "televisionModern", 505, 165, 40, 100, 100, "leste", 50),
+    ("Sofá", "loungeSofa", 630, 150, 80, 190, 80, "oeste"),
+    ("Tapete da sala", "rugRectangle", 560, 160, 140, 180, 2, "leste"),
+    ("Tapete do jantar", "rugRound", 460, 350, 140, 140, 2, "sul"),
+    ("Cadeira", "chairModernCushion", 510, 330, 40, 40, 85, "sul"),
+    ("Cadeira", "chairModernCushion", 510, 470, 40, 38, 85, "norte"),
+    ("Cadeira", "chairModernCushion", 440, 400, 40, 40, 85, "leste"),
+    ("Cadeira", "chairModernCushion", 580, 400, 40, 40, 85, "oeste"),
+    ("Armário da cozinha", "kitchenCabinet", 845, 210, 60, 55, 90, "oeste", 0, "preencher"),
+    ("Fogão", "kitchenStove", 845, 265, 60, 55, 90, "oeste", 0, "preencher"),
+    ("Pia da cozinha", "kitchenSink", 845, 320, 60, 55, 90, "oeste", 0, "preencher"),
+    ("Gaveteiro da cozinha", "kitchenCabinetDrawer", 845, 375, 60, 55, 90, "oeste", 0, "preencher"),
+    ("Banqueta", "stoolBar", 530, 45, 40, 40, 75, "norte"),
+    ("Banqueta", "stoolBar", 590, 45, 40, 40, 75, "norte"),
+    ("Banqueta", "stoolBar", 650, 45, 40, 40, 75, "norte"),
+    ("Planta", "pottedPlant", 576, 276, 48, 48, 83, "sul"),
+    ("Planta", "pottedPlant", 708, 78, 44, 44, 79, "sul"),
+    ("Planta", "pottedPlant", 772, 62, 56, 56, 96, "sul"),
 ]
 
 
@@ -333,25 +306,6 @@ def malha_cilindro(centro, raio, altura, base=0, segmentos=24):
                       for i in range(segmentos)], altura, base)
 
 
-def malha_esfera(centro, raio, z, aneis=8, segmentos=16):
-    """Esfera de centro (x, y) na planta e altura z do centro, em cm. Devolve vértices e faces com a normal para fora."""
-    (cx, cy), r = centro, raio
-    vertices = [(cx, cy, z - r)]
-    for i in range(1, aneis):
-        fi = math.pi * i / aneis - math.pi / 2
-        vertices += [(cx + r * math.cos(fi) * math.cos(2 * math.pi * j / segmentos),
-                      cy + r * math.cos(fi) * math.sin(2 * math.pi * j / segmentos), z + r * math.sin(fi))
-                     for j in range(segmentos)]
-    vertices.append((cx, cy, z + r))
-    anel = lambda i, j: 1 + (i - 1) * segmentos + j % segmentos
-    topo = len(vertices) - 1
-    faces = [(0, anel(1, j + 1), anel(1, j)) for j in range(segmentos)]
-    faces += [(anel(i, j), anel(i, j + 1), anel(i + 1, j + 1), anel(i + 1, j))
-              for i in range(1, aneis - 1) for j in range(segmentos)]
-    faces += [(anel(aneis - 1, j), anel(aneis - 1, j + 1), topo) for j in range(segmentos)]
-    return vertices, faces
-
-
 def malha_laje(planta):
     blocos = [(c["x"], c["x"] + c["largura"], c["y"], c["y"] + c["profundidade"], -ESPESSURA_LAJE, 0)
               for c in planta["comodos"]]
@@ -425,9 +379,12 @@ def malha_pavimento(planta):
     # em degraus, para ler como núcleo de prédio e não como dois blocos maciços
     xn0, xn1 = largura + t / 2, largura + LARGURA_NUCLEO - t / 2
     poco = (xn1 - xn0 - t) / 2
-    nucleo = [(xn0, xn1, -t / 2, t / 2, 0, altura),
-              (xn0, xn0 + poco, t / 2, t / 2 + poco, 0, altura),
-              (xn1 - poco, xn1, t / 2, t / 2 + poco, 0, altura)]
+    nucleo = [(xn0, xn1, -t / 2, t / 2, 0, altura)]
+    for a0 in (xn0, xn1 - poco):  # poços vazados, com a porta do elevador (80 cm) virada para o hall
+        a1, b0, b1 = a0 + poco, t / 2, t / 2 + poco
+        lado = (poco - 80) / 2
+        nucleo += [(a0, a0 + t, b0, b1, 0, altura), (a1 - t, a1, b0, b1, 0, altura),
+                   (a0, a0 + lado, b1 - t, b1, 0, altura), (a1 - lado, a1, b1 - t, b1, 0, altura)]
     degraus = 6
     for i in range(degraus):
         y0 = t / 2 + poco + 30 + i * 45
@@ -439,6 +396,23 @@ def malha_pavimento(planta):
                                   (largura, largura + LARGURA_NUCLEO, 0, fundo, *z),
                                   (largura, largura + LARGURA_NUCLEO, fundo + LARGURA_CORREDOR, 2 * ym, *z)], []))
     return _juntar(paredes), _juntar(lajes)
+
+
+ROTACAO_KIT = {"sul": 0, "leste": 90, "norte": 180, "oeste": -90}  # graus; no kit a frente aponta para o sul da planta
+
+
+def encaixe(minimo, maximo, caixa, frente, modo="conter"):
+    """Escala (sx, sy, sz) e deslocamento (tx, ty, tz), com v' = v·s + t, que levam um modelo de limites
+    minimo..maximo (em metros do Blender, já girado) para dentro da caixa (x0, x1, y0, y1, z0, z1): de pé na base,
+    com as costas no lado oposto à frente e centrado no outro eixo."""
+    tamanho = [b - a for a, b in zip(minimo, maximo)]
+    alvo = [caixa[1] - caixa[0], caixa[3] - caixa[2], caixa[5] - caixa[4]]
+    s = [a / t for a, t in zip(alvo, tamanho)] if modo == "preencher" else [min(a / t for a, t in zip(alvo, tamanho))] * 3
+    novo = [t * k for t, k in zip(tamanho, s)]
+    # no Blender o y cresce para o norte da planta: a frente "sul" deixa as costas no y máximo da caixa
+    x = {"leste": caixa[0], "oeste": caixa[1] - novo[0]}.get(frente, (caixa[0] + caixa[1] - novo[0]) / 2)
+    y = {"norte": caixa[2], "sul": caixa[3] - novo[1]}.get(frente, (caixa[2] + caixa[3] - novo[1]) / 2)
+    return s, [p - m * k for p, m, k in zip((x, y, caixa[4]), minimo, s)]
 
 
 def centro(planta):
@@ -674,10 +648,50 @@ def construir_moveis():
     for nome, centro_mesa, raio, h, *base in MOVEIS_REDONDOS:
         vs, fs = para_blender(planta, *malha_cilindro(centro_mesa, raio, min(h, ALTURA_CORTE_MOVEIS), *base))
         _objeto(bpy, col, nome, vs, fs, [mat])
-    for nome, centro_vaso, raio_vaso, altura_vaso, raio_copa in PLANTAS:
-        _objeto(bpy, col, f"Vaso da {nome.lower()}", *para_blender(planta, *malha_cilindro(centro_vaso, raio_vaso, altura_vaso)), [mat])
-        copa = malha_esfera(centro_vaso, raio_copa, altura_vaso + raio_copa)
-        _objeto(bpy, col, f"Copa da {nome.lower()}", *para_blender(planta, *copa), [mat])
+    construir_kit(bpy, planta, col)
+
+
+def construir_kit(bpy, planta, col):
+    """Importa cada móvel do kit, junta as partes numa malha, gira e encaixa na caixa dele. Os materiais do kit
+    ficam como vieram: o arte.py troca cada um pelo da maquete."""
+    from mathutils import Matrix
+
+    pasta = os.path.join(os.path.dirname(os.path.dirname(caminho_planta())), "blender", "pecas", "kenney",
+                         "Models", "GLTF format")
+    if not os.path.isdir(pasta):
+        raise FileNotFoundError(f"Kit de móveis não encontrado em {pasta} (veja o DESIGN.md, seção 5)")
+    cx, cy, _ = centro(planta)
+    for nome, modelo, x, y, w, d, h, frente, *resto in MOVEIS_KIT:
+        base, modo = (resto + [0, "conter"][len(resto):])[:2]
+        antes = set(bpy.data.objects)
+        bpy.ops.import_scene.gltf(filepath=os.path.join(pasta, f"{modelo}.glb"))
+        novos = [o for o in bpy.data.objects if o not in antes]
+        partes = [o for o in novos if o.type == "MESH"]
+        for o in partes:  # a transformação de cada parte vai para a malha, e as partes ficam soltas
+            mundo = o.matrix_world.copy()
+            o.parent = None
+            o.data.transform(mundo)
+            o.matrix_world = Matrix.Identity(4)
+        for o in novos:
+            if o.type != "MESH":
+                bpy.data.objects.remove(o, do_unlink=True)
+        ob = partes[0]
+        if len(partes) > 1:
+            with bpy.context.temp_override(active_object=ob, selected_editable_objects=partes, selected_objects=partes):
+                bpy.ops.object.join()
+        # giro, escala e posição ficam no objeto: na malha, as normais que vêm do kit sairiam erradas
+        giro = Matrix.Rotation(math.radians(ROTACAO_KIT[frente]), 4, "Z")
+        cs = [giro @ v.co for v in ob.data.vertices]
+        minimo, maximo = [min(c[i] for c in cs) for i in range(3)], [max(c[i] for c in cs) for i in range(3)]
+        caixa_b = ((x - cx) / 100, (x + w - cx) / 100, -(y + d - cy) / 100, -(y - cy) / 100,
+                   (ALTURA_PISO + base) / 100, (ALTURA_PISO + h) / 100)
+        s, t = encaixe(minimo, maximo, caixa_b, frente, modo)
+        ob.matrix_world = Matrix.Translation(t) @ Matrix.Diagonal((*s, 1)) @ giro
+        for c in list(ob.users_collection):
+            c.objects.unlink(ob)
+        col.objects.link(ob)
+        ob.name = nome
+        ob["kit"] = modelo
 
 
 def construir_estudio():

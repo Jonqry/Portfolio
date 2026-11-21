@@ -7,3 +7,11 @@ out/
 next-env.d.ts
 
 __pycache__/
+blender/pecas/kenney/Isometric/
+blender/pecas/kenney/Side/
+blender/pecas/kenney/Models/DAE format/
+blender/pecas/kenney/Models/FBX format/
+blender/pecas/kenney/Models/OBJ format/
+blender/pecas/kenney/Models/STL format/
+blender/pecas/kenney/*.png
+blender/pecas/kenney/*.url

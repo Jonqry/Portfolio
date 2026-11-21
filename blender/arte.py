@@ -31,6 +31,10 @@ PEDRA = ("#DEDCD6", "#D6D4CE", "#BFBCB5")    # placas e junta
 RIPA = "#C9AE84"           # o ripado do jantar, na madeira de maquete
 FRESTA = "#8A6B45"
 RIPAS_POR_METRO = 25       # ripa de 4 cm
+# Materiais do Furniture Kit da Kenney que não viram o branco fosco: estofados e tapetes vão para o tecido, e a
+# tela da TV, o tampo do fogão e o metal escuro para o grafite do corte
+KIT = {"carpet": "Tecido", "carpetWhite": "Tecido", "carpetBlue": "Tecido", "carpetDarker": "Tecido",
+       "metalDark": "Corte", "glass": "Corte"}
 PISO_POR_TIPO = {"taco": "madeira", "porcelanato": "madeira", "ceramica": "pedra", "varanda": "pedra",
                  "laje": "branco"}
 
@@ -56,8 +60,10 @@ def _material(nome, hexa, rugosidade=0.8):
 
 
 def _aplicar(material, nomes):
-    """Troca o material dos objetos com esses nomes (ou começando com eles, para pegar os .001, .002)."""
-    objetos = [ob for ob in bpy.data.objects if ob.type == "MESH" and ob.name.startswith(tuple(nomes))]
+    """Troca o material dos objetos com esses nomes (ou começando com eles, para pegar os .001, .002).
+    As peças do kit ficam de fora: elas têm vários materiais, trocados um a um em kit()."""
+    objetos = [ob for ob in bpy.data.objects if ob.type == "MESH" and ob.name.startswith(tuple(nomes))
+               and not ob.get("kit")]
     for ob in objetos:
         ob.data.materials.clear()
         ob.data.materials.append(material)
@@ -148,10 +154,22 @@ def poche():
     return faces
 
 
+def kit(movel, tecido, corte):
+    """Cada material das peças do kit vira um da maquete, pelo nome que veio do kit (sem o .001, .002)."""
+    trocas = {"Tecido": tecido, "Corte": corte}
+    pecas = [ob for ob in bpy.data.objects if ob.type == "MESH" and ob.get("kit")]
+    for ob in pecas:
+        for slot in ob.material_slots:
+            original = slot.material.name.split(".")[0] if slot.material else ""
+            slot.material = trocas.get(KIT.get(original), movel)
+    return len(pecas)
+
+
 def acabamento_dos_moveis():
-    """Cantos arredondados em todos os móveis e superfície lisa nas peças curvas (mesas, vasos, copas)."""
+    """Cantos arredondados nos móveis da maquete e superfície lisa nas peças curvas (mesas, painel). As peças do
+    kit já vêm com a geometria e as normais delas."""
     colecao = bpy.data.collections.get(maquete.COLECAO_MOVEIS)
-    objetos = [ob for ob in colecao.objects if ob.type == "MESH"] if colecao else []
+    objetos = [ob for ob in colecao.objects if ob.type == "MESH" and not ob.get("kit")] if colecao else []
     for ob in objetos:
         if "Chanfro" not in ob.modifiers:
             chanfro = ob.modifiers.new("Chanfro", "BEVEL")
@@ -177,15 +195,15 @@ def contraste():
 
 
 if __name__ == "__main__":
-    moveis = _aplicar(_material("Movel", MOVEL, rugosidade=0.9)[0],
-                      [ob.name for ob in bpy.data.collections[maquete.COLECAO_MOVEIS].objects])
-    tecido = _aplicar(_material("Tecido", TECIDO, rugosidade=1.0)[0],
-                      ("Cama", "Colchão", "Travesseiro", "Edredom", "Almofada"))
+    movel = _material("Movel", MOVEL, rugosidade=0.9)[0]
+    tecido_material = _material("Tecido", TECIDO, rugosidade=1.0)[0]
+    moveis = _aplicar(movel, [ob.name for ob in bpy.data.collections[maquete.COLECAO_MOVEIS].objects])
+    pecas_kit = kit(movel, tecido_material, _material("Corte", CORTE, 0.9)[0])
     paineis = _aplicar(ripado(), ("Painel ripado", "Painel curvo"))
     contagem = pisos()
     faces = poche()
     acabados = acabamento_dos_moveis()
     look = contraste()
-    print(f"Arte: {moveis} móveis em branco fosco ({tecido} de tecido, {paineis} ripados, {acabados} com chanfro), "
+    print(f"Arte: {moveis} móveis em branco fosco, {pecas_kit} peças do kit ({paineis} ripados, {acabados} com chanfro), "
           f"pisos {contagem}, {faces} faces de corte em grafite, "
           f"contraste: {look or 'não aplicado (look não encontrado nesta versão)'}.")
