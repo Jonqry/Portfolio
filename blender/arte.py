@@ -190,13 +190,13 @@ def marmore():
     nos, ligar = arvore.nodes, arvore.links.new
     coord = nos.new("ShaderNodeTexCoord")
     onda = nos.new("ShaderNodeTexWave")
-    onda.inputs["Scale"].default_value = 3
-    onda.inputs["Distortion"].default_value = 12
-    onda.inputs["Detail"].default_value = 4
+    onda.inputs["Scale"].default_value = 0.8  # uns 2 ou 3 veios por metro, espaçados como no decorado
+    onda.inputs["Distortion"].default_value = 4
+    onda.inputs["Detail"].default_value = 3
     ligar(coord.outputs["Object"], onda.inputs["Vector"])
     rampa = nos.new("ShaderNodeValToRGB")
     rampa.color_ramp.elements[0].color = _linear(MARMORE[1])
-    rampa.color_ramp.elements[1].position = 0.08
+    rampa.color_ramp.elements[1].position = 0.02  # veio fino
     rampa.color_ramp.elements[1].color = _linear(MARMORE[0])
     ligar(onda.outputs["Fac"], rampa.inputs["Fac"])
     ligar(rampa.outputs["Color"], bsdf.inputs["Base Color"])
