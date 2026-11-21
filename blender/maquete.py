@@ -545,7 +545,7 @@ def construir_estudio():
     lente = bpy.data.cameras.new("Câmera do estande")
     lente.lens = 50
     camera = bpy.data.objects.new("Câmera do estande", lente)
-    camera.location = (9.9, 13.9, 17.4)  # do lado da varanda, uns 45° de cima, a maquete inteira no quadro
+    camera.location = (10.89, 15.29, 19.1)  # do lado da varanda, uns 45° de cima, a maquete inteira no quadro
     col.objects.link(camera)
     mirar(camera)
     cena.camera = camera
