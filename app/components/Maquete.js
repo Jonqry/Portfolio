@@ -69,7 +69,7 @@ const PAREDES = /^(Paredes|Porta_|Vidro_)/;
 const nomeDoNo = (nome) => THREE.PropertyBinding.sanitizeNodeName(nome);
 
 function Modelo({ ativo, progresso, aoCarregar }) {
-  const { scene } = useGLTF('/maquete/maquete.glb');
+  const { scene } = useGLTF('/maquete/maquete.glb', '/draco/'); // decodificador do Draco servido pelo próprio site
   const mapas = useTexture(Object.fromEntries(Object.entries(luz).map(([g, v]) => [g, `/maquete/${v.arquivo}`])));
   const { gl, invalidate } = useThree();
   const [sobre, setSobre] = useState(null); // cômodo sob o mouse na maquete, depois que a planta some

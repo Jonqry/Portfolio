@@ -115,9 +115,9 @@ O 3D anterior ficou simples porque eram caixas com luz calculada em tempo real. 
 ## 6. Acessibilidade e "ninguém passa direto"
 
 - **A planta SVG é a página.** Ela é renderizada no servidor, vem com links reais e funciona sem JavaScript. O 3D entra por cima como camada visual, com `aria-hidden`, e aponta para os mesmos links. Foco de teclado num link do SVG acende o cômodo no 3D.
-- **Movimento reduzido:** sem rolagem conduzida e sem 3D animado. Aparece o render parado da maquete com a planta clicável por cima.
-- **Celular:** o 3D só liga se o aparelho aguenta (checagem simples de GPU e memória). Senão, aparecem o render parado e os cômodos como lista de links.
-- **Sem WebGL ou com erro no 3D:** a planta SVG fica, e nada quebra.
+- **Movimento reduzido:** sem rolagem conduzida e sem 3D animado. A maquete fica parada, vista de cima, por baixo da planta clicável.
+- **Celular:** o 3D só liga se o aparelho aguenta: WebGL 2, pelo menos 4 GB de memória e 4 núcleos, e sem economia de dados. Senão fica a planta SVG, que já tem os cômodos como links. Em tela estreita não há rolagem conduzida.
+- **Sem WebGL ou com erro no 3D:** a planta SVG fica, e nada quebra (o 3D fica dentro de um limite de erro, o `SemMaquete`).
 - **O que se vê sem rolar:** o nome, uma frase, "Testar o simulador" e a planta clicável. Quem não rolar nada ainda chega aos projetos.
 - O contraste do texto corrido fica em 4,5:1 ou mais (os valores da seção 4 já foram conferidos).
 

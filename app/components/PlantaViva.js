@@ -1,17 +1,34 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useEffect, useRef, useState } from 'react';
+import { Component, useEffect, useRef, useState } from 'react';
 
 // A maquete 3D entra por trás da planta SVG, só no navegador e só se houver WebGL (DESIGN.md, seções 5 e 6).
 // A planta continua sendo a página: os links, o teclado e o leitor de tela usam o SVG, e o 3D só acompanha.
 const Maquete = dynamic(() => import('./Maquete'), { ssr: false });
 
-function temWebGL() {
+// O 3D só liga com WebGL 2 e num aparelho que aguenta: memória e núcleos de sobra, e sem economia de dados.
+// Senão fica a planta SVG, que já é a página inteira (DESIGN.md, seção 6).
+function aparelhoAguenta() {
+  const { deviceMemory, hardwareConcurrency, connection } = navigator;
+  if (deviceMemory && deviceMemory < 4) return false;
+  if (hardwareConcurrency && hardwareConcurrency < 4) return false;
+  if (connection?.saveData) return false;
   try {
     return !!document.createElement('canvas').getContext('webgl2');
   } catch {
     return false;
+  }
+}
+
+// Se o 3D der erro (modelo que não carrega, WebGL perdido), ele some e a planta continua.
+class SemMaquete extends Component {
+  state = { erro: false };
+  static getDerivedStateFromError() {
+    return { erro: true };
+  }
+  render() {
+    return this.state.erro ? null : this.props.children;
   }
 }
 
@@ -26,7 +43,7 @@ export default function PlantaViva({ children }) {
   const [ativo, setAtivo] = useState(null);
   const [em3d, setEm3d] = useState(false);
 
-  useEffect(() => setLigada(temWebGL()), []);
+  useEffect(() => setLigada(aparelhoAguenta()), []);
 
   // O cômodo sob o mouse ou com o foco do teclado acende também no 3D
   useEffect(() => {
@@ -86,7 +103,11 @@ export default function PlantaViva({ children }) {
 
   return (
     <div ref={caixa} className={`planta-viva${pronta ? ' com-3d' : ''}${em3d ? ' em-3d' : ''}`}>
-      {ligada && <Maquete ativo={ativo} progresso={progresso} aoCarregar={() => setPronta(true)} />}
+      {ligada && (
+        <SemMaquete>
+          <Maquete ativo={ativo} progresso={progresso} aoCarregar={() => setPronta(true)} />
+        </SemMaquete>
+      )}
       {children}
     </div>
   );

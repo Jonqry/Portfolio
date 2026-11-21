@@ -468,4 +468,5 @@ a { color: inherit; }
     stroke-dashoffset: 0;
   }
   .planta .folha, .cota-linha, .marca-texto.ao-abrir { animation: none !important; }
+  .maquete-3d { transition: none; }
 }
