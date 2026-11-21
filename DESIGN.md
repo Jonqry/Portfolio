@@ -89,7 +89,7 @@ O 3D anterior ficou simples porque eram caixas com luz calculada em tempo real. 
 
 1. **`planta.json` é a fonte única.** Cômodos, paredes, portas e janelas em metros. O SVG da planta e o modelo 3D saem do mesmo arquivo, então nunca ficam diferentes.
 2. **`blender/maquete.py`** lê o JSON e monta a base no Blender. As paredes saem com chanfro e vãos de porta, as folhas de porta ficam como objetos separados com a dobradiça no lugar certo, e o script cria também a placa com borda de MDF, o piso por cômodo e as coleções organizadas. As paredes são cortadas a 1,20 m, e os móveis altos e as folhas de porta a 1,00 m, como numa planta humanizada 3D, para os cômodos aparecerem de qualquer ângulo da câmera.
-3. **Sua etapa de arte, no Blender:** móveis, materiais (isopor fosco, MDF com veio, acrílico nas janelas) e a luz do spot. É aqui que o resultado sai do "programador fez 3D".
+3. **Sua etapa de arte, no Blender:** móveis, materiais (isopor fosco, MDF com veio, acrílico nas janelas) e a luz do spot. É aqui que o resultado sai do "programador fez 3D". O `blender/arte.py` faz uma primeira passada automática depois do `maquete.py`: roupa de cama clara, ripado no painel do jantar, piso cinza nos banheiros e um pouco mais de contraste.
 4. **Bake:** lightmap por coleção (paredes e móveis numa, pisos noutra, placa noutra), em Cycles. O piso de cada projeto fica numa textura separada, para trocar sem refazer o bake.
 5. **Exportação:** glTF binário (`.glb`) com compressão de geometria (Draco ou meshopt) e texturas KTX2 ou WebP.
 6. **Render parado:** uma imagem da etapa 3 em alta, que serve como pôster, fallback e imagem de compartilhamento.
