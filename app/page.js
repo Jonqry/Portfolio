@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import planta from './planta.json';
-import { px, caminhoContinuo, caminhoDeTrechos, porta, janela } from './planta-svg';
+import { px, caminhoContinuo, caminhoDeTrechos, porta, janela, VIEWBOX } from './planta-svg';
 import DemoSimulador from './components/DemoSimulador';
+import PlantaViva from './components/PlantaViva';
 
 // A home é a planta de um apartamento: cada cômodo leva a uma parte do site (DESIGN.md, seção 3).
 // A geometria (em cm) vem da planta.json, a mesma do modelo 3D; aqui ficam só os links e os rótulos.
@@ -33,7 +34,7 @@ const trecho = ({ de, ate }) => [de, ate];
 
 function Planta() {
   return (
-    <svg className="planta" viewBox="-34 -62 504 437" role="group" aria-label="Planta do site: escolha um cômodo">
+    <svg className="planta" viewBox={VIEWBOX.join(' ')} role="group" aria-label="Planta do site: escolha um cômodo">
       {outros.map((c) => (
         <rect key={c.id} className="comodo-apoio" x={c.x} y={c.y} width={c.w} height={c.h} />
       ))}
@@ -126,7 +127,9 @@ export default function Home() {
         </div>
 
         <div className="grade-planta p-3 sm:p-5">
-          <Planta />
+          <PlantaViva>
+            <Planta />
+          </PlantaViva>
         </div>
       </section>
 

@@ -186,6 +186,18 @@ a { color: inherit; }
 .planta a:focus-visible .comodo-fundo { fill: var(--sol); }
 .planta .rotulos { pointer-events: none; }
 .planta .rotulos .desce { transform: translateY(12px); }
+
+/* Maquete 3D por trás da planta (components/Maquete.js). Ela só aparece depois de carregada; aí os pisos do
+   SVG ficam transparentes e o cômodo em foco acende no piso da maquete. */
+.planta-viva { position: relative; }
+.planta-viva .planta { position: relative; } /* o SVG fica por cima do canvas */
+.maquete-3d { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.6s ease-out; }
+.com-3d .maquete-3d { opacity: 1; }
+.com-3d .planta .comodo-apoio,
+.com-3d .planta .comodo-fundo,
+.com-3d .planta a:is(:hover, :focus-visible) .comodo-fundo { fill: transparent; }
+/* Sobre a maquete, nomes e cotas ganham um contorno da cor do papel, como a etiqueta no piso da planta humanizada */
+.com-3d .planta :is(.rotulos text, .cota-texto) { paint-order: stroke; stroke: var(--papel); stroke-width: 4px; stroke-linejoin: round; }
 @media (max-width: 640px) {
   /* No celular a planta vai de borda a borda: com a margem da página, as legendas
      dos cômodos ficavam com menos de 10 px. */
