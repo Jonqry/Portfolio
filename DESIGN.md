@@ -28,7 +28,7 @@ A planta fica fixa na tela (`position: sticky`) numa seção de cerca de 250vh. 
 | 0. Chegada | 0% | Nome, uma frase, o botão "Testar o simulador" e os cômodos como links. Atrás, a maquete do prédio com a sua unidade marcada em marca-texto. Tudo isso aparece sem rolar. Até o prédio ficar pronto (passo 9 do plano), a chegada mostra direto a planta da unidade. |
 | 1. Planta | 0–25% | A câmera desce até a unidade marcada, o prédio sai de cena e fica a planta humanizada vista de cima, com os nomes no piso e as paredes como traço de grafite. O cômodo sob o mouse ou o foco acende em marca-texto. |
 | 2. As paredes sobem | 25–60% | As paredes externas sobem primeiro e as internas depois, passando do grafite ao branco de maquete. Os móveis vêm por último. |
-| 3. Maquete | 60–100% | A câmera inclina para uns 35° e gira devagar. A planta se revela a maquete da unidade: laje recortada, trecho do corredor do prédio e base de MDF, sob o spot quente do estande. |
+| 3. Maquete | 60–100% | A câmera inclina para uns 45°, dá a volta até o lado da varanda (o ângulo do pôster, de onde vem o spot do bake) e gira devagar. A planta se revela a maquete da unidade: laje recortada, trecho do corredor do prédio e base de MDF, sob o spot quente do estande. |
 | 4. Saída | depois | O "Agora / Formação / Procurando" atual, e a demo do Simulador se ela não estiver acima. |
 
 **Entrar num cômodo, em qualquer etapa:** a porta abre, a câmera mergulha no cômodo em cerca de 900 ms e a navegação acontece com View Transition. O piso do cômodo vira o fundo da página nova, e as paredes do cômodo viram a moldura da página. Voltar faz o caminho inverso.
@@ -99,7 +99,7 @@ O 3D anterior ficou simples porque eram caixas com luz calculada em tempo real. 
 
 - React Three Fiber + drei, carregados **só na home** e **só depois** que a página está interativa (`dynamic import` com `ssr: false`).
 - Materiais sem luz em tempo real (`MeshBasicMaterial` com o lightmap). As únicas partes vivas são o realce do cômodo, as portas abrindo e as paredes subindo.
-- A câmera segue uma curva definida no Blender, exportada como animação e lida pela rolagem. Assim você ajusta o movimento de câmera no lugar onde sabe trabalhar.
+- A câmera segue um caminho lido pela rolagem: começa quase sem perspectiva, enquadrando o mesmo retângulo do SVG, e abre a lente com o mesmo enquadramento (dolly zoom) enquanto inclina. Hoje o caminho está em código (`posicionar`, em `app/components/Maquete.js`); se precisar de um movimento mais fino, ele pode vir de uma curva do Blender exportada como animação.
 
 ### Orçamento
 

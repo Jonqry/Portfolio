@@ -51,6 +51,9 @@
 
 html { scroll-behavior: smooth; }
 
+/* O palco vai de ponta a ponta da tela (100vw conta a barra de rolagem): sem rolagem lateral */
+#conteudo { overflow-x: clip; }
+
 body {
   background: var(--papel);
   color: var(--tinta);
@@ -196,8 +199,45 @@ a { color: inherit; }
 .com-3d .planta .comodo-apoio,
 .com-3d .planta .comodo-fundo,
 .com-3d .planta a:is(:hover, :focus-visible) .comodo-fundo { fill: transparent; }
-/* Sobre a maquete, nomes e cotas ganham um contorno da cor do papel, como a etiqueta no piso da planta humanizada */
-.com-3d .planta :is(.rotulos text, .cota-texto) { paint-order: stroke; stroke: var(--papel); stroke-width: 4px; stroke-linejoin: round; }
+/* Sobre a maquete, os nomes ganham um contorno da cor do papel, como a etiqueta no piso da planta humanizada */
+.com-3d .planta .rotulos text { paint-order: stroke; stroke: var(--papel); stroke-width: 4px; stroke-linejoin: round; }
+/* Na rolagem, a planta some quando a câmera inclina (o PlantaViva controla --planta-visivel e a classe em-3d).
+   Daí em diante, o mouse escolhe o cômodo na própria maquete, e o teclado continua nos links do SVG. */
+.planta-viva .planta { opacity: var(--planta-visivel, 1); }
+.em-3d .planta { pointer-events: none; }
+.em-3d .maquete-3d { pointer-events: auto; }
+/* Com a câmera inclinada, a borda do canvas se dissolve no estande, e a maquete parece solta no palco */
+.maquete-3d {
+  mask-image: radial-gradient(ellipse farthest-corner, #000 calc(100% - var(--vinheta, 0) * 60%), transparent calc(100% - var(--vinheta, 0) * 28%));
+}
+
+/* ---------- palco da home ---------- */
+/* O estande escuro de ponta a ponta da tela, colado na navegação */
+.palco {
+  background: var(--estande);
+  color: var(--maquete);
+  margin: -2.5rem calc(50% - 50vw) 0;
+  padding: 2.5rem 1.25rem 3rem;
+}
+@media (min-width: 640px) { .palco { padding-inline: 2rem; } }
+@media (min-width: 768px) { .palco { margin-top: -3.5rem; padding-block: 3.5rem; } }
+.palco-texto p { color: #c5ccd0; } /* 9,6:1 sobre o Estande */
+.palco .botao { border-color: var(--maquete); }
+.palco .botao-principal { background: var(--sol); border-color: var(--sol); color: var(--tinta); }
+.palco .botao-principal:hover { background: var(--maquete); border-color: var(--maquete); }
+.palco .botao-linha { color: var(--maquete); }
+.palco .botao-linha:hover { background: var(--maquete); color: var(--tinta); }
+.palco .marca-texto { background: linear-gradient(var(--sol), var(--sol)) no-repeat left / 100% 100%; padding-inline: 0.1em; }
+.palco .grade-planta {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--maquete) 8%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--maquete) 8%, transparent) 1px, transparent 1px);
+}
+.palco .planta .cota-texto { fill: var(--maquete); paint-order: stroke; stroke: var(--estande); stroke-width: 4px; stroke-linejoin: round; }
+/* Rolagem conduzida: o palco fica preso na tela por 250vh enquanto a planta vira maquete. Só liga com o 3D
+   pronto, em tela larga e sem movimento reduzido (o PlantaViva põe a classe rolagem). */
+.palco.rolagem { height: 250vh; padding-block: 0; }
+.palco.rolagem .palco-fixo { position: sticky; top: var(--altura-nav, 3.5rem); min-height: calc(100vh - var(--altura-nav, 3.5rem)); }
 @media (max-width: 640px) {
   /* No celular a planta vai de borda a borda: com a margem da página, as legendas
      dos cômodos ficavam com menos de 10 px. */
