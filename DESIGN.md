@@ -93,6 +93,7 @@ O 3D anterior ficou simples porque eram caixas com luz calculada em tempo real. 
 4. **Bake:** lightmap por coleção (paredes e móveis numa, pisos noutra, placa noutra), em Cycles. O piso de cada projeto fica numa textura separada, para trocar sem refazer o bake.
 5. **Exportação:** glTF binário (`.glb`) com compressão de geometria (Draco ou meshopt) e texturas KTX2 ou WebP.
 6. **Render parado:** uma imagem da etapa 3 em alta, que serve como pôster, fallback e imagem de compartilhamento.
+7. **`blender/bake.py`** faz os passos 4 a 6 de uma vez, depois do `maquete.py` e do `arte.py`: assa só a luz (as cores ficam nos materiais, então o piso de um projeto troca sem refazer o bake), exporta `public/maquete/maquete.glb` com Draco e a UV 1 "Luz", grava `luz-<grupo>.webp`, `luz.json` (arquivo, intensidade e objetos de cada lightmap) e `poster.webp`, e confere o orçamento abaixo.
 
 ### No site
 
