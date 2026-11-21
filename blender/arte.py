@@ -139,7 +139,7 @@ def poche():
     """O topo das paredes cortadas ganha o grafite, como o preenchimento da parede numa planta impressa."""
     corte = _material("Corte", CORTE, 0.9)[0]
     faces = 0
-    for ob in (bpy.data.objects.get("Paredes"), bpy.data.objects.get("Paredes vizinhas")):
+    for ob in (bpy.data.objects.get("Paredes"),):  # só a unidade: os vizinhos ficam brancos, como contexto
         if not ob:
             continue
         malha = ob.data

@@ -32,6 +32,7 @@ ESPESSURA_VIDRO = 2     # cm
 ALTURA_PISO = 0.2       # cm acima da laje, para não brigar com ela
 ALTURA_CORTE = 120      # cm: as paredes são cortadas aqui, como na planta humanizada 3D, para os cômodos aparecerem
 ALTURA_CORTE_MOVEIS = 100  # cm: móveis altos e folhas de porta são cortados abaixo das paredes, para não se confundirem com elas
+ALTURA_CORTE_VIZINHOS = 60  # cm: os vizinhos e o núcleo ficam mais baixos que a unidade, como contexto
 
 CORES = {
     "Parede": "#F3F2EE",
@@ -349,7 +350,8 @@ def malha_pavimento(planta):
     largura = max(p[0] for linha in planta["paredes"] for p in linha)
     fundo = max(p[1] for linha in planta["paredes"] for p in linha)
     ym = fundo + LARGURA_CORREDOR / 2
-    altura = min(planta["alturas"]["peDireito"], ALTURA_CORTE)
+    altura = min(planta["alturas"]["peDireito"], ALTURA_CORTE_VIZINHOS)
+    baixos = [(*b[:5], min(b[5], altura)) for b in blocos if b[4] < altura]
     caixa_unidade = (-t / 2, largura + t / 2, min(b[2] for b in blocos), fundo + t / 2)
     ocupadas = [caixa_unidade]
 
@@ -357,7 +359,7 @@ def malha_pavimento(planta):
     corte = [c for c in planta["comodos"] if c["id"] != "corredor"]
     for posicao in posicoes_vizinhos(planta):
         proprios = []
-        for b in (_mover(b, posicao) for b in blocos):
+        for b in (_mover(b, posicao) for b in baixos):
             for o in ocupadas:
                 if b[0] < o[1] and b[1] > o[0] and b[2] < o[3] and b[3] > o[2]:
                     if b[0] < o[0]:
@@ -701,7 +703,7 @@ def construir_estudio():
     cena = bpy.context.scene
     col = _colecao_limpa(bpy, COLECAO_ESTUDIO)
     alvo = bpy.data.objects.new("Alvo", None)
-    alvo.location = (0, 0, 0.4)
+    alvo.location = (0, 0.45, 0.4)  # centro da unidade, que fica 45 cm ao norte do centro do pavimento
     col.objects.link(alvo)
 
     def mirar(ob):
@@ -723,13 +725,13 @@ def construir_estudio():
         mirar(ob)
 
     lente = bpy.data.cameras.new("Câmera do estande")
-    lente.lens = 46
+    lente.lens = 52
     # Desfoque de miniatura: foco na unidade e o resto do pavimento se perdendo, como maquete fotografada
     lente.dof.use_dof = True
     lente.dof.focus_object = alvo
-    lente.dof.aperture_fstop = 0.08
+    lente.dof.aperture_fstop = 0.1  # o mesmo desfoque de antes com a lente mais longa
     camera = bpy.data.objects.new("Câmera do estande", lente)
-    camera.location = (10.89, 15.29, 19.1)  # do lado da varanda, uns 45° de cima, a maquete inteira no quadro
+    camera.location = (10.89, 15.29, 19.1)  # do lado da varanda, uns 45° de cima, a unidade enchendo o quadro
     col.objects.link(camera)
     mirar(camera)
     cena.camera = camera
