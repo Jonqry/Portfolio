@@ -4,8 +4,9 @@ Monta a base da maquete no Blender a partir de app/planta.json.
 Como usar (Blender 5.3):
   1. Na aba Scripting, abra este arquivo e clique em Run Script.
      Pelo terminal também funciona: blender --python blender/maquete.py
-  2. O script cria três coleções: "Maquete (gerada)", "Móveis (gerados)" e "Estúdio (gerado)" (luz,
-     câmera e fundo). Rodar de novo apaga e refaz só essas três, então o que você modelar ou ajustar
+  2. O script cria quatro coleções: "Maquete (gerada)", "Móveis (gerados)", "Pavimento (gerado)" (os vizinhos
+     e o núcleo) e "Estúdio (gerado)" (luz, câmera e fundo). Rodar de novo apaga e refaz só essas quatro,
+     então o que você modelar ou ajustar
      à mão fica em outras coleções: para refinar um móvel ou uma luz, mova-o para uma coleção sua antes.
      Materiais que já existem com o mesmo nome não são alterados.
 
@@ -21,6 +22,7 @@ import os
 COLECAO = "Maquete (gerada)"
 COLECAO_MOVEIS = "Móveis (gerados)"
 COLECAO_ESTUDIO = "Estúdio (gerado)"
+COLECAO_PAVIMENTO = "Pavimento (gerado)"
 MARGEM_PLACA = 60       # cm de MDF em volta do apartamento
 ESPESSURA_PLACA = 30    # cm de MDF
 ESPESSURA_LAJE = 12     # cm do corte da laje
@@ -44,6 +46,7 @@ CORES = {
     "varanda": "#C7C4BA",
     "laje": "#BDBAB2",
     "Estande": "#26313A",
+    "Pavimento": "#E9E6DF",
     "Spot": "#FFE9B8",
 }
 
@@ -108,6 +111,13 @@ MOVEIS_REDONDOS = [
     ("Mesa lateral", (611, 221), 16, 50),
     ("Mesa de jantar", (530, 420), 50, 75),
 ]
+
+
+# Pavimento tipo (implantação e fachada do book): 8 apartamentos por andar, 4 de cada lado do corredor, com o
+# núcleo de elevadores e escada no meio. A unidade da planta é a segunda de uma fileira, ao lado do núcleo; os
+# vizinhos saem da mesma planta, espelhados ao lado e girados do outro lado do corredor, só com as paredes.
+LARGURA_CORREDOR = 160  # cm, entre os eixos das paredes de entrada das duas fileiras
+LARGURA_NUCLEO = 360    # cm, estimada pela implantação do book, que não tem cotas
 
 
 # ---------- geometria (Python puro, em cm, coordenadas da planta) ----------
@@ -295,6 +305,89 @@ def malha_laje(planta):
     return malha_de_blocos(blocos, [])
 
 
+def posicoes_vizinhos(planta):
+    """(sx, tx, sy, ty) de cada vizinho, com x' = sx·x + tx e y' = sy·y + ty: três na fileira da unidade
+    e quatro do outro lado do corredor, girados em volta do meio do núcleo."""
+    largura = max(p[0] for linha in planta["paredes"] for p in linha)
+    fundo = max(p[1] for linha in planta["paredes"] for p in linha)
+    xc, ym = largura + LARGURA_NUCLEO / 2, fundo + LARGURA_CORREDOR / 2
+    fileira = [(-1, 0), (-1, 2 * largura + LARGURA_NUCLEO), (1, 2 * largura + LARGURA_NUCLEO)]
+    oposta = [(1, 0)] + fileira
+    return ([(sx, tx, 1, 0) for sx, tx in fileira] +
+            [(-sx, 2 * xc - tx, -1, 2 * ym) for sx, tx in oposta])
+
+
+def _mover(r, t):
+    """Retângulo (x0, x1, y0, y1, ...) levado para a posição de um vizinho."""
+    sx, tx, sy, ty = t
+    xs, ys = sorted((sx * r[0] + tx, sx * r[1] + tx)), sorted((sy * r[2] + ty, sy * r[3] + ty))
+    return (*xs, *ys, *r[4:])
+
+
+def _juntar(malhas):
+    vertices, faces = [], []
+    for vs, fs in malhas:
+        n = len(vertices)
+        vertices += vs
+        faces += [tuple(n + i for i in f) for f in fs]
+    return vertices, faces
+
+
+def malha_pavimento(planta):
+    """Paredes dos vizinhos com o núcleo, e a laje do pavimento, em cm da planta. Cada vizinho vira uma malha
+    (juntar tudo numa malha só fica lento demais). A parede que dois apartamentos dividem fica só com o primeiro,
+    a unidade da planta antes de todos: duas faces no mesmo lugar dão defeito no render e no bake."""
+    t = planta["espessuraParede"]
+    blocos, vaos = blocos_paredes(planta)
+    largura = max(p[0] for linha in planta["paredes"] for p in linha)
+    fundo = max(p[1] for linha in planta["paredes"] for p in linha)
+    ym = fundo + LARGURA_CORREDOR / 2
+    altura = min(planta["alturas"]["peDireito"], ALTURA_CORTE)
+    caixa_unidade = (-t / 2, largura + t / 2, min(b[2] for b in blocos), fundo + t / 2)
+    ocupadas = [caixa_unidade]
+
+    paredes, lajes = [], []
+    corte = [c for c in planta["comodos"] if c["id"] != "corredor"]
+    for posicao in posicoes_vizinhos(planta):
+        proprios = []
+        for b in (_mover(b, posicao) for b in blocos):
+            for o in ocupadas:
+                if b[0] < o[1] and b[1] > o[0] and b[2] < o[3] and b[3] > o[2]:
+                    if b[0] < o[0]:
+                        b = (b[0], o[0], *b[2:])
+                    elif b[1] > o[1]:
+                        b = (o[1], b[1], *b[2:])
+                    else:
+                        b = None  # inteiro dentro de um apartamento que já tem essa parede
+                        break
+            if b:
+                proprios.append(b)
+        paredes.append(malha_de_blocos(proprios, [_mover(v, posicao) for v in vaos]))
+        ocupadas.append(_mover(caixa_unidade, posicao))
+        # 1 mm abaixo da laje da unidade, para não brigar com ela onde as duas se encontram
+        lajes.append(malha_de_blocos([(*_mover((c["x"], c["x"] + c["largura"], c["y"], c["y"] + c["profundidade"]),
+                                               posicao), -ESPESSURA_LAJE - 0.1, -0.1) for c in corte], []))
+
+    # Núcleo vazado, com o hall aberto para o corredor: parede de fachada, dois poços de elevador e uma escada
+    # em degraus, para ler como núcleo de prédio e não como dois blocos maciços
+    xn0, xn1 = largura + t / 2, largura + LARGURA_NUCLEO - t / 2
+    poco = (xn1 - xn0 - t) / 2
+    nucleo = [(xn0, xn1, -t / 2, t / 2, 0, altura),
+              (xn0, xn0 + poco, t / 2, t / 2 + poco, 0, altura),
+              (xn1 - poco, xn1, t / 2, t / 2 + poco, 0, altura)]
+    degraus = 6
+    for i in range(degraus):
+        y0 = t / 2 + poco + 30 + i * 45
+        nucleo.append((xn1 - 120, xn1, y0, y0 + 45, 0, altura * (i + 1) / degraus))
+    oposto = (-1, 2 * (largura + LARGURA_NUCLEO / 2), -1, 2 * ym)
+    paredes.append(malha_de_blocos(nucleo + [_mover(b, oposto) for b in nucleo], []))
+    z = (-ESPESSURA_LAJE - 0.1, -0.1)
+    lajes.append(malha_de_blocos([(-largura, 3 * largura + LARGURA_NUCLEO, fundo, fundo + LARGURA_CORREDOR, *z),
+                                  (largura, largura + LARGURA_NUCLEO, 0, fundo, *z),
+                                  (largura, largura + LARGURA_NUCLEO, fundo + LARGURA_CORREDOR, 2 * ym, *z)], []))
+    return _juntar(paredes), _juntar(lajes)
+
+
 def centro(planta):
     c = planta["comodos"]
     x0 = min(r["x"] for r in c)
@@ -454,7 +547,21 @@ def construir():
     bm.to_mesh(laje.data)
     bm.free()
 
-    # Base de MDF da maquete, logo abaixo da laje
+    # Pavimento: os vizinhos e o núcleo em branco, sem móveis, como no estande de pavimento tipo
+    col_pavimento = _colecao_limpa(bpy, COLECAO_PAVIMENTO)
+    (vp, fp), (vl, fl) = malha_pavimento(planta)
+    for nome, vs, fs, material in (("Paredes vizinhas", vp, fp, mat["Parede"]),
+                                   ("Laje do pavimento", vl, fl, _material(bpy, "Pavimento", CORES["Pavimento"]))):
+        ob = _objeto(bpy, col_pavimento, nome, *para_blender(planta, vs, fs), [material])
+        bm = bmesh.new()
+        bm.from_mesh(ob.data)
+        bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(1), verts=bm.verts[:], edges=bm.edges[:])
+        bm.to_mesh(ob.data)
+        bm.free()
+    bx0, bx1 = min(bx0, *(v[0] for v in vp + vl)), max(bx1, *(v[0] for v in vp + vl))
+    by0, by1 = min(by0, *(v[1] for v in vp + vl)), max(by1, *(v[1] for v in vp + vl))
+
+    # Base de MDF da maquete, logo abaixo da laje, cobrindo o pavimento inteiro
     m = MARGEM_PLACA
     vs, fs = caixa((bx0 - m - cx) / 100, (bx1 + m - cx) / 100, -(by1 + m - cy) / 100, -(by0 - m - cy) / 100,
                    -(ESPESSURA_LAJE + ESPESSURA_PLACA) / 100, -ESPESSURA_LAJE / 100)
@@ -531,8 +638,9 @@ def construir_estudio():
         restricao.track_axis = "TRACK_NEGATIVE_Z"
         restricao.up_axis = "UP_Y"
 
-    for nome, cor, potencia, tamanho, local in (("Spot do estande", CORES["Spot"], 900, 3.0, (1.5, 1.0, 6.5)),
-                                                ("Preenchimento", "#CFE3E6", 120, 4.0, (-7.0, 6.0, 4.0))):
+    # Spot baixo e de lado em relação à câmera, para as sombras saírem longas e marcarem o volume
+    for nome, cor, potencia, tamanho, local in (("Spot do estande", CORES["Spot"], 2700, 2.0, (-8.1, 5.8, 6.0)),
+                                                ("Preenchimento", "#CFE3E6", 150, 4.0, (8.1, -5.8, 5.0))):
         luz = bpy.data.lights.new(nome, type="AREA")
         luz.energy = potencia
         luz.size = tamanho
@@ -544,7 +652,10 @@ def construir_estudio():
 
     lente = bpy.data.cameras.new("Câmera do estande")
     lente.lens = 46
-    lente.shift_y = -0.062  # sobe a maquete no quadro: a frente aparece maior na perspectiva e ela ficava baixa
+    # Desfoque de miniatura: foco na unidade e o resto do pavimento se perdendo, como maquete fotografada
+    lente.dof.use_dof = True
+    lente.dof.focus_object = alvo
+    lente.dof.aperture_fstop = 0.05
     camera = bpy.data.objects.new("Câmera do estande", lente)
     camera.location = (10.89, 15.29, 19.1)  # do lado da varanda, uns 45° de cima, a maquete inteira no quadro
     col.objects.link(camera)

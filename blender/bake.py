@@ -6,7 +6,7 @@ Saída em public/maquete/:
   maquete.glb          geometria com Draco, cores dos materiais, UV 0 (texturas) e UV 1 "Luz" (lightmap)
   luz-<grupo>.webp     só a luz de cada grupo, normalizada e em sRGB
   luz.json             para cada grupo: arquivo, intensidade (lightMapIntensity) e objetos que usam a lightmap
-  poster.webp          o render parado da câmera do estande (pôster, fallback e imagem de compartilhamento)
+O render parado (poster.webp) é do poster.py.
 
 No site: MeshBasicMaterial com a cor do material, lightMap = luz do grupo (colorSpace sRGB, channel 1)
 e lightMapIntensity = intensidade do luz.json.
@@ -24,6 +24,7 @@ GRUPOS = {
     "paredes-moveis": 2048,
     "pisos": 1024,
     "placa": 512,
+    "pavimento": 1024,
 }
 AMOSTRAS_BAKE = 256
 ORCAMENTO = {"glb": 1_000_000, "texturas": 1_500_000, "triangulos": 150_000}
@@ -37,6 +38,8 @@ def grupo_de(ob):
     if ob.name in ("Laje", "Base"):
         return "placa"
     colecoes = {c.name for c in ob.users_collection}
+    if "Pavimento (gerado)" in colecoes:
+        return "pavimento"
     if colecoes & {"Maquete (gerada)", "Móveis (gerados)"}:
         return "paredes-moveis"
     return None
@@ -115,7 +118,7 @@ def assar(grupo, objetos, tamanho, pasta):
 
 def exportar(pasta):
     objetos = [ob for ob in bpy.context.view_layer.objects if ob.type == "MESH"
-               and ({c.name for c in ob.users_collection} & {"Maquete (gerada)", "Móveis (gerados)"})]
+               and ({c.name for c in ob.users_collection} & {"Maquete (gerada)", "Móveis (gerados)", "Pavimento (gerado)"})]
     _selecionar(objetos)
     # Cor desenhada por nós (como o ripado do arte.py) não vai para o glTF, e o material sairia branco:
     # durante a exportação, a cor base vira a cor de viewport do material.
@@ -145,15 +148,6 @@ def exportar(pasta):
     return caminho, triangulos
 
 
-def poster(pasta):
-    cena = bpy.context.scene
-    ajustes = cena.render.image_settings
-    ajustes.file_format = "WEBP"
-    ajustes.quality = 82
-    cena.render.filepath = os.path.join(pasta, "poster.webp")
-    bpy.ops.render.render(write_still=True)
-
-
 def construir():
     cena = bpy.context.scene
     cena.render.engine = "CYCLES"
@@ -170,7 +164,6 @@ def construir():
     with open(os.path.join(pasta, "luz.json"), "w", encoding="utf-8") as f:
         json.dump(luz, f, ensure_ascii=False, indent=2)
     caminho, triangulos = exportar(pasta)
-    poster(pasta)
 
     texturas = sum(os.path.getsize(os.path.join(pasta, g["arquivo"])) for g in luz.values())
     medidas = {"glb": os.path.getsize(caminho), "texturas": texturas, "triangulos": triangulos}
