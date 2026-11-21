@@ -30,7 +30,8 @@ MADEIRA = ("#D8C19C", "#CDB48C", "#B39A74")  # réguas claras, réguas escuras e
 PEDRA = ("#DEDCD6", "#D6D4CE", "#BFBCB5")    # placas e junta
 RIPA = "#C9AE84"           # o ripado do jantar, na madeira de maquete
 FRESTA = "#8A6B45"
-RIPAS_POR_METRO = 25       # ripa de 4 cm
+RIPAS_POR_METRO = 5        # réguas de 20 cm, como o painel de madeira do jantar no decorado
+MARMORE = ("#EDE9E2", "#C9A24A")  # pedra clara e veio dourado, como os tampos do decorado
 # Materiais do Furniture Kit da Kenney que não viram o branco fosco: estofados e tapetes vão para o tecido, e a
 # tela da TV, o tampo do fogão e o metal escuro para o grafite do corte
 KIT = {"carpet": "Tecido", "carpetWhite": "Tecido", "carpetBlue": "Tecido", "carpetDarker": "Tecido",
@@ -124,7 +125,7 @@ def ripado():
     rampa = nos.new("ShaderNodeValToRGB")
     rampa.color_ramp.interpolation = "CONSTANT"
     rampa.color_ramp.elements[0].color = _linear(FRESTA)
-    rampa.color_ramp.elements[1].position = 0.2
+    rampa.color_ramp.elements[1].position = 0.01  # fresta de pouco mais de 1 cm entre as réguas
     rampa.color_ramp.elements[1].color = _linear(RIPA)
     ligar(onda.outputs["Fac"], rampa.inputs["Fac"])
     ligar(rampa.outputs["Color"], bsdf.inputs["Base Color"])
@@ -183,6 +184,25 @@ def acabamento_dos_moveis():
     return len(objetos)
 
 
+def marmore():
+    """Pedra clara com veio dourado fino: onda bem distorcida, e só o fundo da onda vira veio."""
+    m, arvore, bsdf = _material("Mármore", MARMORE[0], rugosidade=0.25)
+    nos, ligar = arvore.nodes, arvore.links.new
+    coord = nos.new("ShaderNodeTexCoord")
+    onda = nos.new("ShaderNodeTexWave")
+    onda.inputs["Scale"].default_value = 3
+    onda.inputs["Distortion"].default_value = 12
+    onda.inputs["Detail"].default_value = 4
+    ligar(coord.outputs["Object"], onda.inputs["Vector"])
+    rampa = nos.new("ShaderNodeValToRGB")
+    rampa.color_ramp.elements[0].color = _linear(MARMORE[1])
+    rampa.color_ramp.elements[1].position = 0.08
+    rampa.color_ramp.elements[1].color = _linear(MARMORE[0])
+    ligar(onda.outputs["Fac"], rampa.inputs["Fac"])
+    ligar(rampa.outputs["Color"], bsdf.inputs["Base Color"])
+    return m
+
+
 def contraste():
     """Um pouco mais de contraste no render. O nome do look muda entre versões do Blender."""
     for look in ("AgX - Medium High Contrast", "Medium High Contrast"):
@@ -198,12 +218,15 @@ if __name__ == "__main__":
     movel = _material("Movel", MOVEL, rugosidade=0.9)[0]
     tecido_material = _material("Tecido", TECIDO, rugosidade=1.0)[0]
     moveis = _aplicar(movel, [ob.name for ob in bpy.data.collections[maquete.COLECAO_MOVEIS].objects])
-    pecas_kit = kit(movel, tecido_material, _material("Corte", CORTE, 0.9)[0])
+    corte = _material("Corte", CORTE, 0.9)[0]
+    pecas_kit = kit(movel, tecido_material, corte)
+    cobogo = _aplicar(corte, ("Cobogó",))
     paineis = _aplicar(ripado(), ("Painel ripado", "Painel curvo"))
+    tampos = _aplicar(marmore(), ("Tampo da mesa",))
     contagem = pisos()
     faces = poche()
     acabados = acabamento_dos_moveis()
     look = contraste()
-    print(f"Arte: {moveis} móveis em branco fosco, {pecas_kit} peças do kit ({paineis} ripados, {acabados} com chanfro), "
+    print(f"Arte: {moveis} móveis em branco fosco, {pecas_kit} peças do kit ({paineis} painéis de madeira, {cobogo} cobogó, {tampos} tampos em mármore, {acabados} com chanfro), "
           f"pisos {contagem}, {faces} faces de corte em grafite, "
           f"contraste: {look or 'não aplicado (look não encontrado nesta versão)'}.")

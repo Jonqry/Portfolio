@@ -57,7 +57,6 @@ CORES = {
 MOVEIS = [
     ("Guarda-roupa", 5, 250, 130, 55, 220),
     ("Guarda-roupa", 345, 230, 150, 55, 220),
-    ("Aparador", 717, 155, 40, 182, 75),
     ("Armário do café", 370, 385, 42, 40, 90),
     ("Bancada do café", 370, 425, 40, 40, 90),
     ("Painel ripado", 420, 509, 230, 6, 260),
@@ -630,6 +629,24 @@ def construir():
     print(f"Maquete montada: {len(col.objects)} objetos em '{COLECAO}'.")
 
 
+# Cobogó metálico entre o estar e a cozinha, atrás do sofá, como no decorado: (x0, x1, y0, y1) em cm. A passagem
+# para a cozinha fica entre ele e a parede da entrada.
+COBOGO = (744, 748, 150, 340)
+COBOGO_BARRA, COBOGO_VAO = 3, 12  # cm
+
+
+def malha_cobogo(altura):
+    """Tela vazada do cobogó: barras verticais e horizontais numa malha fechada só, em cm da planta."""
+    x0, x1, y0, y1 = COBOGO
+    b, z0 = COBOGO_BARRA, ALTURA_PISO
+    nv = max(1, round((y1 - y0 - b) / (b + COBOGO_VAO)))
+    nh = max(1, round((altura - b) / (b + COBOGO_VAO)))
+    py, pz = (y1 - y0 - b) / nv, (altura - b) / nh
+    blocos = [(x0, x1, y0 + i * py, y0 + i * py + b, z0, z0 + altura) for i in range(nv + 1)]
+    blocos += [(x0, x1, y0, y1, z0 + j * pz, z0 + j * pz + b) for j in range(nh + 1)]
+    return malha_de_blocos(blocos, [])
+
+
 def construir_moveis():
     import bpy
 
@@ -650,6 +667,7 @@ def construir_moveis():
     for nome, centro_mesa, raio, h, *base in MOVEIS_REDONDOS:
         vs, fs = para_blender(planta, *malha_cilindro(centro_mesa, raio, min(h, ALTURA_CORTE_MOVEIS), *base))
         _objeto(bpy, col, nome, vs, fs, [mat])
+    _objeto(bpy, col, "Cobogó", *para_blender(planta, *malha_cobogo(ALTURA_CORTE_MOVEIS)), [mat])
     construir_kit(bpy, planta, col)
 
 
