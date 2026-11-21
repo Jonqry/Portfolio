@@ -9,7 +9,7 @@ import PlantaViva from './components/PlantaViva';
 const links = {
   simulador: { href: '#simulador', rotulo: 'Simulador: testar a demo nesta página' },
   'place-brokers': { href: '/projetos/place-brokers', rotulo: 'Place Brokers: ver o projeto' },
-  cashflow: { href: '/projetos#cashflow', rotulo: 'CashFlow: ver nos projetos' },
+  cashflow: { href: '/projetos/cashflow', rotulo: 'CashFlow: ler o estudo de caso' },
   'mais-projetos': { href: '/projetos#curriculo-express', rotulo: 'Mais projetos: Currículo Express e EcoCiclo' },
   sobre: { href: '/sobre', rotulo: 'Sobre mim' },
   experiencia: { href: '/profissional', rotulo: 'Experiência profissional e currículo' },

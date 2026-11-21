@@ -50,6 +50,7 @@ const projetos = [
       'Projeto pessoal full-stack: API em C# com .NET e front-end em React com TypeScript. As regras de negócio são validadas no back-end e o código é organizado em camadas. Depois apliquei AppSec na API: login com JWT, senha salva só como hash, validação de entrada (que fechou uma falha de mass assignment), limite de tentativas contra força bruta e headers de segurança, tudo coberto por testes de integração.',
     tags: ['React', 'TypeScript', 'C# e .NET', 'SQLite', 'JWT', 'xUnit'],
     github: 'https://github.com/Jonqry/cashflow-fullstack',
+    estudoDeCaso: '/projetos/cashflow',
   },
   {
     id: 'curriculo-express',
