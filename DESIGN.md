@@ -159,7 +159,7 @@ O primeiro projeto a ganhar identidade própria é o **Simulador**, porque ele a
 
 ## 10. Plano
 
-1. `planta.json` + SVG da home lendo dele → verificar: a planta atual continua idêntica. Feito; o apartamento novo está em `planta.json`, e a home atual lê `planta-antiga.json` até o redesenho, quando esse arquivo é apagado.
+1. `planta.json` + SVG da home lendo dele → verificar: a planta atual continua idêntica. Feito; a home lê o apartamento novo de `planta.json`, e a `planta-antiga.json` foi apagada.
 2. `blender/maquete.py` → verificar: rodando no seu Blender, a base sai com paredes, vãos, portas e placa nas medidas do JSON.
 3. Sua etapa de arte e bake no Blender → verificar: render parado aprovado por você e `.glb` dentro do orçamento da seção 5.
 4. Cena 3D na home com a rolagem → verificar: funciona com teclado, sem WebGL e com movimento reduzido; LCP dentro da meta.

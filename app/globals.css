@@ -155,8 +155,9 @@ a { color: inherit; }
   background-size: 24px 24px;
 }
 .planta { width: 100%; height: auto; display: block; overflow: visible; }
-.planta .parede { fill: none; stroke: var(--tinta); stroke-width: 7; stroke-linejoin: miter; }
+.planta .parede { fill: none; stroke: var(--tinta); stroke-width: 5; stroke-linejoin: miter; } /* 10 cm, na escala */
 .planta .parede-fina { fill: none; stroke: var(--tinta); stroke-width: 3; }
+.planta .guarda-corpo { fill: none; stroke: var(--tinta); stroke-width: 1.5; }
 .planta .porta { fill: none; stroke: var(--tinta-suave); stroke-width: 1.5; stroke-dasharray: 4 3; }
 .planta .folha {
   fill: none;
@@ -166,11 +167,10 @@ a { color: inherit; }
   transform-origin: var(--dobradica);
 }
 /* A porta do cômodo abre quando ele recebe o mouse ou o foco do teclado. */
-.planta:has(a[data-comodo="projetos"]:is(:hover, :focus-visible)) .folha-a,
-.planta:has(a[data-comodo="sobre"]:is(:hover, :focus-visible)) .folha-a,
-.planta:has(a[data-comodo="experiencia"]:is(:hover, :focus-visible)) .folha-b,
-.planta:has(a[data-comodo="curriculo"]:is(:hover, :focus-visible)) .folha-c,
-.planta:has(a[data-comodo="contato"]:is(:hover, :focus-visible)) .folha-d {
+.planta:has(a[data-porta="suite"]:is(:hover, :focus-visible)) .folha-suite,
+.planta:has(a[data-porta="quarto"]:is(:hover, :focus-visible)) .folha-quarto,
+.planta:has(a[data-porta="area-servico"]:is(:hover, :focus-visible)) .folha-area-servico,
+.planta:has(a[data-porta="entrada"]:is(:hover, :focus-visible)) .folha-entrada {
   animation: abrir-porta 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 @keyframes abrir-porta { from { transform: rotate(var(--fechada)); } }
@@ -178,21 +178,23 @@ a { color: inherit; }
 .planta .cota { stroke: var(--linha); stroke-width: 1.2; fill: none; }
 .planta .cota-texto { fill: var(--tinta-suave); font-size: 13px; font-stretch: 75%; }
 .planta .comodo-fundo { fill: var(--piso); transition: fill 0.2s; }
-.planta .comodo-nome { fill: var(--tinta); font-size: 20px; font-weight: 700; font-stretch: 110%; }
-.planta .comodo-info { fill: var(--tinta-suave); font-size: 15px; font-stretch: 75%; }
+.planta .comodo-apoio { fill: var(--porcelanato); }
+.planta .comodo-nome { fill: var(--tinta); font-size: 15px; font-weight: 700; font-stretch: 110%; }
+.planta .comodo-tipo { fill: var(--tinta-suave); font-size: 10.5px; font-stretch: 75%; }
 .planta a { cursor: pointer; outline: none; }
 .planta a:hover .comodo-fundo,
 .planta a:focus-visible .comodo-fundo { fill: var(--sol); }
-.planta a:focus-visible .comodo-nome { text-decoration: underline; }
+.planta .rotulos { pointer-events: none; }
+.planta .rotulos .desce { transform: translateY(12px); }
 @media (max-width: 640px) {
   /* No celular a planta vai de borda a borda: com a margem da página, as legendas
      dos cômodos ficavam com menos de 10 px. */
   .grade-planta { margin-inline: -1.25rem; padding: 0.75rem 0.5rem; }
-  .planta .comodo-nome { font-size: 25px; font-stretch: 95%; }
-  .planta .comodo-info { font-size: 21px; }
+  .planta .comodo-nome { font-size: 17.5px; font-stretch: 85%; }
+  .planta .comodo-tipo { font-size: 12px; }
+  .planta .rotulos .desce { transform: translateY(4px); }
   .planta .cota-texto { font-size: 18px; }
 }
-.planta .foto-moldura { fill: none; stroke: var(--tinta); stroke-width: 2; }
 
 .planta-traco {
   stroke-dasharray: 2400;
