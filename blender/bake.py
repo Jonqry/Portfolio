@@ -26,7 +26,9 @@ GRUPOS = {
     "placa": 512,
     "pavimento": 1024,
 }
-AMOSTRAS_BAKE = 256
+AMOSTRAS_BAKE = 128
+# Metade dos núcleos do processador: o bake demora mais, mas o notebook não esquenta a ponto de desligar
+NUCLEOS_BAKE = max(1, (os.cpu_count() or 2) // 2)
 ORCAMENTO = {"glb": 1_000_000, "texturas": 1_500_000, "triangulos": 150_000}
 
 
@@ -153,14 +155,17 @@ def construir():
     cena.render.engine = "CYCLES"
     amostras = cena.cycles.samples
     cena.cycles.samples = AMOSTRAS_BAKE
+    modo_nucleos, nucleos = cena.render.threads_mode, cena.render.threads
+    cena.render.threads_mode, cena.render.threads = "FIXED", NUCLEOS_BAKE
     pasta = pasta_saida()
     luz = {}
     for grupo, tamanho in GRUPOS.items():
         objetos = [ob for ob in bpy.context.view_layer.objects if grupo_de(ob) == grupo]
-        print(f"Bake de '{grupo}': {len(objetos)} objetos, {tamanho}px...")
+        print(f"Bake de '{grupo}': {len(objetos)} objetos, {tamanho}px, {NUCLEOS_BAKE} núcleos...")
         desdobrar(objetos)
         luz[grupo] = assar(grupo, objetos, tamanho, pasta)
     cena.cycles.samples = amostras
+    cena.render.threads_mode, cena.render.threads = modo_nucleos, nucleos
     with open(os.path.join(pasta, "luz.json"), "w", encoding="utf-8") as f:
         json.dump(luz, f, ensure_ascii=False, indent=2)
     caminho, triangulos = exportar(pasta)
