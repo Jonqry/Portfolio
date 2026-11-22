@@ -1,144 +1,104 @@
 import Link from 'next/link';
+import planta from './planta.json';
+import { px, caminhoContinuo, caminhoDeTrechos, porta, janela, VIEWBOX } from './planta-svg';
 import DemoSimulador from './components/DemoSimulador';
+import PlantaViva from './components/PlantaViva';
 
-// A home é a planta de um apartamento: cada cômodo leva a uma parte do site.
-// Escala da planta: 50 px = 1 m.
-const comodos = [
-  {
-    href: '/projetos',
-    nome: 'Projetos',
-    id: 'projetos',
-    rotulo: 'Ver os 5 projetos',
-    x: 40, y: 40, w: 320, h: 240,
-    info: ['Simulador de Financiamento', 'Place Brokers', 'CashFlow e mais 2'],
-  },
-  {
-    href: '/sobre',
-    nome: 'Sobre',
-    id: 'sobre',
-    rotulo: 'Sobre mim',
-    x: 360, y: 40, w: 240, h: 240,
-    info: [],
-    foto: true,
-  },
-  {
-    href: '/profissional',
-    nome: 'Experiência',
-    id: 'experiencia',
-    rotulo: 'Ver a experiência profissional',
-    x: 40, y: 280, w: 260, h: 180,
-    info: ['Corretor desde out/2025', 'Jovem aprendiz em 2025'],
-  },
-  {
-    href: '/curriculo-joao-victor-varela.pdf',
-    nome: 'Currículo',
-    id: 'curriculo',
-    rotulo: 'Abrir o currículo em PDF',
-    x: 300, y: 280, w: 150, h: 180,
-    info: ['PDF, 1 página'],
-    externo: true,
-  },
-  {
-    href: 'mailto:joaovictorvarela321@gmail.com',
-    nome: 'Contato',
-    id: 'contato',
-    rotulo: 'Enviar e-mail',
-    x: 450, y: 280, w: 150, h: 180,
-    info: ['E-mail'],
-  },
-];
+// A home é a planta de um apartamento: cada cômodo leva a uma parte do site (DESIGN.md, seção 3).
+// A geometria (em cm) vem da planta.json, a mesma do modelo 3D; aqui ficam só os links e os rótulos.
+const links = {
+  simulador: { href: '#simulador', rotulo: 'Simulador: testar a demo nesta página' },
+  'place-brokers': { href: '/projetos/place-brokers', rotulo: 'Place Brokers: ver o projeto' },
+  cashflow: { href: '/projetos/cashflow', rotulo: 'CashFlow: ler o estudo de caso' },
+  'mais-projetos': { href: '/projetos#curriculo-express', rotulo: 'Mais projetos: Currículo Express e EcoCiclo' },
+  sobre: { href: '/sobre', rotulo: 'Sobre mim' },
+  experiencia: { href: '/profissional', rotulo: 'Experiência profissional e currículo' },
+  contato: { href: 'mailto:joaovictorvarela321@gmail.com', rotulo: 'Contato: enviar e-mail' },
+};
+// Nomes longos quebram em duas linhas para caber no cômodo
+const linhas = {
+  'place-brokers': ['Place', 'Brokers'],
+  experiencia: ['Experiência', 'e currículo'],
+  'mais-projetos': ['Mais', 'projetos'],
+};
+// Na área de serviço o nome desce um pouco, para fugir do giro da porta (classe desce, no globals.css)
+const desce = new Set(['mais-projetos']);
+// A porta que abre quando o cômodo recebe o mouse ou o foco (as regras ficam no globals.css)
+const portaDe = { simulador: 'suite', 'place-brokers': 'quarto', 'mais-projetos': 'area-servico', experiencia: 'entrada' };
+
+const retangulo = (c) => ({ x: px(c.x), y: px(c.y), w: px(c.largura), h: px(c.profundidade) });
+const secoes = planta.comodos.filter((c) => links[c.id]).map((c) => ({ ...c, ...links[c.id], ...retangulo(c) }));
+const outros = planta.comodos.filter((c) => !links[c.id]).map((c) => ({ id: c.id, ...retangulo(c) }));
+const portas = planta.portas.map((p) => ({ id: p.id, ...porta(p) }));
+const trecho = ({ de, ate }) => [de, ate];
 
 function Planta() {
   return (
-    <svg
-      className="planta"
-      viewBox="0 0 640 520"
-      role="group"
-      aria-label="Planta do site: escolha um cômodo"
-    >
-      <defs>
-        <clipPath id="recorte-foto">
-          <rect x="420" y="66" width="120" height="132" />
-        </clipPath>
-      </defs>
+    <svg className="planta" viewBox={VIEWBOX.join(' ')} role="group" aria-label="Planta do site: escolha um cômodo">
+      {outros.map((c) => (
+        <rect key={c.id} className="comodo-apoio" x={c.x} y={c.y} width={c.w} height={c.h} />
+      ))}
 
-      {comodos.map((c) => (
+      {secoes.map((c) => (
         <a
-          key={c.nome}
+          key={c.id}
           href={c.href}
           aria-label={c.rotulo}
           data-comodo={c.id}
-          {...(c.externo ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+          {...(portaDe[c.id] ? { 'data-porta': portaDe[c.id] } : {})}
         >
-          <rect className="comodo-fundo" x={c.x + 3.5} y={c.y + 3.5} width={c.w - 7} height={c.h - 7} />
-          {c.foto && (
-            <>
-              <image
-                href="/foto-joao.jpg"
-                x="420"
-                y="66"
-                width="120"
-                height="132"
-                preserveAspectRatio="xMidYMid slice"
-                clipPath="url(#recorte-foto)"
-              />
-              <rect className="foto-moldura" x="420" y="66" width="120" height="132" />
-            </>
-          )}
-          <text className="comodo-nome" x={c.x + 22} y={c.foto ? c.y + 196 : c.y + 44}>
-            {c.nome}
-          </text>
-          {c.foto ? (
-            <text className="comodo-info" x={c.x + 22} y={c.y + 220}>Recife, Unicap</text>
-          ) : (
-            c.info.map((linha, i) => (
-              <text key={linha} className="comodo-info" x={c.x + 22} y={c.y + 74 + i * 26}>
-                {linha}
-              </text>
-            ))
-          )}
+          <rect className="comodo-fundo" x={c.x} y={c.y} width={c.w} height={c.h} />
         </a>
       ))}
 
-      {/* paredes externas, com a abertura da porta de entrada no Contato */}
-      <path
-        className="parede planta-traco"
-        d="M500 460 H40 V40 H600 V460 H560"
-        aria-hidden="true"
-      />
-      {/* paredes internas, com vãos de porta */}
-      <path
-        className="parede planta-traco"
-        d="M360 40 V200 M360 250 V280 M250 280 H40 M300 280 H600 M300 280 V460 M450 280 V380 M450 430 V460"
-        aria-hidden="true"
-      />
+      <path className="parede planta-traco" d={caminhoDeTrechos(planta.paredes)} aria-hidden="true" />
+      <path className="parede-fina" d={caminhoDeTrechos(planta.meiasParedes)} aria-hidden="true" />
 
       <g className="planta-surge" aria-hidden="true">
         {/* portas: arco de abertura e folha. A folha gira na dobradiça (--dobradica) quando o
             cômodo dela recebe o mouse ou o foco; --fechada é o ângulo da porta fechada. */}
-        <path className="porta" d="M360 200 A50 50 0 0 0 310 250" />
-        <path className="porta" d="M300 280 A50 50 0 0 1 250 330" />
-        <path className="porta" d="M450 380 A50 50 0 0 1 500 430" />
-        <path className="porta" d="M500 460 A60 60 0 0 1 560 400" />
-        <path className="folha folha-a" d="M360 250 H310" style={{ '--dobradica': '360px 250px', '--fechada': '90deg' }} />
-        <path className="folha folha-b" d="M250 280 V330" style={{ '--dobradica': '250px 280px', '--fechada': '-90deg' }} />
-        <path className="folha folha-c" d="M450 430 H500" style={{ '--dobradica': '450px 430px', '--fechada': '-90deg' }} />
-        <path className="folha folha-d" d="M560 460 V400" style={{ '--dobradica': '560px 460px', '--fechada': '-90deg' }} />
+        {portas.map((p) => (
+          <path key={`arco-${p.id}`} className="porta" d={p.arco} />
+        ))}
+        {portas.map((p) => (
+          <path
+            key={`folha-${p.id}`}
+            className={`folha folha-${p.id}`}
+            d={p.folha}
+            style={{ '--dobradica': p.dobradica, '--fechada': p.fechada }}
+          />
+        ))}
 
-        {/* janelas */}
-        <rect className="janela" x="120" y="36" width="140" height="8" />
-        <rect className="janela" x="596" y="100" width="8" height="120" />
-        <rect className="janela" x="100" y="456" width="120" height="8" />
+        {/* janelas, o vão de vidro da varanda e o guarda-corpo */}
+        {[...planta.janelas, ...planta.vaos].map((j, i) => (
+          <rect key={i} className="janela" {...janela(trecho(j))} />
+        ))}
+        <path className="guarda-corpo" d={caminhoDeTrechos(planta.guardaCorpo)} />
 
-        {/* cotas */}
-        <path className="cota" d="M40 14 H600 M40 8 V20 M360 8 V20 M600 8 V20" />
-        <text className="cota-texto" x="200" y="10" textAnchor="middle">6,40 m</text>
-        <text className="cota-texto" x="480" y="10" textAnchor="middle">4,80 m</text>
-        <path className="cota" d="M14 40 V460 M8 40 H20 M8 280 H20 M8 460 H20" />
-        <text className="cota-texto" x="10" y="160" textAnchor="middle" transform="rotate(-90 10 160)">4,80 m</text>
-        <text className="cota-texto" x="10" y="370" textAnchor="middle" transform="rotate(-90 10 370)">3,60 m</text>
+        {/* cotas por fora das paredes: 9,20 × 5,30 m */}
+        <path className="cota" d="M-2.5 -48 H457.5 M-2.5 -54 V-42 M457.5 -54 V-42" />
+        <text className="cota-texto" x="227.5" y="-52" textAnchor="middle">9,20 m</text>
+        <path className="cota" d="M-20 -2.5 V262.5 M-26 -2.5 H-14 M-26 262.5 H-14" />
+        <text className="cota-texto" x="-24" y="130" textAnchor="middle" transform="rotate(-90 -24 130)">5,30 m</text>
 
-        <text className="cota-texto" x="40" y="500">Planta do site, escala 1:50. Escolha um cômodo.</text>
+        <text className="cota-texto" x="0" y="365">Planta do site, escala 1:50. Escolha um cômodo.</text>
+      </g>
+
+      {/* Os nomes vêm por cima das portas para o arco não cortar o texto. O nome acessível de cada
+          cômodo é o aria-label do link, então os textos ficam fora da árvore de acessibilidade. */}
+      <g className="rotulos" aria-hidden="true">
+        {secoes.map((c) => {
+          const nome = linhas[c.id] ?? [c.nome];
+          const topo = c.y + c.h / 2 - (nome.length * 16.5 + 16) / 2 + 12; // centra nome e tipo no cômodo
+          return (
+            <text key={c.id} className={desce.has(c.id) ? 'desce' : undefined} x={c.x + c.w / 2} y={topo} textAnchor="middle">
+              {nome.map((l, i) => (
+                <tspan key={l} className="comodo-nome" x={c.x + c.w / 2} dy={i ? '1.1em' : 0}>{l}</tspan>
+              ))}
+              <tspan className="comodo-tipo" x={c.x + c.w / 2} dy="1.5em">{c.tipo}</tspan>
+            </text>
+          );
+        })}
       </g>
     </svg>
   );
@@ -147,27 +107,32 @@ function Planta() {
 export default function Home() {
   return (
     <div className="max-w-6xl mx-auto">
-      <section className="grid md:grid-cols-[1fr_1.15fr] gap-10 md:gap-14 items-center">
-        <div>
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold mb-6">João Victor Varela</h1>
-          <p className="text-lg sm:text-xl text-[color:var(--tinta-suave)] max-w-xl mb-4">
-            Desenvolvo com React, TypeScript e C# com .NET, e estudo Sistemas para Internet na Unicap.
-          </p>
-          <p className="text-lg sm:text-xl text-[color:var(--tinta-suave)] max-w-xl mb-8">
-            De dia sou corretor de imóveis na Place Brokers. Por isso a minha casa aqui é{' '}
-            <span className="marca-texto ao-abrir">uma planta</span>: é
-            o que eu mostro aos clientes todo dia. Hoje estou construindo, em equipe, o sistema da própria
-            imobiliária, e fiquei com a área que eu mesmo uso, a do corretor.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Link href="/projetos" className="botao botao-principal">Ver projetos</Link>
-            <a href="/curriculo-joao-victor-varela.pdf" download className="botao botao-linha">Baixar currículo</a>
-            <a href="#simulador" className="botao botao-linha">Testar o simulador</a>
+      {/* O palco: o estande escuro, com a planta que vira maquete na rolagem (DESIGN.md, seção 3) */}
+      <section className="palco">
+        <div className="palco-fixo max-w-6xl mx-auto grid md:grid-cols-[1fr_1.15fr] gap-10 md:gap-14 items-center">
+          <div className="palco-texto">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold mb-6">João Victor Varela</h1>
+            <p className="text-lg sm:text-xl text-[color:var(--tinta-suave)] max-w-xl mb-4">
+              Desenvolvo com React, TypeScript e C# com .NET, e estudo Sistemas para Internet na Unicap.
+            </p>
+            <p className="text-lg sm:text-xl text-[color:var(--tinta-suave)] max-w-xl mb-8">
+              De dia sou corretor de imóveis na Place Brokers. Por isso a minha casa aqui é{' '}
+              <span className="marca-texto ao-abrir">uma planta</span>: é
+              o que eu mostro aos clientes todo dia. Hoje estou construindo, em equipe, o sistema da própria
+              imobiliária, e fiquei com a área que eu mesmo uso, a do corretor.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/projetos" className="botao botao-principal">Ver projetos</Link>
+              <a href="/curriculo-joao-victor-varela.pdf" download className="botao botao-linha">Baixar currículo</a>
+              <a href="#simulador" className="botao botao-linha">Testar o simulador</a>
+            </div>
           </div>
-        </div>
 
-        <div className="grade-planta p-3 sm:p-5">
-          <Planta />
+          <div className="grade-planta p-3 sm:p-5">
+            <PlantaViva>
+              <Planta />
+            </PlantaViva>
+          </div>
         </div>
       </section>
 

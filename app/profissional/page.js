@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Comodo from '../components/Comodo';
 
 export const metadata = {
   title: 'Experiência',
@@ -59,12 +60,13 @@ const pontes = [
 
 export default function Profissional() {
   return (
-    <div className="pagina space-y-8">
+    <Comodo piso="porcelanato" className="space-y-8">
       <header>
         <h1 className="titulo-pagina">Experiência</h1>
         <p className="intro-pagina">
           Antes da primeira vaga em tecnologia, aprendi a atender gente e a entender o que o cliente precisa.
         </p>
+        <a href="/curriculo-joao-victor-varela.pdf" download className="botao botao-linha mt-5">Baixar currículo em PDF</a>
         <div className="cota-linha" aria-hidden="true" />
       </header>
 
@@ -110,6 +112,6 @@ export default function Profissional() {
           ))}
         </dl>
       </section>
-    </div>
+    </Comodo>
   );
 }

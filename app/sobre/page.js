@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Comodo from '../components/Comodo';
 
 export const metadata = {
   title: 'Sobre',
@@ -18,7 +19,7 @@ const tecnologias = [
 
 export default function Sobre() {
   return (
-    <div className="pagina space-y-10">
+    <Comodo piso="porcelanato" className="space-y-10">
       <header>
         <h1 className="titulo-pagina">Sobre mim</h1>
         <div className="cota-linha" aria-hidden="true" />
@@ -98,6 +99,6 @@ export default function Sobre() {
       <p className="text-sm text-[color:var(--tinta-suave)]">
         Este site foi feito com Next.js e Tailwind CSS e está publicado na Vercel.
       </p>
-    </div>
+    </Comodo>
   );
 }

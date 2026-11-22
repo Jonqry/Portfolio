@@ -1,0 +1,58 @@
+{
+  "unidade": "cm, eixo das paredes; y cresce para baixo, como no SVG",
+  "alturas": { "peDireito": 260, "verga": 210, "peitoril": 100, "guardaCorpo": 110, "baseGuardaCorpo": 10, "meiaParede": 110 },
+  "espessuraParede": 10,
+  "comodos": [
+    { "id": "simulador", "nome": "Simulador", "tipo": "suíte", "x": 0, "y": 0, "largura": 250, "profundidade": 310, "piso": "taco" },
+    { "id": "circulacao-suite", "nome": "", "tipo": "circulação da suíte", "x": 140, "y": 310, "largura": 110, "profundidade": 80, "piso": "taco" },
+    { "id": "banheiro-suite", "nome": "", "tipo": "banheiro da suíte", "x": 0, "y": 310, "largura": 140, "profundidade": 210, "piso": "ceramica" },
+    { "id": "place-brokers", "nome": "Place Brokers", "tipo": "quarto", "x": 250, "y": 0, "largura": 250, "profundidade": 290, "piso": "taco" },
+    { "id": "circulacao", "nome": "", "tipo": "circulação", "x": 250, "y": 290, "largura": 115, "profundidade": 100, "piso": "porcelanato" },
+    { "id": "banheiro", "nome": "", "tipo": "banheiro", "x": 140, "y": 390, "largura": 225, "profundidade": 130, "piso": "ceramica" },
+    { "id": "circulacao-sala", "nome": "", "tipo": "circulação", "x": 365, "y": 290, "largura": 135, "profundidade": 70, "piso": "porcelanato" },
+    { "id": "experiencia", "nome": "Experiência e currículo", "tipo": "mesa de jantar", "x": 365, "y": 360, "largura": 380, "profundidade": 160, "piso": "porcelanato" },
+    { "id": "sobre", "nome": "Sobre", "tipo": "sala de estar", "x": 500, "y": 132.5, "largura": 245, "profundidade": 227.5, "piso": "porcelanato" },
+    { "id": "mais-projetos", "nome": "Mais projetos", "tipo": "área de serviço", "x": 745, "y": 132.5, "largura": 165, "profundidade": 157.5, "piso": "ceramica" },
+    { "id": "cashflow", "nome": "CashFlow", "tipo": "cozinha", "x": 745, "y": 290, "largura": 165, "profundidade": 210, "piso": "ceramica" },
+    { "id": "contato", "nome": "Contato", "tipo": "varanda gourmet", "x": 500, "y": 0, "largura": 410, "profundidade": 132.5, "piso": "varanda" },
+    { "id": "laje-tecnica", "nome": "", "tipo": "laje técnica", "x": 110, "y": -70, "largura": 280, "profundidade": 70, "piso": "laje" },
+    { "id": "corredor", "nome": "", "tipo": "corredor do prédio", "x": 520, "y": 520, "largura": 230, "profundidade": 160, "piso": "laje" }
+  ],
+  "paredes": [
+    [[656, 520], [0, 520], [0, 0], [500, 0], [500, 290], [334, 290]],
+    [[910, 0], [910, 500], [750, 500]],
+    [[750, 455], [750, 520], [736, 520]],
+    [[250, 0], [250, 306]],
+    [[250, 376], [250, 390]],
+    [[250, 290], [264, 290]],
+    [[0, 310], [140, 310]],
+    [[140, 310], [140, 319]],
+    [[140, 379], [140, 520]],
+    [[140, 390], [291, 390]],
+    [[351, 390], [365, 390], [365, 520]],
+    [[500, 132.5], [520, 132.5]],
+    [[700, 132.5], [761, 132.5]],
+    [[831, 132.5], [910, 132.5]]
+  ],
+  "meiasParedes": [
+    [[110, 0], [110, -70], [390, -70], [390, 0]]
+  ],
+  "guardaCorpo": [
+    [[500, 0], [910, 0]]
+  ],
+  "portas": [
+    { "id": "entrada", "dobradica": [736, 520], "batente": [656, 520], "folhaAberta": [736, 440] },
+    { "id": "suite", "dobradica": [250, 376], "batente": [250, 306], "folhaAberta": [180, 376] },
+    { "id": "quarto", "dobradica": [264, 290], "batente": [334, 290], "folhaAberta": [264, 220] },
+    { "id": "banheiro-suite", "dobradica": [140, 319], "batente": [140, 379], "folhaAberta": [80, 319] },
+    { "id": "banheiro", "dobradica": [351, 390], "batente": [291, 390], "folhaAberta": [351, 450] },
+    { "id": "area-servico", "dobradica": [831, 132.5], "batente": [761, 132.5], "folhaAberta": [831, 202.5] }
+  ],
+  "vaos": [
+    { "de": [520, 132.5], "ate": [700, 132.5], "vidro": true }
+  ],
+  "janelas": [
+    { "de": [115, 0], "ate": [235, 0] },
+    { "de": [265, 0], "ate": [385, 0] }
+  ]
+}

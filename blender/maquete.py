@@ -1,0 +1,777 @@
+"""
+Monta a base da maquete no Blender a partir de app/planta.json.
+
+Como usar (Blender 5.3):
+  1. Na aba Scripting, abra este arquivo e clique em Run Script.
+     Pelo terminal também funciona: blender --python blender/maquete.py
+  2. O script cria quatro coleções: "Maquete (gerada)", "Móveis (gerados)", "Pavimento (gerado)" (os vizinhos
+     e o núcleo) e "Estúdio (gerado)" (luz, câmera e fundo). Rodar de novo apaga e refaz só essas quatro,
+     então o que você modelar ou ajustar
+     à mão fica em outras coleções: para refinar um móvel ou uma luz, mova-o para uma coleção sua antes.
+     Materiais que já existem com o mesmo nome não são alterados.
+
+Convenções: 1 unidade do Blender = 1 m e o centro da casa fica na origem. Na planta o eixo y
+cresce para baixo; aqui Y cresce para cima, então a vista de topo (numpad 7) mostra a casa na
+mesma posição do SVG da home.
+"""
+
+import json
+import math
+import os
+
+COLECAO = "Maquete (gerada)"
+COLECAO_MOVEIS = "Móveis (gerados)"
+COLECAO_ESTUDIO = "Estúdio (gerado)"
+COLECAO_PAVIMENTO = "Pavimento (gerado)"
+MARGEM_PLACA = 60       # cm de MDF em volta do apartamento
+ESPESSURA_PLACA = 30    # cm de MDF
+ESPESSURA_LAJE = 12     # cm do corte da laje
+ESPESSURA_FOLHA = 4     # cm
+FOLGA_PORTA = 1         # cm entre a folha e o batente
+ESPESSURA_VIDRO = 2     # cm
+ALTURA_PISO = 0.2       # cm acima da laje, para não brigar com ela
+ALTURA_CORTE = 120      # cm: as paredes são cortadas aqui, como na planta humanizada 3D, para os cômodos aparecerem
+ALTURA_CORTE_MOVEIS = 100  # cm: móveis altos e folhas de porta são cortados abaixo das paredes, para não se confundirem com elas
+ALTURA_CORTE_VIZINHOS = 60  # cm: os vizinhos e o núcleo ficam mais baixos que a unidade, como contexto
+
+CORES = {
+    "Parede": "#F3F2EE",
+    "Porta": "#F3F2EE",
+    "Movel": "#EEEBE4",
+    "Acrilico": "#F2F6F7",
+    "Laje": "#BDBAB2",
+    "MDF": "#B0916A",
+    "porcelanato": "#D8D6CF",
+    "taco": "#B98A57",
+    "ceramica": "#E4E2DC",
+    "varanda": "#C7C4BA",
+    "laje": "#BDBAB2",
+    "Estande": "#26313A",
+    "Pavimento": "#E9E6DF",
+    "Spot": "#FFE9B8",
+}
+
+# Móveis de maquete em blocos: nome, canto (x, y) na planta, largura, profundidade, topo e, se não começar no
+# piso, a base, em cm. São os que o kit não tem (ou tem pior): guarda-roupas, marcenaria do café, bancadas,
+# geladeira e tanque, longe do giro das portas.
+MOVEIS = [
+    ("Guarda-roupa", 5, 250, 130, 55, 220),
+    ("Guarda-roupa", 345, 230, 150, 55, 220),
+    ("Armário do café", 370, 385, 42, 40, 90),
+    ("Bancada do café", 370, 425, 40, 40, 90),
+    ("Painel ripado", 420, 509, 230, 6, 260),
+    ("Geladeira", 840, 430, 65, 65, 180),
+    ("Tanque", 836, 140, 44, 52, 90),
+    ("Bancada gourmet", 845, 5, 60, 122, 90),
+    ("Balcão da varanda", 505, 5, 335, 35, 105),
+    ("Condensadora do ar", 188, -55, 38, 36, 55),
+    ("Condensadora do ar", 328, -55, 38, 36, 55),
+]
+
+# Móveis curvos: nome, centro (x, y) e raio do arco na planta, ângulos "de" e "ate" em graus (0° para +x e 90° para +y,
+# que cresce para baixo) e altura, em cm. O quarto de círculo arredonda o canto entre duas paredes, e o canto fica cheio.
+MOVEIS_CURVOS = [
+    ("Painel curvo do café", (420, 465), 50, 90, 180, 260),
+]
+
+# Móveis redondos: nome, centro (x, y) e raio na planta, topo e, se não começar no piso, a base, em cm.
+MOVEIS_REDONDOS = [
+    ("Criado-mudo", (376, 28), 18, 50),
+    ("Tampo da mesa lateral", (611, 221), 16, 50, 47),
+    ("Pé da mesa lateral", (611, 221), 3, 47),
+    ("Tampo da mesa de jantar", (530, 420), 50, 75, 72),
+    ("Pé da mesa de jantar", (530, 420), 7, 72, 3),
+    ("Base da mesa de jantar", (530, 420), 28, 3),
+]
+
+# Móveis do Furniture Kit da Kenney (CC0, blender/pecas/kenney): nome, modelo, canto (x, y) na planta, largura,
+# profundidade e topo da caixa onde ele entra, o lado para onde a frente aponta ("norte" é para cima na planta),
+# e, se precisar, a base e o encaixe. O modelo entra inteiro na caixa, sem distorcer ("conter"), com as costas no
+# lado oposto à frente; "preencher" estica até a caixa, para os módulos de cozinha, que no kit são baixos demais.
+MOVEIS_KIT = [
+    ("Cama casal", "bedDouble", 5, 55, 190, 150, 100, "leste"),
+    ("Criado-mudo", "cabinetBed", 5, 15, 40, 40, 50, "leste"),
+    ("Criado-mudo", "cabinetBed", 5, 205, 40, 40, 50, "leste"),
+    ("Cama de solteiro", "bedSingle", 262, 5, 90, 190, 100, "sul"),
+    ("Cama de solteiro", "bedSingle", 400, 5, 90, 190, 100, "sul"),
+    ("Vaso sanitário", "toilet", 5, 380, 60, 40, 80, "leste"),
+    ("Pia do banheiro", "bathroomSink", 5, 320, 45, 45, 85, "leste"),
+    ("Vaso sanitário", "toilet", 240, 455, 40, 60, 80, "norte"),
+    ("Pia do banheiro", "bathroomSink", 305, 470, 50, 45, 85, "norte"),
+    ("Rack da TV", "cabinetTelevision", 505, 150, 40, 130, 50, "leste"),
+    ("TV", "televisionModern", 505, 165, 40, 100, 100, "leste", 50),
+    ("Sofá", "loungeSofa", 630, 150, 80, 190, 80, "oeste"),
+    ("Tapete da sala", "rugRectangle", 560, 160, 140, 180, 2, "leste"),
+    ("Tapete do jantar", "rugRound", 460, 350, 140, 140, 2, "sul"),
+    ("Cadeira", "chairModernCushion", 510, 330, 40, 40, 85, "sul"),
+    ("Cadeira", "chairModernCushion", 510, 470, 40, 38, 85, "norte"),
+    ("Cadeira", "chairModernCushion", 440, 400, 40, 40, 85, "leste"),
+    ("Cadeira", "chairModernCushion", 580, 400, 40, 40, 85, "oeste"),
+    ("Armário da cozinha", "kitchenCabinet", 845, 210, 60, 55, 90, "oeste", 0, "preencher"),
+    ("Fogão", "kitchenStove", 845, 265, 60, 55, 90, "oeste", 0, "preencher"),
+    ("Pia da cozinha", "kitchenSink", 845, 320, 60, 55, 90, "oeste", 0, "preencher"),
+    ("Gaveteiro da cozinha", "kitchenCabinetDrawer", 845, 375, 60, 55, 90, "oeste", 0, "preencher"),
+    ("Banqueta", "stoolBar", 530, 45, 40, 40, 75, "norte"),
+    ("Banqueta", "stoolBar", 590, 45, 40, 40, 75, "norte"),
+    ("Banqueta", "stoolBar", 650, 45, 40, 40, 75, "norte"),
+    ("Planta", "pottedPlant", 576, 276, 48, 48, 83, "sul"),
+    ("Planta", "pottedPlant", 708, 78, 44, 44, 79, "sul"),
+    ("Planta", "pottedPlant", 772, 62, 56, 56, 96, "sul"),
+]
+
+
+# Pavimento tipo (implantação e fachada do book): 8 apartamentos por andar, 4 de cada lado do corredor, com o
+# núcleo de elevadores e escada no meio. A unidade da planta é a segunda de uma fileira, ao lado do núcleo; os
+# vizinhos saem da mesma planta, espelhados ao lado e girados do outro lado do corredor, só com as paredes.
+LARGURA_CORREDOR = 160  # cm, entre os eixos das paredes de entrada das duas fileiras
+LARGURA_NUCLEO = 360    # cm, estimada pela implantação do book, que não tem cotas
+
+
+# ---------- geometria (Python puro, em cm, coordenadas da planta) ----------
+
+def segmentos(linhas):
+    return [(linha[i], linha[i + 1]) for linha in linhas for i in range(len(linha) - 1)]
+
+
+def _no_segmento(p, a, b):
+    (x, y), (x1, y1), (x2, y2) = p, a, b
+    if x1 == x2:
+        return x == x1 and min(y1, y2) <= y <= max(y1, y2)
+    return y == y1 and min(x1, x2) <= x <= max(x1, x2)
+
+
+def _retangulo_linha(a, b, t, esticar_a=0, esticar_b=0):
+    """Retângulo (x0, x1, y0, y1) de espessura t em volta do trecho a→b."""
+    (x1, y1), (x2, y2) = a, b
+    h = t / 2
+    if y1 == y2:
+        s = 1 if x2 > x1 else -1
+        xa, xb = x1 - s * esticar_a, x2 + s * esticar_b
+        return (min(xa, xb), max(xa, xb), y1 - h, y1 + h)
+    if x1 == x2:
+        s = 1 if y2 > y1 else -1
+        ya, yb = y1 - s * esticar_a, y2 + s * esticar_b
+        return (x1 - h, x1 + h, min(ya, yb), max(ya, yb))
+    raise ValueError(f"Parede inclinada não é suportada: {a} → {b}")
+
+
+def blocos_paredes(planta):
+    """Blocos (x0, x1, y0, y1, z0, z1) que somados formam as paredes, a meia parede da cozinha, a base
+    do guarda-corpo e as vergas de portas e vãos, e os vãos de janela que devem ser retirados deles."""
+    t = planta["espessuraParede"]
+    alt = planta["alturas"]
+    trechos = [(s, alt["peDireito"]) for s in segmentos(planta["paredes"])]
+    trechos += [(s, alt["meiaParede"]) for s in segmentos(planta.get("meiasParedes", []))]
+    trechos += [(s, alt["baseGuardaCorpo"]) for s in segmentos(planta.get("guardaCorpo", []))]
+    blocos = []
+    for i, ((a, b), altura) in enumerate(trechos):
+        outros = [s for j, (s, _) in enumerate(trechos) if j != i]
+        # A ponta que encosta em outra parede estica meia espessura para fechar o canto.
+        # A ponta solta (vão de porta) fica no eixo, como no SVG.
+        ea = t / 2 if any(_no_segmento(a, *s) for s in outros) else 0
+        eb = t / 2 if any(_no_segmento(b, *s) for s in outros) else 0
+        blocos.append((*_retangulo_linha(a, b, t, ea, eb), 0, altura))
+    for p in planta["portas"]:
+        blocos.append((*_retangulo_linha(p["batente"], p["dobradica"], t), alt["verga"], alt["peDireito"]))
+    for v in planta.get("vaos", []):
+        blocos.append((*_retangulo_linha(v["de"], v["ate"], t), alt["verga"], alt["peDireito"]))
+    janelas = [(*_retangulo_linha(j["de"], j["ate"], t), j.get("peitoril", alt["peitoril"]), alt["verga"])
+               for j in planta["janelas"]]
+    # Corte da maquete: o que fica acima de ALTURA_CORTE (vergas, topo das paredes) sai
+    blocos = [(*b[:5], min(b[5], ALTURA_CORTE)) for b in blocos if b[4] < ALTURA_CORTE]
+    janelas = [(*j[:5], min(j[5], ALTURA_CORTE)) for j in janelas if j[4] < ALTURA_CORTE]
+    return blocos, janelas
+
+
+def _uniao(intervalos):
+    res = []
+    for a, b in sorted(intervalos):
+        if res and a <= res[-1][1]:
+            res[-1] = (res[-1][0], max(res[-1][1], b))
+        else:
+            res.append((a, b))
+    return res
+
+
+def _menos(intervalos, retirar):
+    res = []
+    for a, b in intervalos:
+        partes = [(a, b)]
+        for c, d in retirar:
+            novas = []
+            for x, y in partes:
+                if d <= x or c >= y:
+                    novas.append((x, y))
+                    continue
+                if c > x:
+                    novas.append((x, c))
+                if d < y:
+                    novas.append((d, y))
+            partes = novas
+        res += partes
+    return res
+
+
+def malha_paredes(planta):
+    return malha_de_blocos(*blocos_paredes(planta))
+
+
+def malha_de_blocos(blocos, vaos):
+    """Junta os blocos numa malha fechada só, sem faces internas, para o chanfro e o bake saírem limpos.
+    Devolve vértices (cm, coordenadas da planta) e faces com a normal para fora."""
+    xs = sorted({v for r in blocos + vaos for v in r[0:2]})
+    ys = sorted({v for r in blocos + vaos for v in r[2:4]})
+
+    perfil = {}
+    for i in range(len(xs) - 1):
+        cx = (xs[i] + xs[i + 1]) / 2
+        for j in range(len(ys) - 1):
+            cy = (ys[j] + ys[j + 1]) / 2
+            dentro = [r for r in blocos if r[0] < cx < r[1] and r[2] < cy < r[3]]
+            if not dentro:
+                continue
+            alturas = _uniao([(r[4], r[5]) for r in dentro])
+            alturas = _menos(alturas, [(v[4], v[5]) for v in vaos if v[0] < cx < v[1] and v[2] < cy < v[3]])
+            if alturas:
+                perfil[(i, j)] = alturas
+
+    vertices, faces = {}, []
+
+    def face(*pontos):
+        faces.append(tuple(vertices.setdefault(p, len(vertices)) for p in pontos))
+
+    for (i, j), alturas in perfil.items():
+        x0, x1, y0, y1 = xs[i], xs[i + 1], ys[j], ys[j + 1]
+        for z0, z1 in alturas:
+            face((x0, y0, z1), (x1, y0, z1), (x1, y1, z1), (x0, y1, z1))
+            face((x0, y1, z0), (x1, y1, z0), (x1, y0, z0), (x0, y0, z0))
+            for za, zb in _menos([(z0, z1)], perfil.get((i + 1, j), [])):
+                face((x1, y0, za), (x1, y1, za), (x1, y1, zb), (x1, y0, zb))
+            for za, zb in _menos([(z0, z1)], perfil.get((i - 1, j), [])):
+                face((x0, y0, zb), (x0, y1, zb), (x0, y1, za), (x0, y0, za))
+            for za, zb in _menos([(z0, z1)], perfil.get((i, j + 1), [])):
+                face((x1, y1, za), (x0, y1, za), (x0, y1, zb), (x1, y1, zb))
+            for za, zb in _menos([(z0, z1)], perfil.get((i, j - 1), [])):
+                face((x0, y0, za), (x1, y0, za), (x1, y0, zb), (x0, y0, zb))
+
+    # Costura as junções em T: um vértice no meio da aresta de outra face entra nela também,
+    # senão a malha fica com frestas e o chanfro sai torto.
+    pontos = [p for p, _ in sorted(vertices.items(), key=lambda kv: kv[1])]
+    costuradas = []
+    for f in faces:
+        nova = []
+        for k, i in enumerate(f):
+            a, b = pontos[i], pontos[f[(k + 1) % len(f)]]
+            nova.append(i)
+            meio = [m for m, p in enumerate(pontos) if _entre(p, a, b)]
+            nova += sorted(meio, key=lambda m: math.dist(pontos[m], a))
+        costuradas.append(tuple(nova))
+    return pontos, costuradas
+
+
+def _entre(p, a, b):
+    """p está no meio da aresta a–b (as arestas aqui são sempre paralelas a um eixo)."""
+    eixos = [d for d in range(3) if a[d] != b[d]]
+    if len(eixos) != 1:
+        return False
+    e = eixos[0]
+    return all(p[d] == a[d] for d in range(3) if d != e) and min(a[e], b[e]) < p[e] < max(a[e], b[e])
+
+
+def _extrusao(perfil, altura, base=0):
+    """Prisma de um polígono da planta, da base até a altura. Devolve vértices e faces com a normal para fora."""
+    area = sum(x1 * y2 - x2 * y1 for (x1, y1), (x2, y2) in zip(perfil, perfil[1:] + perfil[:1]))
+    if area < 0:
+        perfil.reverse()  # anti-horário, para a normal do topo apontar para cima
+    n = len(perfil)
+    vertices = [(x, y, base) for x, y in perfil] + [(x, y, altura) for x, y in perfil]
+    faces = [tuple(n + i for i in range(n)), tuple(reversed(range(n)))]
+    faces += [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)]
+    return vertices, faces
+
+
+def malha_curva(centro, raio, de, ate, altura, segmentos=16):
+    """Quarto de círculo que arredonda um canto, com o canto cheio até o arco (cm, coordenadas da planta)."""
+    (cx, cy), r = centro, raio
+    angulos = [math.radians(de + (ate - de) * i / segmentos) for i in range(segmentos + 1)]
+    canto = (cx + r * (math.cos(angulos[0]) + math.cos(angulos[-1])),
+             cy + r * (math.sin(angulos[0]) + math.sin(angulos[-1])))
+    return _extrusao([canto] + [(cx + r * math.cos(a), cy + r * math.sin(a)) for a in angulos], altura)
+
+
+def malha_cilindro(centro, raio, altura, base=0, segmentos=24):
+    """Móvel redondo (cm, coordenadas da planta)."""
+    (cx, cy), r = centro, raio
+    return _extrusao([(cx + r * math.cos(2 * math.pi * i / segmentos), cy + r * math.sin(2 * math.pi * i / segmentos))
+                      for i in range(segmentos)], altura, base)
+
+
+def malha_laje(planta):
+    blocos = [(c["x"], c["x"] + c["largura"], c["y"], c["y"] + c["profundidade"], -ESPESSURA_LAJE, 0)
+              for c in planta["comodos"]]
+    return malha_de_blocos(blocos, [])
+
+
+def posicoes_vizinhos(planta):
+    """(sx, tx, sy, ty) de cada vizinho, com x' = sx·x + tx e y' = sy·y + ty: três na fileira da unidade
+    e quatro do outro lado do corredor, girados em volta do meio do núcleo."""
+    largura = max(p[0] for linha in planta["paredes"] for p in linha)
+    fundo = max(p[1] for linha in planta["paredes"] for p in linha)
+    xc, ym = largura + LARGURA_NUCLEO / 2, fundo + LARGURA_CORREDOR / 2
+    fileira = [(-1, 0), (-1, 2 * largura + LARGURA_NUCLEO), (1, 2 * largura + LARGURA_NUCLEO)]
+    oposta = [(1, 0)] + fileira
+    return ([(sx, tx, 1, 0) for sx, tx in fileira] +
+            [(-sx, 2 * xc - tx, -1, 2 * ym) for sx, tx in oposta])
+
+
+def _mover(r, t):
+    """Retângulo (x0, x1, y0, y1, ...) levado para a posição de um vizinho."""
+    sx, tx, sy, ty = t
+    xs, ys = sorted((sx * r[0] + tx, sx * r[1] + tx)), sorted((sy * r[2] + ty, sy * r[3] + ty))
+    return (*xs, *ys, *r[4:])
+
+
+def _juntar(malhas):
+    vertices, faces = [], []
+    for vs, fs in malhas:
+        n = len(vertices)
+        vertices += vs
+        faces += [tuple(n + i for i in f) for f in fs]
+    return vertices, faces
+
+
+def malha_pavimento(planta):
+    """Paredes dos vizinhos com o núcleo, e a laje do pavimento, em cm da planta. Cada vizinho vira uma malha
+    (juntar tudo numa malha só fica lento demais). A parede que dois apartamentos dividem fica só com o primeiro,
+    a unidade da planta antes de todos: duas faces no mesmo lugar dão defeito no render e no bake."""
+    t = planta["espessuraParede"]
+    blocos, vaos = blocos_paredes(planta)
+    largura = max(p[0] for linha in planta["paredes"] for p in linha)
+    fundo = max(p[1] for linha in planta["paredes"] for p in linha)
+    ym = fundo + LARGURA_CORREDOR / 2
+    altura = min(planta["alturas"]["peDireito"], ALTURA_CORTE_VIZINHOS)
+    baixos = [(*b[:5], min(b[5], altura)) for b in blocos if b[4] < altura]
+    caixa_unidade = (-t / 2, largura + t / 2, min(b[2] for b in blocos), fundo + t / 2)
+    ocupadas = [caixa_unidade]
+
+    paredes, lajes = [], []
+    corte = [c for c in planta["comodos"] if c["id"] != "corredor"]
+    for posicao in posicoes_vizinhos(planta):
+        proprios = []
+        for b in (_mover(b, posicao) for b in baixos):
+            for o in ocupadas:
+                if b[0] < o[1] and b[1] > o[0] and b[2] < o[3] and b[3] > o[2]:
+                    if b[0] < o[0]:
+                        b = (b[0], o[0], *b[2:])
+                    elif b[1] > o[1]:
+                        b = (o[1], b[1], *b[2:])
+                    else:
+                        b = None  # inteiro dentro de um apartamento que já tem essa parede
+                        break
+            if b:
+                proprios.append(b)
+        paredes.append(malha_de_blocos(proprios, [_mover(v, posicao) for v in vaos]))
+        ocupadas.append(_mover(caixa_unidade, posicao))
+        # 1 mm abaixo da laje da unidade, para não brigar com ela onde as duas se encontram
+        lajes.append(malha_de_blocos([(*_mover((c["x"], c["x"] + c["largura"], c["y"], c["y"] + c["profundidade"]),
+                                               posicao), -ESPESSURA_LAJE - 0.1, -0.1) for c in corte], []))
+
+    # Núcleo vazado, com o hall aberto para o corredor: parede de fachada, dois poços de elevador e uma escada
+    # em degraus, para ler como núcleo de prédio e não como dois blocos maciços
+    xn0, xn1 = largura + t / 2, largura + LARGURA_NUCLEO - t / 2
+    poco = (xn1 - xn0 - t) / 2
+    nucleo = [(xn0, xn1, -t / 2, t / 2, 0, altura)]
+    for a0 in (xn0, xn1 - poco):  # poços vazados, com a porta do elevador (80 cm) virada para o hall
+        a1, b0, b1 = a0 + poco, t / 2, t / 2 + poco
+        lado = (poco - 80) / 2
+        nucleo += [(a0, a0 + t, b0, b1, 0, altura), (a1 - t, a1, b0, b1, 0, altura),
+                   (a0, a0 + lado, b1 - t, b1, 0, altura), (a1 - lado, a1, b1 - t, b1, 0, altura)]
+    degraus = 6
+    for i in range(degraus):
+        y0 = t / 2 + poco + 30 + i * 45
+        nucleo.append((xn1 - 120, xn1, y0, y0 + 45, 0, altura * (i + 1) / degraus))
+    oposto = (-1, 2 * (largura + LARGURA_NUCLEO / 2), -1, 2 * ym)
+    paredes.append(malha_de_blocos(nucleo + [_mover(b, oposto) for b in nucleo], []))
+    z = (-ESPESSURA_LAJE - 0.1, -0.1)
+    lajes.append(malha_de_blocos([(-largura, 3 * largura + LARGURA_NUCLEO, fundo, fundo + LARGURA_CORREDOR, *z),
+                                  (largura, largura + LARGURA_NUCLEO, 0, fundo, *z),
+                                  (largura, largura + LARGURA_NUCLEO, fundo + LARGURA_CORREDOR, 2 * ym, *z)], []))
+    return _juntar(paredes), _juntar(lajes)
+
+
+ROTACAO_KIT = {"sul": 0, "leste": 90, "norte": 180, "oeste": -90}  # graus; no kit a frente aponta para o sul da planta
+
+
+def encaixe(minimo, maximo, caixa, frente, modo="conter"):
+    """Escala (sx, sy, sz) e deslocamento (tx, ty, tz), com v' = v·s + t, que levam um modelo de limites
+    minimo..maximo (em metros do Blender, já girado) para dentro da caixa (x0, x1, y0, y1, z0, z1): de pé na base,
+    com as costas no lado oposto à frente e centrado no outro eixo."""
+    tamanho = [b - a for a, b in zip(minimo, maximo)]
+    alvo = [caixa[1] - caixa[0], caixa[3] - caixa[2], caixa[5] - caixa[4]]
+    s = [a / t for a, t in zip(alvo, tamanho)] if modo == "preencher" else [min(a / t for a, t in zip(alvo, tamanho))] * 3
+    novo = [t * k for t, k in zip(tamanho, s)]
+    # no Blender o y cresce para o norte da planta: a frente "sul" deixa as costas no y máximo da caixa
+    x = {"leste": caixa[0], "oeste": caixa[1] - novo[0]}.get(frente, (caixa[0] + caixa[1] - novo[0]) / 2)
+    y = {"norte": caixa[2], "sul": caixa[3] - novo[1]}.get(frente, (caixa[2] + caixa[3] - novo[1]) / 2)
+    return s, [p - m * k for p, m, k in zip((x, y, caixa[4]), minimo, s)]
+
+
+def centro(planta):
+    c = planta["comodos"]
+    x0 = min(r["x"] for r in c)
+    x1 = max(r["x"] + r["largura"] for r in c)
+    y0 = min(r["y"] for r in c)
+    y1 = max(r["y"] + r["profundidade"] for r in c)
+    return (x0 + x1) / 2, (y0 + y1) / 2, (x0, x1, y0, y1)
+
+
+def para_blender(planta, vertices, faces):
+    """cm da planta → metros do Blender. Inverter o y espelha a malha, então a ordem
+    dos vértices de cada face também inverte para a normal continuar para fora."""
+    cx, cy, _ = centro(planta)
+    vs = [((x - cx) / 100, -(y - cy) / 100, z / 100) for x, y, z in vertices]
+    return vs, [tuple(reversed(f)) for f in faces]
+
+
+def caixa(x0, x1, y0, y1, z0, z1):
+    """Caixa alinhada aos eixos, já em coordenadas do Blender. A face 1 é o topo."""
+    v = [(x0, y0, z0), (x1, y0, z0), (x1, y1, z0), (x0, y1, z0),
+         (x0, y0, z1), (x1, y0, z1), (x1, y1, z1), (x0, y1, z1)]
+    f = [(0, 3, 2, 1), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
+    return v, f
+
+
+def _angulo(p, c):
+    return math.degrees(math.atan2(p[1] - c[1], p[0] - c[0]))
+
+
+def dados_porta(planta, p):
+    """Posição da dobradiça, ângulo da folha aberta e o giro até fechar, já no Blender."""
+    cx, cy, _ = centro(planta)
+    fechada = _angulo(p["batente"], p["dobradica"]) - _angulo(p["folhaAberta"], p["dobradica"])
+    fechada = (fechada + 180) % 360 - 180
+    largura = math.dist(p["dobradica"], p["folhaAberta"])
+    return {
+        "local": ((p["dobradica"][0] - cx) / 100, -(p["dobradica"][1] - cy) / 100, 0.0),
+        # y invertido: o ângulo da planta troca de sinal no Blender
+        "rotacao": math.radians(-_angulo(p["folhaAberta"], p["dobradica"])),
+        "fechada_graus": -fechada,
+        "largura": (largura - FOLGA_PORTA) / 100,
+    }
+
+
+# ---------- Blender ----------
+
+def _linear(hexa):
+    rgb = [int(hexa[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+    return tuple(c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in rgb)
+
+
+def _material(bpy, nome, hexa, rugosidade=0.9, transmissao=0.0):
+    existente = bpy.data.materials.get(nome)
+    if existente:
+        return existente  # não sobrescreve o que você já ajustou
+    m = bpy.data.materials.new(nome)
+    if hasattr(m, "use_nodes") and not m.use_nodes:
+        m.use_nodes = True
+    cor = (*_linear(hexa), 1.0)
+    m.diffuse_color = cor
+    if m.node_tree:
+        bsdf = next((n for n in m.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
+        if bsdf:
+            bsdf.inputs["Base Color"].default_value = cor
+            bsdf.inputs["Roughness"].default_value = rugosidade
+            entrada = bsdf.inputs.get("Transmission Weight")
+            if entrada and transmissao:
+                entrada.default_value = transmissao
+    return m
+
+
+def _colecao_limpa(bpy, nome=COLECAO):
+    col = bpy.data.collections.get(nome)
+    if col is None:
+        col = bpy.data.collections.new(nome)
+        bpy.context.scene.collection.children.link(col)
+        return col
+    for ob in list(col.all_objects):
+        dados = ob.data
+        bpy.data.objects.remove(ob, do_unlink=True)
+        if dados is None or dados.users:
+            continue
+        for tipo, lista in ((bpy.types.Mesh, bpy.data.meshes), (bpy.types.Light, bpy.data.lights),
+                            (bpy.types.Camera, bpy.data.cameras)):
+            if isinstance(dados, tipo):
+                lista.remove(dados)
+    return col
+
+
+def _objeto(bpy, col, nome, vertices, faces, materiais, indices=None, uvs=None):
+    malha = bpy.data.meshes.new(nome)
+    malha.from_pydata(vertices, [], faces)
+    for m in materiais:
+        malha.materials.append(m)
+    if indices:
+        for poligono, i in zip(malha.polygons, indices):
+            poligono.material_index = i
+    if uvs:
+        camada = malha.uv_layers.new(name="UVMap")
+        for laco in malha.loops:
+            camada.data[laco.index].uv = uvs[laco.vertex_index]
+    malha.update()
+    ob = bpy.data.objects.new(nome, malha)
+    col.objects.link(ob)
+    return ob
+
+
+def caminho_planta():
+    bases = []
+    if "__file__" in globals():
+        bases.append(os.path.dirname(os.path.abspath(__file__)))
+    try:
+        import bpy
+        for texto in bpy.data.texts:
+            if texto.filepath and os.path.basename(texto.filepath) == "maquete.py":
+                bases.append(os.path.dirname(bpy.path.abspath(texto.filepath)))
+    except ImportError:
+        pass
+    for base in bases:
+        caminho = os.path.normpath(os.path.join(base, "..", "app", "planta.json"))
+        if os.path.exists(caminho):
+            return caminho
+    raise FileNotFoundError("Não achei app/planta.json. Abra o maquete.py que está na pasta blender/ do repositório.")
+
+
+def construir():
+    import bpy
+    import bmesh
+
+    with open(caminho_planta(), encoding="utf-8") as f:
+        planta = json.load(f)
+    col = _colecao_limpa(bpy)
+    mat = {nome: _material(bpy, nome, CORES[nome]) for nome in ("Parede", "Porta", "Laje", "MDF")}
+    mat["Acrilico"] = _material(bpy, "Acrilico", CORES["Acrilico"], rugosidade=0.05, transmissao=0.9)
+    cx, cy, (bx0, bx1, by0, by1) = centro(planta)
+    alt = planta["alturas"]
+
+    # Paredes: uma malha só, com chanfro não destrutivo
+    vs, fs = para_blender(planta, *malha_paredes(planta))
+    paredes = _objeto(bpy, col, "Paredes", vs, fs, [mat["Parede"]])
+    bm = bmesh.new()
+    bm.from_mesh(paredes.data)
+    bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(1), verts=bm.verts[:], edges=bm.edges[:])
+    bm.to_mesh(paredes.data)
+    bm.free()
+    chanfro = paredes.modifiers.new("Chanfro", "BEVEL")
+    chanfro.width = 0.008
+    chanfro.segments = 2
+    chanfro.limit_method = "ANGLE"
+
+    # Laje recortada sob os cômodos e o corredor, como na maquete da unidade do estande
+    vs, fs = para_blender(planta, *malha_laje(planta))
+    laje = _objeto(bpy, col, "Laje", vs, fs, [mat["Laje"]])
+    bm = bmesh.new()
+    bm.from_mesh(laje.data)
+    bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(1), verts=bm.verts[:], edges=bm.edges[:])
+    bm.to_mesh(laje.data)
+    bm.free()
+
+    # Pavimento: os vizinhos e o núcleo em branco, sem móveis, como no estande de pavimento tipo
+    col_pavimento = _colecao_limpa(bpy, COLECAO_PAVIMENTO)
+    (vp, fp), (vl, fl) = malha_pavimento(planta)
+    for nome, vs, fs, material in (("Paredes vizinhas", vp, fp, mat["Parede"]),
+                                   ("Laje do pavimento", vl, fl, _material(bpy, "Pavimento", CORES["Pavimento"]))):
+        ob = _objeto(bpy, col_pavimento, nome, *para_blender(planta, vs, fs), [material])
+        bm = bmesh.new()
+        bm.from_mesh(ob.data)
+        bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(1), verts=bm.verts[:], edges=bm.edges[:])
+        bm.to_mesh(ob.data)
+        bm.free()
+    bx0, bx1 = min(bx0, *(v[0] for v in vp + vl)), max(bx1, *(v[0] for v in vp + vl))
+    by0, by1 = min(by0, *(v[1] for v in vp + vl)), max(by1, *(v[1] for v in vp + vl))
+
+    # Base de MDF da maquete, logo abaixo da laje, cobrindo o pavimento inteiro
+    m = MARGEM_PLACA
+    vs, fs = caixa((bx0 - m - cx) / 100, (bx1 + m - cx) / 100, -(by1 + m - cy) / 100, -(by0 - m - cy) / 100,
+                   -(ESPESSURA_LAJE + ESPESSURA_PLACA) / 100, -ESPESSURA_LAJE / 100)
+    _objeto(bpy, col, "Base", vs, fs, [mat["MDF"]])
+
+    # Pisos: um objeto e um material por cômodo, para trocar a textura de cada projeto sem refazer o bake.
+    # Vão até o eixo das paredes, para não sobrar fresta entre cômodos abertos (sala, jantar, cozinha).
+    for c in planta["comodos"]:
+        x0, x1 = (c["x"] - cx) / 100, (c["x"] + c["largura"] - cx) / 100
+        y0, y1 = -(c["y"] + c["profundidade"] - cy) / 100, -(c["y"] - cy) / 100
+        z = ALTURA_PISO / 100
+        piso = _material(bpy, f"Piso_{c['id']}", CORES[c["piso"]], rugosidade=0.7)
+        _objeto(bpy, col, f"Piso_{c['id']}", [(x0, y0, z), (x1, y0, z), (x1, y1, z), (x0, y1, z)], [(0, 1, 2, 3)],
+                [piso], uvs=[(0, 0), (1, 0), (1, 1), (0, 1)])
+
+    # Portas: origem na dobradiça, para o site girar a folha. "fechada_graus" vai no glTF (extras).
+    for p in planta["portas"]:
+        d = dados_porta(planta, p)
+        e = ESPESSURA_FOLHA / 100
+        vs, fs = caixa(0, d["largura"], -e / 2, e / 2, 0, min(alt["verga"] - FOLGA_PORTA, ALTURA_CORTE_MOVEIS) / 100)
+        ob = _objeto(bpy, col, f"Porta_{p['id']}", vs, fs, [mat["Porta"]])
+        ob.location = d["local"]
+        ob.rotation_euler[2] = d["rotacao"]
+        ob["fechada_graus"] = d["fechada_graus"]
+
+    # Janelas, portas de vidro e guarda-corpo: placa de acrílico no meio da parede
+    vidros = [(j["de"], j["ate"], j.get("peitoril", alt["peitoril"]), alt["verga"]) for j in planta["janelas"]]
+    vidros += [(v["de"], v["ate"], 0, alt["verga"]) for v in planta.get("vaos", []) if v["vidro"]]
+    vidros += [(a, b, alt["baseGuardaCorpo"], alt["guardaCorpo"]) for a, b in segmentos(planta.get("guardaCorpo", []))]
+    vidros = [(a, b, z0, min(z1, ALTURA_CORTE)) for a, b, z0, z1 in vidros if z0 < ALTURA_CORTE]
+    for i, (a, b, z0, z1) in enumerate(vidros, start=1):
+        x0, x1, y0, y1 = _retangulo_linha(a, b, ESPESSURA_VIDRO)
+        vs, fs = caixa((x0 - cx) / 100, (x1 - cx) / 100, -(y1 - cy) / 100, -(y0 - cy) / 100,
+                       z0 / 100, z1 / 100)
+        _objeto(bpy, col, f"Vidro_{i}", vs, fs, [mat["Acrilico"]])
+
+    print(f"Maquete montada: {len(col.objects)} objetos em '{COLECAO}'.")
+
+
+# Cobogó metálico entre o estar e a cozinha, atrás do sofá, como no decorado: (x0, x1, y0, y1) em cm. A passagem
+# para a cozinha fica entre ele e a parede da entrada.
+COBOGO = (744, 748, 150, 340)
+COBOGO_BARRA, COBOGO_VAO = 3, 12  # cm
+
+
+def malha_cobogo(altura):
+    """Tela vazada do cobogó: barras verticais e horizontais numa malha fechada só, em cm da planta."""
+    x0, x1, y0, y1 = COBOGO
+    b, z0 = COBOGO_BARRA, ALTURA_PISO
+    nv = max(1, round((y1 - y0 - b) / (b + COBOGO_VAO)))
+    nh = max(1, round((altura - b) / (b + COBOGO_VAO)))
+    py, pz = (y1 - y0 - b) / nv, (altura - b) / nh
+    blocos = [(x0, x1, y0 + i * py, y0 + i * py + b, z0, z0 + altura) for i in range(nv + 1)]
+    blocos += [(x0, x1, y0, y1, z0 + j * pz, z0 + j * pz + b) for j in range(nh + 1)]
+    return malha_de_blocos(blocos, [])
+
+
+def construir_moveis():
+    import bpy
+
+    with open(caminho_planta(), encoding="utf-8") as f:
+        planta = json.load(f)
+    col = _colecao_limpa(bpy, COLECAO_MOVEIS)
+    mat = _material(bpy, "Movel", CORES["Movel"], rugosidade=0.95)
+    cx, cy, _ = centro(planta)
+    z = ALTURA_PISO / 100
+    for nome, x, y, w, d, h, *base in MOVEIS:
+        h = min(h, ALTURA_CORTE_MOVEIS)  # móvel alto é cortado abaixo das paredes, para não se confundir com elas
+        vs, fs = caixa((x - cx) / 100, (x + w - cx) / 100, -(y + d - cy) / 100, -(y - cy) / 100,
+                       z + (base[0] if base else 0) / 100, z + h / 100)
+        _objeto(bpy, col, nome, vs, fs, [mat])
+    for nome, centro_arco, raio, de, ate, h in MOVEIS_CURVOS:
+        vs, fs = para_blender(planta, *malha_curva(centro_arco, raio, de, ate, min(h, ALTURA_CORTE_MOVEIS)))
+        _objeto(bpy, col, nome, vs, fs, [mat])
+    for nome, centro_mesa, raio, h, *base in MOVEIS_REDONDOS:
+        vs, fs = para_blender(planta, *malha_cilindro(centro_mesa, raio, min(h, ALTURA_CORTE_MOVEIS), *base))
+        _objeto(bpy, col, nome, vs, fs, [mat])
+    _objeto(bpy, col, "Cobogó", *para_blender(planta, *malha_cobogo(ALTURA_CORTE_MOVEIS)), [mat])
+    construir_kit(bpy, planta, col)
+
+
+def construir_kit(bpy, planta, col):
+    """Importa cada móvel do kit, junta as partes numa malha, gira e encaixa na caixa dele. Os materiais do kit
+    ficam como vieram: o arte.py troca cada um pelo da maquete."""
+    from mathutils import Matrix
+
+    pasta = os.path.join(os.path.dirname(os.path.dirname(caminho_planta())), "blender", "pecas", "kenney",
+                         "Models", "GLTF format")
+    if not os.path.isdir(pasta):
+        raise FileNotFoundError(f"Kit de móveis não encontrado em {pasta} (veja o DESIGN.md, seção 5)")
+    cx, cy, _ = centro(planta)
+    for nome, modelo, x, y, w, d, h, frente, *resto in MOVEIS_KIT:
+        base, modo = (resto + [0, "conter"][len(resto):])[:2]
+        antes = set(bpy.data.objects)
+        bpy.ops.import_scene.gltf(filepath=os.path.join(pasta, f"{modelo}.glb"))
+        novos = [o for o in bpy.data.objects if o not in antes]
+        partes = [o for o in novos if o.type == "MESH"]
+        for o in partes:  # a transformação de cada parte vai para a malha, e as partes ficam soltas
+            mundo = o.matrix_world.copy()
+            o.parent = None
+            o.data.transform(mundo)
+            o.matrix_world = Matrix.Identity(4)
+        for o in novos:
+            if o.type != "MESH":
+                bpy.data.objects.remove(o, do_unlink=True)
+        ob = partes[0]
+        if len(partes) > 1:
+            with bpy.context.temp_override(active_object=ob, selected_editable_objects=partes, selected_objects=partes):
+                bpy.ops.object.join()
+        # giro, escala e posição ficam no objeto: na malha, as normais que vêm do kit sairiam erradas
+        giro = Matrix.Rotation(math.radians(ROTACAO_KIT[frente]), 4, "Z")
+        cs = [giro @ v.co for v in ob.data.vertices]
+        minimo, maximo = [min(c[i] for c in cs) for i in range(3)], [max(c[i] for c in cs) for i in range(3)]
+        caixa_b = ((x - cx) / 100, (x + w - cx) / 100, -(y + d - cy) / 100, -(y - cy) / 100,
+                   (ALTURA_PISO + base) / 100, (ALTURA_PISO + h) / 100)
+        s, t = encaixe(minimo, maximo, caixa_b, frente, modo)
+        ob.matrix_world = Matrix.Translation(t) @ Matrix.Diagonal((*s, 1)) @ giro
+        for c in list(ob.users_collection):
+            c.objects.unlink(ob)
+        col.objects.link(ob)
+        ob.name = nome
+        ob["kit"] = modelo
+
+
+def construir_estudio():
+    """Fundo do estande, spot quente por cima, preenchimento frio e a câmera da etapa de maquete."""
+    import bpy
+
+    cena = bpy.context.scene
+    col = _colecao_limpa(bpy, COLECAO_ESTUDIO)
+    alvo = bpy.data.objects.new("Alvo", None)
+    alvo.location = (0, 0.45, 0.4)  # centro da unidade, que fica 45 cm ao norte do centro do pavimento
+    col.objects.link(alvo)
+
+    def mirar(ob):
+        restricao = ob.constraints.new("TRACK_TO")
+        restricao.target = alvo
+        restricao.track_axis = "TRACK_NEGATIVE_Z"
+        restricao.up_axis = "UP_Y"
+
+    # Spot baixo e de lado em relação à câmera, para as sombras saírem longas e marcarem o volume
+    for nome, cor, potencia, tamanho, local in (("Spot do estande", CORES["Spot"], 2700, 2.0, (-8.1, 5.8, 6.0)),
+                                                ("Preenchimento", "#CFE3E6", 150, 4.0, (8.1, -5.8, 5.0))):
+        luz = bpy.data.lights.new(nome, type="AREA")
+        luz.energy = potencia
+        luz.size = tamanho
+        luz.color = _linear(cor)
+        ob = bpy.data.objects.new(nome, luz)
+        ob.location = local
+        col.objects.link(ob)
+        mirar(ob)
+
+    lente = bpy.data.cameras.new("Câmera do estande")
+    lente.lens = 52
+    # Desfoque de miniatura: foco na unidade e o resto do pavimento se perdendo, como maquete fotografada
+    lente.dof.use_dof = True
+    lente.dof.focus_object = alvo
+    lente.dof.aperture_fstop = 0.1  # o mesmo desfoque de antes com a lente mais longa
+    camera = bpy.data.objects.new("Câmera do estande", lente)
+    camera.location = (10.89, 15.29, 19.1)  # do lado da varanda, uns 45° de cima, a unidade enchendo o quadro
+    col.objects.link(camera)
+    mirar(camera)
+    cena.camera = camera
+
+    mundo = cena.world or bpy.data.worlds.new("Estande")
+    cena.world = mundo
+    if hasattr(mundo, "use_nodes") and not mundo.use_nodes:
+        mundo.use_nodes = True
+    if mundo.node_tree:
+        fundo = next((n for n in mundo.node_tree.nodes if n.type == "BACKGROUND"), None)
+        if fundo:
+            fundo.inputs["Color"].default_value = (*_linear(CORES["Estande"]), 1.0)
+            fundo.inputs["Strength"].default_value = 1.0
+
+    cena.render.engine = "CYCLES"
+    cena.cycles.samples = 128
+    cena.cycles.use_denoising = True
+    cena.render.resolution_x, cena.render.resolution_y = 1920, 1080
+
+
+if __name__ == "__main__":
+    construir()
+    construir_moveis()
+    construir_estudio()
+    print("Móveis e estúdio prontos. Aperte F12 para o render de teste.")

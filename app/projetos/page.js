@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import Comodo from '../components/Comodo';
 
 export const metadata = {
   title: 'Projetos',
@@ -8,21 +9,24 @@ export const metadata = {
 
 const projetos = [
   {
+    id: 'simulador',
     nome: 'Simulador de Financiamento',
     resumo: 'Projeto solo, feito para o dia a dia do corretor',
     descricao:
-      'Compara SAC e PRICE lado a lado, com seguros, CET, tabela de amortização e gráficos. Calcula o imóvel máximo que o cliente pode comprar, sugere a taxa pela renda (faixas do Minha Casa, Minha Vida), simula amortização com FGTS e evolução de obra para imóvel na planta, e gera o resumo para enviar ao cliente pelo WhatsApp. Dinheiro em centavos inteiros, mais de 250 testes automatizados e testes de ponta a ponta com Playwright a cada deploy.',
+      'Compara SAC e PRICE lado a lado, com seguros, CET, tabela de amortização e gráficos. Calcula o imóvel máximo que o cliente pode comprar, sugere a taxa pela renda (faixas do Minha Casa, Minha Vida), simula amortização com FGTS e evolução de obra para imóvel na planta, e gera o resumo para enviar ao cliente pelo WhatsApp. Dinheiro em centavos inteiros, mais de 390 testes automatizados e testes de ponta a ponta com Playwright a cada deploy.',
     tags: ['React', 'TypeScript', 'Vite', 'Tailwind', 'Recharts', 'Vitest', 'Playwright'],
     site: 'https://simulador-financiamento-blush.vercel.app',
     github: 'https://github.com/Jonqry/simulador-financiamento',
-    marca: 'mais de 250 testes automatizados',
+    marca: 'mais de 390 testes automatizados',
     destaque: true,
+    estudoDeCaso: '/projetos/simulador',
     imagem: '/simulador-financiamento.jpg',
     imagemAlt: 'Tela do simulador comparando SAC e PRICE, com tabela e gráficos',
     imagemLargura: 1600,
     imagemAltura: 1200,
   },
   {
+    id: 'place-brokers',
     nome: 'Place Brokers',
     resumo: 'Plataforma de uma imobiliária real de Recife',
     descricao:
@@ -39,14 +43,17 @@ const projetos = [
     estudoDeCaso: '/projetos/place-brokers',
   },
   {
+    id: 'cashflow',
     nome: 'CashFlow',
     resumo: 'Controle de gastos da casa',
     descricao:
       'Projeto pessoal full-stack: API em C# com .NET e front-end em React com TypeScript. As regras de negócio são validadas no back-end e o código é organizado em camadas. Depois apliquei AppSec na API: login com JWT, senha salva só como hash, validação de entrada (que fechou uma falha de mass assignment), limite de tentativas contra força bruta e headers de segurança, tudo coberto por testes de integração.',
     tags: ['React', 'TypeScript', 'C# e .NET', 'SQLite', 'JWT', 'xUnit'],
     github: 'https://github.com/Jonqry/cashflow-fullstack',
+    estudoDeCaso: '/projetos/cashflow',
   },
   {
+    id: 'curriculo-express',
     nome: 'Currículo Express',
     resumo: 'API REST de currículo',
     descricao:
@@ -57,6 +64,7 @@ const projetos = [
     github: 'https://github.com/Jonqry/curriculo-express',
   },
   {
+    id: 'ecociclo',
     nome: 'EcoCiclo',
     resumo: 'Logística reversa e descarte de resíduos',
     descricao:
@@ -107,7 +115,7 @@ function Tags({ tags }) {
 // Projeto em destaque: imagem e texto lado a lado, como a ficha de um empreendimento
 function Destaque({ projeto, invertido }) {
   return (
-    <article className="bloco grid md:grid-cols-2 gap-8 items-start">
+    <article id={projeto.id} className="bloco scroll-mt-24 grid md:grid-cols-2 gap-8 items-start">
       <div className={invertido ? 'md:order-2' : undefined}>
         <p className="estreito text-[color:var(--tinta-suave)] mb-1">{projeto.resumo}</p>
         <h2 className="text-3xl font-extrabold mb-3">{projeto.nome}</h2>
@@ -136,7 +144,7 @@ function Destaque({ projeto, invertido }) {
 
 function Outro({ projeto }) {
   return (
-    <li className="grid md:grid-cols-[14rem_1fr] gap-x-8 gap-y-2 py-6 border-b border-[color:var(--linha)]">
+    <li id={projeto.id} className="scroll-mt-24 grid md:grid-cols-[14rem_1fr] gap-x-8 gap-y-2 py-6 border-b border-[color:var(--linha)]">
       <div>
         <h3 className="text-xl font-bold">{projeto.nome}</h3>
         <p className="estreito text-[color:var(--tinta-suave)]">{projeto.resumo}</p>
@@ -152,7 +160,7 @@ function Outro({ projeto }) {
 
 export default function Projetos() {
   return (
-    <div className="pagina space-y-10">
+    <Comodo piso="porcelanato" className="space-y-10">
       <header>
         <h1 className="titulo-pagina">Projetos</h1>
         <p className="intro-pagina">O que eu construí na faculdade e por conta própria.</p>
@@ -179,6 +187,6 @@ export default function Projetos() {
         Outros estudos estão no meu{' '}
         <a href="https://github.com/Jonqry" target="_blank" rel="noopener noreferrer" className="link-texto">GitHub</a>.
       </p>
-    </div>
+    </Comodo>
   );
 }
