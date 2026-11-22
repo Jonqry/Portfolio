@@ -90,6 +90,26 @@ export default function PlaceBrokers() {
         </ul>
       </section>
 
+      <figure className="max-w-3xl">
+        <video
+          className="imagem-projeto w-full h-auto"
+          src="/projetos/place-brokers-uso.mp4"
+          poster="/projetos/place-brokers-uso.jpg"
+          width={800}
+          height={500}
+          autoPlay
+          muted
+          loop
+          playsInline
+          controls
+          preload="metadata"
+        />
+        <figcaption className="text-sm text-[color:var(--tinta-suave)] mt-2">
+          A área do corretor: o início, os empreendimentos com o filtro do Minha Casa, Minha Vida e os leads.
+          Nomes e telefones dos clientes estão borrados.
+        </figcaption>
+      </figure>
+
       <section>
         <h2 className="text-2xl font-bold mb-4">Decisões que tomei</h2>
         <div className="grid md:grid-cols-2 gap-6">
