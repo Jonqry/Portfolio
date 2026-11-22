@@ -59,6 +59,25 @@ export default function CashFlow() {
         </div>
       </section>
 
+      <figure className="max-w-3xl">
+        <video
+          className="imagem-projeto w-full h-auto"
+          src="/projetos/cashflow-uso.mp4"
+          poster="/projetos/cashflow-uso.jpg"
+          width={942}
+          height={576}
+          autoPlay
+          muted
+          loop
+          playsInline
+          controls
+          preload="metadata"
+        />
+        <figcaption className="text-sm text-[color:var(--tinta-suave)] mt-2">
+          A regra de idade funcionando: o Lucas tem menos de 18 anos, e a API bloqueia a receita que ele tenta lançar.
+        </figcaption>
+      </figure>
+
       <section>
         <h2 className="text-2xl font-bold mb-2">A segurança da API</h2>
         <p className="text-[color:var(--tinta-suave)] mb-4 max-w-3xl">
