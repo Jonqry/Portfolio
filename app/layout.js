@@ -27,7 +27,7 @@ export const metadata = {
     siteName: "João Victor Varela",
     title: "João Victor Varela | Desenvolvedor",
     description: descricao,
-    images: [{ url: "/preview-portfolio.jpg", width: 1512, height: 785, alt: "Página inicial do portfólio de João Victor Varela" }],
+    images: [{ url: "/preview-portfolio.jpg", width: 1200, height: 630, alt: "João Victor Varela e a planta do site, com os cômodos que levam a cada seção" }],
   },
   twitter: {
     card: "summary_large_image",
