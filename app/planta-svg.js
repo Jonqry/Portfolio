@@ -2,7 +2,7 @@
 
 export const px = (cm) => cm / 2;
 
-// Retângulo da planta na tela (x, y, largura, altura), em px. A câmera da maquete 3D enquadra o mesmo.
+// Retângulo da planta na tela (x, y, largura, altura), em px.
 export const VIEWBOX = [-34, -62, 504, 437];
 
 export function caminhoContinuo(pontos) {

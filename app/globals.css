@@ -51,9 +51,6 @@
 
 html { scroll-behavior: smooth; }
 
-/* O palco vai de ponta a ponta da tela (100vw conta a barra de rolagem): sem rolagem lateral */
-#conteudo { overflow-x: clip; }
-
 body {
   background: var(--papel);
   color: var(--tinta);
@@ -189,65 +186,6 @@ a { color: inherit; }
 .planta a:focus-visible .comodo-fundo { fill: var(--sol); }
 .planta .rotulos { pointer-events: none; }
 .planta .rotulos .desce { transform: translateY(12px); }
-
-/* Maquete 3D por trás da planta (components/Maquete.js). Ela só aparece depois de carregada; aí os pisos do
-   SVG ficam transparentes e o cômodo em foco acende no piso da maquete. */
-.planta-viva { position: relative; }
-.planta-viva .planta { position: relative; } /* o SVG fica por cima do canvas */
-.maquete-3d { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.6s ease-out; }
-.com-3d .maquete-3d { opacity: 1; }
-.com-3d .planta .comodo-apoio,
-.com-3d .planta .comodo-fundo,
-.com-3d .planta a:is(:hover, :focus-visible) .comodo-fundo { fill: transparent; }
-/* Sobre a maquete, os nomes ganham um contorno da cor do papel, como a etiqueta no piso da planta humanizada */
-.com-3d .planta .rotulos text { paint-order: stroke; stroke: var(--papel); stroke-width: 4px; stroke-linejoin: round; }
-/* Na rolagem, a planta some quando a câmera inclina (o PlantaViva controla --planta-visivel e a classe em-3d).
-   Daí em diante, o mouse escolhe o cômodo na própria maquete, e o teclado continua nos links do SVG. */
-.planta-viva .planta { opacity: var(--planta-visivel, 1); }
-.em-3d .planta { pointer-events: none; }
-.em-3d .maquete-3d { pointer-events: auto; }
-/* No mergulho, a planta desenhada sai da frente enquanto a câmera entra no cômodo */
-.mergulhando .planta { opacity: 0; transition: opacity 0.25s ease-out; }
-
-/* A página do cômodo entra com uma transição entre documentos (Chrome e Edge; nos outros, troca normal) */
-@view-transition { navigation: auto; }
-/* Com a câmera inclinada, a borda do canvas se dissolve no estande, e a maquete parece solta no palco */
-.maquete-3d {
-  mask-image: radial-gradient(ellipse farthest-corner, #000 calc(100% - var(--vinheta, 0) * 60%), transparent calc(100% - var(--vinheta, 0) * 28%));
-}
-
-/* ---------- palco da home ---------- */
-/* O estande escuro de ponta a ponta da tela, colado na navegação */
-.palco {
-  background: var(--estande);
-  color: var(--maquete);
-  margin: -2.5rem calc(50% - 50vw) 0;
-  padding: 2.5rem 1.25rem 3rem;
-}
-@media (min-width: 640px) { .palco { padding-inline: 2rem; } }
-@media (min-width: 768px) { .palco { margin-top: -3.5rem; padding-block: 3.5rem; } }
-.palco-texto p { color: #c5ccd0; } /* 9,6:1 sobre o Estande */
-.palco .botao { border-color: var(--maquete); }
-.palco .botao-principal { background: var(--sol); border-color: var(--sol); color: var(--tinta); }
-.palco .botao-principal:hover { background: var(--maquete); border-color: var(--maquete); }
-.palco .botao-linha { color: var(--maquete); }
-.palco .botao-linha:hover { background: var(--maquete); color: var(--tinta); }
-.palco .marca-texto { background: linear-gradient(var(--sol), var(--sol)) no-repeat left / 100% 100%; padding-inline: 0.1em; }
-.palco .grade-planta {
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--maquete) 8%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--maquete) 8%, transparent) 1px, transparent 1px);
-}
-.palco .planta .cota-texto { fill: var(--maquete); paint-order: stroke; stroke: var(--estande); stroke-width: 4px; stroke-linejoin: round; }
-/* Rolagem conduzida: o palco fica preso na tela por 250vh enquanto a planta vira maquete. Só liga com o 3D
-   pronto, em tela larga e sem movimento reduzido (o PlantaViva põe a classe rolagem). */
-.palco.rolagem { height: 250vh; padding-block: 0; }
-/* Em notebook de tela baixa (1366×768, por exemplo), o texto do palco fica mais compacto para caber preso na tela */
-@media (min-width: 768px) and (max-height: 900px) {
-  .palco-texto h1 { font-size: 3.75rem; line-height: 1; margin-bottom: 1rem; }
-  .palco-texto p { font-size: 1.0625rem; }
-}
-.palco.rolagem .palco-fixo { position: sticky; top: var(--altura-nav, 3.5rem); min-height: calc(100vh - var(--altura-nav, 3.5rem)); }
 @media (max-width: 640px) {
   /* No celular a planta vai de borda a borda: com a margem da página, as legendas
      dos cômodos ficavam com menos de 10 px. */
@@ -471,7 +409,6 @@ a { color: inherit; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
   .porta-folha { animation: none !important; }
   .planta-traco, .planta-surge {
     animation: none;
@@ -479,5 +416,4 @@ a { color: inherit; }
     stroke-dashoffset: 0;
   }
   .planta .folha, .cota-linha, .marca-texto.ao-abrir { animation: none !important; }
-  .maquete-3d { transition: none; }
 }

@@ -2,6 +2,8 @@
 
 Direção escolhida: **da planta à maquete**. A rolagem conta o que acontece no estande de vendas: o cliente vê a planta humanizada do folder, as paredes sobem e a planta vira a maquete iluminada. O 3D é modelado e iluminado no Blender, e não montado com caixas em código.
 
+**Decisão de 22/11/2026:** o 3D chegou a ir ao ar na home (passos 4 e 5 do plano), mas a maquete por baixo da planta e o mergulho no cômodo ficaram estranhos na prática. A home voltou à planta desenhada em SVG, no fundo claro, com os cômodos clicáveis e as portas abrindo. O pipeline do Blender continua no repositório, e as seções 3, 5 e 6 ficam como registro do plano original.
+
 Este arquivo é a referência do projeto. Toda decisão visual nova entra aqui antes de entrar no código.
 
 ## 1. A estratégia antes do visual
@@ -162,9 +164,9 @@ O primeiro projeto a ganhar identidade própria é o **Simulador**, porque ele a
 1. `planta.json` + SVG da home lendo dele → verificar: a planta atual continua idêntica. Feito; a home lê o apartamento novo de `planta.json`, e a `planta-antiga.json` foi apagada.
 2. `blender/maquete.py` → verificar: rodando no seu Blender, a base sai com paredes, vãos, portas e placa nas medidas do JSON.
 3. Sua etapa de arte e bake no Blender → verificar: render parado aprovado por você e `.glb` dentro do orçamento da seção 5.
-4. Cena 3D na home com a rolagem → verificar: funciona com teclado, sem WebGL e com movimento reduzido; LCP dentro da meta.
-5. Mergulho no cômodo + View Transition → verificar: ida, volta e botão voltar do navegador.
+4. Cena 3D na home com a rolagem → verificar: funciona com teclado, sem WebGL e com movimento reduzido; LCP dentro da meta. Feito e retirado em 22/11/2026 (ver a decisão no topo).
+5. Mergulho no cômodo + View Transition → verificar: ida, volta e botão voltar do navegador. Feito e retirado em 22/11/2026.
 6. Demo do Simulador na home → verificar: os testes da função copiada passam e os valores batem com o Simulador completo. Feito.
 7. Identidade própria do Simulador + carimbo → verificar: nada do portfólio aparece no Simulador além do carimbo.
-8. Tokens e páginas internas como cômodos → verificar: contraste e navegação por teclado em todas as páginas. Feito; o fundo Estande entra na home com o passo 4.
-9. Abertura com o prédio: script que gera os andares a partir da mesma planta, com a unidade marcada em marca-texto → verificar: o prédio pesa pouco (só volumes), a câmera desce até a unidade certa e os cômodos continuam clicáveis desde a chegada.
+8. Tokens e páginas internas como cômodos → verificar: contraste e navegação por teclado em todas as páginas. Feito; a home ficou no fundo claro.
+9. Abertura com o prédio: script que gera os andares a partir da mesma planta, com a unidade marcada em marca-texto → verificar: o prédio pesa pouco (só volumes), a câmera desce até a unidade certa e os cômodos continuam clicáveis desde a chegada. Fora do plano desde a retirada do 3D.

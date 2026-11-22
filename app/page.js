@@ -2,7 +2,6 @@ import Link from 'next/link';
 import planta from './planta.json';
 import { px, caminhoContinuo, caminhoDeTrechos, porta, janela, VIEWBOX } from './planta-svg';
 import DemoSimulador from './components/DemoSimulador';
-import PlantaViva from './components/PlantaViva';
 
 // A home é a planta de um apartamento: cada cômodo leva a uma parte do site (DESIGN.md, seção 3).
 // A geometria (em cm) vem da planta.json, a mesma do modelo 3D; aqui ficam só os links e os rótulos.
@@ -107,32 +106,27 @@ function Planta() {
 export default function Home() {
   return (
     <div className="max-w-6xl mx-auto">
-      {/* O palco: o estande escuro, com a planta que vira maquete na rolagem (DESIGN.md, seção 3) */}
-      <section className="palco">
-        <div className="palco-fixo max-w-6xl mx-auto grid md:grid-cols-[1fr_1.15fr] gap-10 md:gap-14 items-center">
-          <div className="palco-texto">
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold mb-6">João Victor Varela</h1>
-            <p className="text-lg sm:text-xl text-[color:var(--tinta-suave)] max-w-xl mb-4">
-              Desenvolvo com React, TypeScript e C# com .NET, e estudo Sistemas para Internet na Unicap.
-            </p>
-            <p className="text-lg sm:text-xl text-[color:var(--tinta-suave)] max-w-xl mb-8">
-              De dia sou corretor de imóveis na Place Brokers. Por isso a minha casa aqui é{' '}
-              <span className="marca-texto ao-abrir">uma planta</span>: é
-              o que eu mostro aos clientes todo dia. Hoje estou construindo, em equipe, o sistema da própria
-              imobiliária, e fiquei com a área que eu mesmo uso, a do corretor.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Link href="/projetos" className="botao botao-principal">Ver projetos</Link>
-              <a href="/curriculo-joao-victor-varela.pdf" download className="botao botao-linha">Baixar currículo</a>
-              <a href="#simulador" className="botao botao-linha">Testar o simulador</a>
-            </div>
+      <section className="grid md:grid-cols-[1fr_1.15fr] gap-10 md:gap-14 items-center">
+        <div>
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold mb-6">João Victor Varela</h1>
+          <p className="text-lg sm:text-xl text-[color:var(--tinta-suave)] max-w-xl mb-4">
+            Desenvolvo com React, TypeScript e C# com .NET, e estudo Sistemas para Internet na Unicap.
+          </p>
+          <p className="text-lg sm:text-xl text-[color:var(--tinta-suave)] max-w-xl mb-8">
+            De dia sou corretor de imóveis na Place Brokers. Por isso a minha casa aqui é{' '}
+            <span className="marca-texto ao-abrir">uma planta</span>: é
+            o que eu mostro aos clientes todo dia. Hoje estou construindo, em equipe, o sistema da própria
+            imobiliária, e fiquei com a área que eu mesmo uso, a do corretor.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/projetos" className="botao botao-principal">Ver projetos</Link>
+            <a href="/curriculo-joao-victor-varela.pdf" download className="botao botao-linha">Baixar currículo</a>
+            <a href="#simulador" className="botao botao-linha">Testar o simulador</a>
           </div>
+        </div>
 
-          <div className="grade-planta p-3 sm:p-5">
-            <PlantaViva>
-              <Planta />
-            </PlantaViva>
-          </div>
+        <div className="grade-planta p-3 sm:p-5">
+          <Planta />
         </div>
       </section>
 
