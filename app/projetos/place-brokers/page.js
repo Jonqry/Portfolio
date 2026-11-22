@@ -8,14 +8,9 @@ export const metadata = {
     'Como construí a área do corretor da plataforma de uma imobiliária real de Recife, no Projeto Integrador da Unicap.',
 };
 
-// Depois da reunião com a diretoria (17/11/2026), preencha este objeto.
-// Enquanto estiver como null, a seção "Resultado" não aparece no site.
-const resultado = null;
-// Exemplo do formato:
-// const resultado = {
-//   texto: 'Em 17/11/2026 apresentei o projeto completo para a diretoria da Place. ...',
-//   itens: ['O que a diretoria aprovou', 'Próximo passo combinado', 'O que aprendi'],
-// };
+const resultado = {
+  texto: 'Em 17/11/2026 apresentei a plataforma completa para a diretoria da Place, e a recepção foi positiva.',
+};
 
 const tecnologias = [
   'React 19', 'React Router 7', 'Vite', 'Tailwind 4',

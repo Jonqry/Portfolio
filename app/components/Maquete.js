@@ -140,6 +140,7 @@ function Modelo({ ativo, progresso, mergulho, aoCarregar }) {
       const centro = CENTROS[m.id];
       const perto = centro.clone().add(camera.position.clone().sub(centro).setLength(1.6));
       camera.position.lerp(perto, t);
+      camera.fov = misturar(camera.fov, 50, t); // a lente abre para o cômodo inteiro caber quando a câmera chega perto
       camera.near = 0.05;
       camera.lookAt(alvo.lerp(centro, t));
       camera.updateProjectionMatrix();
