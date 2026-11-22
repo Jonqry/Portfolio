@@ -22,6 +22,10 @@ const CX = (Math.min(...xs) + Math.max(...xs)) / 2;
 const CY = (Math.min(...ys) + Math.max(...ys)) / 2;
 
 const SECOES = planta.comodos.filter((c) => c.nome);
+// Centro do piso de cada seção, para onde a câmera mergulha no clique
+const CENTROS = Object.fromEntries(
+  SECOES.map((c) => [c.id, new THREE.Vector3((c.x + c.largura / 2 - CX) / 100, 0, (c.y + c.profundidade / 2 - CY) / 100)]),
+);
 function comodoNoPonto({ x, z }) {
   const [px, py] = [x * 100 + CX, z * 100 + CY];
   return SECOES.find((c) => px >= c.x && px <= c.x + c.largura && py >= c.y && py <= c.y + c.profundidade)?.id ?? null;
@@ -59,7 +63,7 @@ function posicionar(camera, p) {
   camera.far = distancia + 60;
   camera.lookAt(alvo);
   camera.updateProjectionMatrix();
-  return inclina;
+  return { inclina, alvo };
 }
 
 // O que sobe na rolagem: primeiro as paredes, as portas e o vidro, depois os móveis. Pisos, lajes e base ficam.
@@ -68,7 +72,7 @@ const PAREDES = /^(Paredes|Porta_|Vidro_)/;
 
 const nomeDoNo = (nome) => THREE.PropertyBinding.sanitizeNodeName(nome);
 
-function Modelo({ ativo, progresso, aoCarregar }) {
+function Modelo({ ativo, progresso, mergulho, aoCarregar }) {
   const { scene } = useGLTF('/maquete/maquete.glb', '/draco/'); // decodificador do Draco servido pelo próprio site
   const mapas = useTexture(Object.fromEntries(Object.entries(luz).map(([g, v]) => [g, `/maquete/${v.arquivo}`])));
   const { gl, invalidate } = useThree();
@@ -122,12 +126,25 @@ function Modelo({ ativo, progresso, aoCarregar }) {
   useFrame(({ camera, size }) => {
     const p = progresso.current;
     camera.aspect = size.width / size.height;
-    const inclina = posicionar(camera, p);
+    const { inclina, alvo } = posicionar(camera, p);
     const paredes = misturar(0.04, 1, suave(entre(0.25, 0.5, p))); // de cima, parede baixa e alta são iguais
     const moveis = misturar(0.02, 1, suave(entre(0.4, 0.6, p)));
     for (const no of sobem.paredes) no.scale.y = no.userData.altura * paredes;
     for (const no of sobem.moveis) no.scale.y = no.userData.altura * moveis;
     gl.toneMappingExposure = misturar(1.3, 1.05, inclina); // de cima, os pisos pegam menos do spot
+
+    // Mergulho: da posição da rolagem, a câmera avança pela linha de visão até 1,6 m do centro do cômodo
+    const m = mergulho.current;
+    if (m && CENTROS[m.id]) {
+      const t = suave(Math.min(1, (performance.now() - m.inicio) / m.duracao));
+      const centro = CENTROS[m.id];
+      const perto = centro.clone().add(camera.position.clone().sub(centro).setLength(1.6));
+      camera.position.lerp(perto, t);
+      camera.near = 0.05;
+      camera.lookAt(alvo.lerp(centro, t));
+      camera.updateProjectionMatrix();
+      if (t < 1) invalidate();
+    }
   });
 
   const abrir = (e) => {
@@ -148,7 +165,7 @@ function Modelo({ ativo, progresso, aoCarregar }) {
   );
 }
 
-export default function Maquete({ ativo, progresso, aoCarregar }) {
+export default function Maquete({ ativo, progresso, mergulho, aoCarregar }) {
   const camera = useMemo(() => {
     const c = new THREE.PerspectiveCamera(3, vw / vh, 0.1, 400);
     c.manual = true; // a câmera é toda nossa: o caminho acima refaz posição, lente e proporção
@@ -164,7 +181,7 @@ export default function Maquete({ ativo, progresso, aoCarregar }) {
           gl.toneMapping = THREE.AgXToneMapping; // o mesmo look do render do Blender
         }}
       >
-        <Modelo ativo={ativo} progresso={progresso} aoCarregar={aoCarregar} />
+        <Modelo ativo={ativo} progresso={progresso} mergulho={mergulho} aoCarregar={aoCarregar} />
       </Canvas>
     </div>
   );

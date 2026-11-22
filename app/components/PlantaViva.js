@@ -34,10 +34,13 @@ class SemMaquete extends Component {
 
 const comodoDe = (alvo) => alvo?.closest?.('a[data-comodo]')?.dataset.comodo ?? null;
 const entre = (a, b, t) => Math.min(1, Math.max(0, (t - a) / (b - a)));
+const DURACAO_MERGULHO = 700; // ms
 
 export default function PlantaViva({ children }) {
   const caixa = useRef(null);
   const progresso = useRef(0); // 0 = planta vista de cima, 1 = maquete (lido pela câmera a cada quadro)
+  const mergulho = useRef(null); // cômodo para onde a câmera está indo depois de um clique
+  const [mergulhando, setMergulhando] = useState(false);
   const [ligada, setLigada] = useState(false);
   const [pronta, setPronta] = useState(false);
   const [ativo, setAtivo] = useState(null);
@@ -105,11 +108,32 @@ export default function PlantaViva({ children }) {
     };
   }, [pronta]);
 
+  // Mergulho no cômodo (DESIGN.md, passo 5): com a maquete pronta, o clique num cômodo que leva a outra
+  // página primeiro aproxima a câmera do piso dele e só então navega. A espera tem tempo fixo, então a
+  // navegação acontece mesmo se o 3D travar. Ctrl/Cmd/Shift + clique e movimento reduzido seguem o normal.
+  useEffect(() => {
+    if (!pronta) return;
+    const el = caixa.current;
+    const calmo = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const clique = (e) => {
+      const link = e.target.closest?.('a[data-comodo]');
+      const href = link?.getAttribute('href');
+      if (!href?.startsWith('/') || calmo.matches || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      e.preventDefault();
+      mergulho.current = { id: link.dataset.comodo, inicio: performance.now(), duracao: DURACAO_MERGULHO };
+      setMergulhando(true);
+      window.dispatchEvent(new Event('maquete-progresso'));
+      setTimeout(() => window.location.assign(href), DURACAO_MERGULHO);
+    };
+    el.addEventListener('click', clique);
+    return () => el.removeEventListener('click', clique);
+  }, [pronta]);
+
   return (
-    <div ref={caixa} className={`planta-viva${pronta ? ' com-3d' : ''}${em3d ? ' em-3d' : ''}`}>
+    <div ref={caixa} className={`planta-viva${pronta ? ' com-3d' : ''}${em3d ? ' em-3d' : ''}${mergulhando ? ' mergulhando' : ''}`}>
       {ligada && (
         <SemMaquete>
-          <Maquete ativo={ativo} progresso={progresso} aoCarregar={() => setPronta(true)} />
+          <Maquete ativo={ativo} progresso={progresso} mergulho={mergulho} aoCarregar={() => setPronta(true)} />
         </SemMaquete>
       )}
       {children}

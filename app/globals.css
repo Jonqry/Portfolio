@@ -206,6 +206,11 @@ a { color: inherit; }
 .planta-viva .planta { opacity: var(--planta-visivel, 1); }
 .em-3d .planta { pointer-events: none; }
 .em-3d .maquete-3d { pointer-events: auto; }
+/* No mergulho, a planta desenhada sai da frente enquanto a câmera entra no cômodo */
+.mergulhando .planta { opacity: 0; transition: opacity 0.25s ease-out; }
+
+/* A página do cômodo entra com uma transição entre documentos (Chrome e Edge; nos outros, troca normal) */
+@view-transition { navigation: auto; }
 /* Com a câmera inclinada, a borda do canvas se dissolve no estande, e a maquete parece solta no palco */
 .maquete-3d {
   mask-image: radial-gradient(ellipse farthest-corner, #000 calc(100% - var(--vinheta, 0) * 60%), transparent calc(100% - var(--vinheta, 0) * 28%));
@@ -466,6 +471,7 @@ a { color: inherit; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
   .porta-folha { animation: none !important; }
   .planta-traco, .planta-surge {
     animation: none;

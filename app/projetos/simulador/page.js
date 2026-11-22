@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import Comodo from '../../components/Comodo';
 
@@ -61,11 +60,37 @@ export default function Simulador() {
             do teto de valor de cada faixa.
           </p>
           <p>
-            Fiz um simulador que responde essas perguntas na hora, no plantão, e gera um resumo para mandar
-            ao cliente. Ele é público: qualquer corretor pode usar.
+            Um caso típico: o cliente ganha R$ 6 mil por mês e quer um imóvel de R$ 250 mil, com 20% de entrada
+            e 35 anos para pagar. No SAC, a primeira parcela passa dos 30% da renda que o banco aceita. Na PRICE,
+            ela cabe. Se o corretor não sabe disso na hora, o cliente sai do plantão achando que não consegue
+            comprar.
+          </p>
+          <p>
+            Fiz um simulador que responde essas perguntas na hora e gera um resumo para mandar ao cliente.
+            Ele é público: qualquer corretor pode usar.
           </p>
         </div>
       </section>
+
+      <figure className="max-w-3xl">
+        <video
+          className="imagem-projeto w-full h-auto"
+          src="/projetos/simulador-uso.mp4"
+          poster="/projetos/simulador-uso.jpg"
+          width={800}
+          height={600}
+          autoPlay
+          muted
+          loop
+          playsInline
+          controls
+          preload="metadata"
+        />
+        <figcaption className="text-sm text-[color:var(--tinta-suave)] mt-2">
+          O caso acima no simulador: na PRICE a parcela cabe na renda, no SAC passa do limite, e ele mostra até
+          quanto o cliente pode comprar em cada sistema.
+        </figcaption>
+      </figure>
 
       <section className="bloco">
         <h2 className="text-2xl font-bold mb-3">O que ele faz</h2>
@@ -112,22 +137,6 @@ export default function Simulador() {
           ))}
         </ul>
       </section>
-
-      <a
-        href="https://simulador-financiamento-blush.vercel.app"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="imagem-projeto block max-w-3xl"
-      >
-        <Image
-          src="/simulador-financiamento.jpg"
-          alt="Tela do simulador comparando SAC e PRICE, com tabela e gráficos"
-          width={1600}
-          height={1200}
-          sizes="(max-width: 768px) 100vw, 768px"
-          className="w-full h-auto"
-        />
-      </a>
 
       <div className="flex flex-wrap gap-5">
         <a href="https://simulador-financiamento-blush.vercel.app" target="_blank" rel="noopener noreferrer" className="link-texto">Abrir o simulador</a>
