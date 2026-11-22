@@ -82,8 +82,12 @@ export default function PlantaViva({ children }) {
       setEm3d(p > 0.28);
       window.dispatchEvent(new Event('maquete-progresso'));
     };
+    const fixo = palco.querySelector('.palco-fixo');
     const ligar = () => {
-      palco.classList.toggle('rolagem', largo.matches && !calmo.matches);
+      // Preso na tela, o palco precisa caber inteiro nela, senão o último botão fica inalcançável
+      const altura = Math.max(...[...fixo.children].map((c) => c.offsetHeight));
+      const cabe = altura <= window.innerHeight - (nav?.offsetHeight ?? 0);
+      palco.classList.toggle('rolagem', largo.matches && !calmo.matches && cabe);
       palco.style.setProperty('--altura-nav', `${nav?.offsetHeight ?? 0}px`);
       medir();
     };

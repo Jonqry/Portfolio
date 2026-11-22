@@ -237,6 +237,11 @@ a { color: inherit; }
 /* Rolagem conduzida: o palco fica preso na tela por 250vh enquanto a planta vira maquete. Só liga com o 3D
    pronto, em tela larga e sem movimento reduzido (o PlantaViva põe a classe rolagem). */
 .palco.rolagem { height: 250vh; padding-block: 0; }
+/* Em notebook de tela baixa (1366×768, por exemplo), o texto do palco fica mais compacto para caber preso na tela */
+@media (min-width: 768px) and (max-height: 900px) {
+  .palco-texto h1 { font-size: 3.75rem; line-height: 1; margin-bottom: 1rem; }
+  .palco-texto p { font-size: 1.0625rem; }
+}
 .palco.rolagem .palco-fixo { position: sticky; top: var(--altura-nav, 3.5rem); min-height: calc(100vh - var(--altura-nav, 3.5rem)); }
 @media (max-width: 640px) {
   /* No celular a planta vai de borda a borda: com a margem da página, as legendas
