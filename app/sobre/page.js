@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import Comodo from '../components/Comodo';
 
@@ -48,16 +49,27 @@ export default function Sobre() {
           </p>
         </div>
 
-        <aside className="bloco h-fit">
-          <h2 className="text-xl font-semibold mb-4">Tecnologias que uso</h2>
-          <dl className="quadro">
-            {tecnologias.map((tec) => (
-              <div key={tec.area}>
-                <dt>{tec.area}</dt>
-                <dd>{tec.itens}</dd>
-              </div>
-            ))}
-          </dl>
+        <aside className="h-fit">
+          <Image
+            src="/foto-joao.jpg"
+            alt="Foto de João Victor Varela"
+            width={460}
+            height={460}
+            sizes="176px"
+            className="foto-perfil mb-8"
+            priority
+          />
+          <div className="bloco">
+            <h2 className="text-xl font-semibold mb-4">Tecnologias que uso</h2>
+            <dl className="quadro">
+              {tecnologias.map((tec) => (
+                <div key={tec.area}>
+                  <dt>{tec.area}</dt>
+                  <dd>{tec.itens}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
         </aside>
       </div>
 
@@ -77,8 +89,9 @@ export default function Sobre() {
             <p className="text-[color:var(--tinta-suave)]">Eduliv</p>
           </li>
           <li className="bloco">
-            <h3 className="text-lg font-semibold">Multimídia</h3>
-            <p className="text-[color:var(--tinta-suave)]">Escola Técnica Estadual Cícero Dias</p>
+            <p className="text-sm text-[color:var(--tinta-suave)] mb-1">Concluído em 2024</p>
+            <h3 className="text-lg font-semibold">Técnico em Multimídia</h3>
+            <p className="text-[color:var(--tinta-suave)]">Escola Técnica Estadual Cícero Dias (NAVE Recife)</p>
           </li>
         </ul>
       </section>

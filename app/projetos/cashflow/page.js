@@ -1,5 +1,8 @@
 import Link from 'next/link';
 import Comodo from '../../components/Comodo';
+import CotaLeitura from '../../components/CotaLeitura';
+import Ficha from '../../components/Ficha';
+import ProximoComodo from '../../components/ProximoComodo';
 
 export const metadata = {
   title: 'CashFlow: estudo de caso',
@@ -30,6 +33,17 @@ const controles = [
     texto:
       'Login e cadastro aceitam 5 tentativas por minuto por IP, e o resto da API, 100. Passou disso, a resposta é 429. Todas as respostas, inclusive as de erro, levam os headers de segurança, e os erros não mostram stack trace.',
   },
+];
+
+const numeros = [
+  { valor: 4, rotulo: 'ataques ao token testados, e todos recebem 401' },
+  { valor: 5, rotulo: 'tentativas de login por minuto, por IP' },
+  { valor: 1, rotulo: 'falha de mass assignment achada e fechada' },
+];
+
+const aprendizados = [
+  'Regra de negócio que a API não protege é só sugestão. A regra de idade existia, mas o cadastro aceitava a entidade inteira e passava por cima dela.',
+  'Controle de segurança também precisa de teste. Cada um tem um teste que tenta quebrá-lo, então uma mudança futura não abre a mesma falha de novo.',
 ];
 
 export default function CashFlow() {
@@ -78,6 +92,8 @@ export default function CashFlow() {
         </figcaption>
       </figure>
 
+      <Ficha itens={numeros} />
+
       <section>
         <h2 className="text-2xl font-bold mb-2">A segurança da API</h2>
         <p className="text-[color:var(--tinta-suave)] mb-4 max-w-3xl">
@@ -107,10 +123,26 @@ export default function CashFlow() {
         </ul>
       </section>
 
+      <section className="bloco">
+        <h2 className="text-2xl font-bold mb-3">O que eu aprendi</h2>
+        <ul className="space-y-2 max-w-3xl list-disc pl-5 text-[color:var(--tinta-suave)]">
+          {aprendizados.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </section>
+
       <div className="flex flex-wrap gap-5">
         <a href="https://github.com/Jonqry/cashflow-fullstack" target="_blank" rel="noopener noreferrer" className="link-texto">Ver o código</a>
         <Link href="/projetos" className="link-texto">Voltar aos projetos</Link>
       </div>
+
+      <ProximoComodo
+        href="/projetos/simulador"
+        nome="Simulador de Financiamento"
+        resumo="O simulador que eu uso no plantão, com mais de 390 testes."
+      />
+      <CotaLeitura />
     </Comodo>
   );
 }

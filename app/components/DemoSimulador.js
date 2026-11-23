@@ -2,7 +2,7 @@
 
 // Demo do Simulador na home: dois campos e a resposta na hora.
 // O visual é o do próprio Simulador (a "via do cliente"), dentro de uma moldura de cômodo.
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Bitter } from 'next/font/google';
 import { simularDemo, linkSimulador, lerReais } from '../lib/simulador-demo.mjs';
 import s from './DemoSimulador.module.css';
@@ -26,6 +26,39 @@ function Campo({ id, rotulo, valor, onChange }) {
         <input id={id} inputMode="decimal" autoComplete="off" value={valor} onChange={(e) => onChange(e.target.value)} onBlur={formatar} />
       </div>
     </div>
+  );
+}
+
+// A parcela rola do valor anterior até o novo quando a pessoa muda a renda ou o imóvel.
+// O leitor de tela recebe só o valor final.
+function Parcela({ centavos }) {
+  const [mostrado, setMostrado] = useState(centavos);
+  const atual = useRef(centavos);
+
+  useEffect(() => {
+    const de = atual.current;
+    if (de === centavos || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      atual.current = centavos;
+      setMostrado(centavos);
+      return;
+    }
+    const inicio = performance.now();
+    let quadro = 0;
+    const passo = (agora) => {
+      const t = Math.min(1, (agora - inicio) / 350);
+      atual.current = Math.round(de + (centavos - de) * (1 - (1 - t) ** 3));
+      setMostrado(atual.current);
+      if (t < 1) quadro = requestAnimationFrame(passo);
+    };
+    quadro = requestAnimationFrame(passo);
+    return () => cancelAnimationFrame(quadro);
+  }, [centavos]);
+
+  return (
+    <p className={s.parcela}>
+      <span aria-hidden="true">{reais.format(mostrado / 100)}</span>
+      <span className="sr-only">{reais.format(centavos / 100)}</span>
+    </p>
   );
 }
 
@@ -58,7 +91,7 @@ function Resultado({ renda, valor }) {
         </span>
       </div>
       <p className={s.rotulo}>1ª parcela</p>
-      <p className={s.parcela}>{reais.format(r.primeiraParcela / 100)}</p>
+      <Parcela centavos={r.primeiraParcela} />
       <p className={`${s.renda} ${s[r.nivel]}`}>{frase}</p>
       <a className={s.botao} href={linkSimulador(renda, valor, r.entrada)} target="_blank" rel="noopener noreferrer">
         Abrir o simulador completo

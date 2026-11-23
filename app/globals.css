@@ -180,11 +180,34 @@ a { color: inherit; }
 .planta .comodo-fundo { fill: var(--piso); transition: fill 0.2s; }
 .planta .comodo-apoio { fill: var(--porcelanato); }
 .planta .comodo-nome { fill: var(--tinta); font-size: 15px; font-weight: 700; font-stretch: 110%; }
-.planta .comodo-tipo { fill: var(--tinta-suave); font-size: 10.5px; font-stretch: 75%; }
+.planta .comodo-tipo { fill: var(--tinta-suave); font-size: 11.5px; font-stretch: 75%; }
 .planta a { cursor: pointer; outline: none; }
 .planta a:hover .comodo-fundo,
 .planta a:focus-visible .comodo-fundo { fill: var(--sol); }
 .planta .rotulos { pointer-events: none; }
+
+/* Prévia do cômodo: troca a legenda embaixo da planta pelo que tem dentro dele.
+   Só onde existe mouse; no toque, o primeiro toque já abre o cômodo. */
+.planta .previa {
+  fill: var(--tinta);
+  font-size: 13px;
+  font-weight: 600;
+  font-stretch: 80%;
+  opacity: 0;
+  pointer-events: none;
+}
+.planta .legenda-planta { transition: opacity 0.15s; }
+@media (hover: hover) and (min-width: 641px) {
+  .planta .previa { transition: opacity 0.15s; }
+  .planta:has(a[data-comodo]:is(:hover, :focus-visible)) .legenda-planta { opacity: 0; }
+  .planta:has(a[data-comodo="simulador"]:is(:hover, :focus-visible)) .previa-simulador,
+  .planta:has(a[data-comodo="place-brokers"]:is(:hover, :focus-visible)) .previa-place-brokers,
+  .planta:has(a[data-comodo="cashflow"]:is(:hover, :focus-visible)) .previa-cashflow,
+  .planta:has(a[data-comodo="mais-projetos"]:is(:hover, :focus-visible)) .previa-mais-projetos,
+  .planta:has(a[data-comodo="sobre"]:is(:hover, :focus-visible)) .previa-sobre,
+  .planta:has(a[data-comodo="experiencia"]:is(:hover, :focus-visible)) .previa-experiencia,
+  .planta:has(a[data-comodo="contato"]:is(:hover, :focus-visible)) .previa-contato { opacity: 1; }
+}
 .planta .rotulos .desce { transform: translateY(12px); }
 @media (max-width: 640px) {
   /* No celular a planta vai de borda a borda: com a margem da página, as legendas
@@ -308,10 +331,93 @@ a { color: inherit; }
 }
 .link-texto:hover { color: var(--tinta); background: var(--sol); }
 
+/* O fundo é o piso do cômodo: enquanto o print carrega, aparece o piso, e não uma caixa branca. */
 .imagem-projeto {
   display: block;
   border: 2px solid var(--tinta);
-  background: var(--branco);
+  background: var(--piso-comodo, var(--porcelanato));
+}
+
+/* Foto da página Sobre, com a mesma borda dos prints de projeto */
+.foto-perfil {
+  display: block;
+  width: 11rem;
+  height: auto;
+  border: 2px solid var(--tinta);
+  background: var(--porcelanato);
+}
+
+/* Ficha do projeto: os números grandes, cada um com a sua legenda embaixo. */
+.ficha {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 1.5rem 2rem;
+  margin: 0;
+  padding: 1.25rem 0;
+  border-block: 1.2px solid var(--linha);
+}
+.ficha > div { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 0.25rem; }
+.ficha dd {
+  margin: 0;
+  font-size: 2.4375rem;
+  font-weight: 800;
+  font-stretch: 110%;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.ficha dt { color: var(--tinta-suave); font-stretch: 85%; line-height: 1.35; }
+
+/* Próximo cômodo, no fim dos estudos de caso */
+.proximo-link { text-decoration: none; font-stretch: 110%; }
+.proximo-link:hover,
+.proximo-link:focus-visible {
+  background: linear-gradient(transparent 58%, var(--sol) 58%, var(--sol) 92%, transparent 92%);
+}
+
+/* Cota de leitura: uma linha de cota na lateral que se mede conforme a página é lida.
+   Só em telas largas, onde sobra margem fora do cômodo. */
+.cota-leitura { display: none; }
+@media (min-width: 1200px) {
+  .cota-leitura {
+    --lido: 0;
+    display: block;
+    position: fixed;
+    right: 1.75rem;
+    top: 6.5rem;
+    bottom: 2.5rem;
+    width: 12px;
+    z-index: 10;
+    pointer-events: none;
+  }
+  /* trilho claro de ponta a ponta, com o traço de início */
+  .cota-leitura::before {
+    content: "";
+    position: absolute;
+    left: 5.4px;
+    top: 0;
+    bottom: 0;
+    width: 1.2px;
+    background: color-mix(in srgb, var(--linha) 35%, transparent);
+  }
+  .cota-leitura::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 12px;
+    height: 1.2px;
+    background: var(--linha);
+  }
+  /* o trecho já lido, em tinta, com o traço que acompanha a leitura */
+  .cota-leitura-medida {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 12px;
+    height: calc(var(--lido) * 100%);
+    border-bottom: 1.5px solid var(--tinta);
+    background: linear-gradient(90deg, transparent 5.2px, var(--tinta) 5.2px, var(--tinta) 6.8px, transparent 6.8px);
+  }
 }
 
 /* linha do tempo */

@@ -12,7 +12,7 @@ const experiencias = [
     empresa: 'Place Brokers',
     periodo: 'desde outubro de 2025',
     atual: true,
-    destaque: '7 vendas fechadas em 6 meses.',
+    destaque: '8 vendas fechadas desde outubro de 2025.',
     itens: [
       'Atendo leads que chegam pelas campanhas no Instagram, no Facebook e pelo site.',
       'Faço o primeiro contato por ligação e WhatsApp e agendo reuniões e visitas.',

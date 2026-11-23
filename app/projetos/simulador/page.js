@@ -1,5 +1,8 @@
 import Link from 'next/link';
 import Comodo from '../../components/Comodo';
+import CotaLeitura from '../../components/CotaLeitura';
+import Ficha from '../../components/Ficha';
+import ProximoComodo from '../../components/ProximoComodo';
 
 export const metadata = {
   title: 'Simulador de Financiamento: estudo de caso',
@@ -30,6 +33,18 @@ const decisoes = [
     texto:
       'O resumo sai pronto para mandar ao cliente, com o link da simulação. A renda dele fica fora do texto, porque é dado pessoal. Quando a parcela não cabe, o envio é bloqueado e o painel mostra o imóvel máximo, a entrada e a renda necessárias.',
   },
+];
+
+const numeros = [
+  { valor: 390, prefixo: '+', rotulo: 'testes automatizados' },
+  { valor: 100, sufixo: '%', rotulo: 'de cobertura na lógica de cálculo' },
+  { valor: 420, rotulo: 'parcelas calculadas em centavos inteiros' },
+  { valor: 0.41, casas: 2, prefixo: 'R$ ', rotulo: 'de diferença para a parcela da Caixa' },
+];
+
+const aprendizados = [
+  'Conferir com a fonte oficial vale mais do que confiar na fórmula. Os juros já batiam com a Caixa, e só a comparação lado a lado mostrou a diferença nos seguros.',
+  'O teste unitário garante o cálculo, mas é o teste de ponta a ponta que pega o problema de uso, como a seção de amortização extra que fechava no meio da correção.',
 ];
 
 const testes = [
@@ -92,13 +107,15 @@ export default function Simulador() {
         </figcaption>
       </figure>
 
+      <Ficha itens={numeros} />
+
       <section className="bloco">
         <h2 className="text-2xl font-bold mb-3">O que ele faz</h2>
         <ul className="space-y-2 max-w-3xl list-disc pl-5 text-[color:var(--tinta-suave)]">
-          <li>Enquadra o cliente na faixa do MCMV pela renda e pelo valor do imóvel e escolhe a taxa.</li>
-          <li>Compara SAC e PRICE, com seguros, CET e a tabela de amortização mês a mês.</li>
-          <li>Calcula o imóvel máximo, avisa quando a parcela passa de 30% da renda e simula amortização com FGTS.</li>
-          <li>Mostra os juros de obra para imóvel na planta e gera o resumo para o WhatsApp.</li>
+          <li>Enquadra o cliente na faixa do MCMV pela renda e pelo valor do imóvel e aplica a taxa sozinho. Quem já tem imóvel vai para o SBPE.</li>
+          <li>Mostra a PRICE em destaque no MCMV e o SAC no SBPE, com seguros, CET, a tabela mês a mês e a comparação entre os dois quando precisa.</li>
+          <li>Reprova a simulação quando a parcela passa de 30% da renda e mostra o que resolveria: imóvel máximo, entrada ou renda necessária.</li>
+          <li>Simula FGTS, subsídio, evolução de obra e amortização extra, e gera o resumo para o WhatsApp.</li>
         </ul>
       </section>
 
@@ -138,12 +155,28 @@ export default function Simulador() {
         </ul>
       </section>
 
+      <section className="bloco">
+        <h2 className="text-2xl font-bold mb-3">O que eu aprendi</h2>
+        <ul className="space-y-2 max-w-3xl list-disc pl-5 text-[color:var(--tinta-suave)]">
+          {aprendizados.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </section>
+
       <div className="flex flex-wrap gap-5">
         <a href="https://simulador-financiamento-blush.vercel.app" target="_blank" rel="noopener noreferrer" className="link-texto">Abrir o simulador</a>
         <a href="https://github.com/Jonqry/simulador-financiamento" target="_blank" rel="noopener noreferrer" className="link-texto">Ver o código</a>
         <a href="https://github.com/Jonqry/simulador-financiamento/blob/main/docs/DECISOES.md" target="_blank" rel="noopener noreferrer" className="link-texto">Ler as decisões técnicas</a>
         <Link href="/projetos" className="link-texto">Voltar aos projetos</Link>
       </div>
+
+      <ProximoComodo
+        href="/projetos/place-brokers"
+        nome="Place Brokers"
+        resumo="A área do corretor no sistema da imobiliária onde eu trabalho."
+      />
+      <CotaLeitura />
     </Comodo>
   );
 }

@@ -13,17 +13,17 @@ const projetos = [
     nome: 'Simulador de Financiamento',
     resumo: 'Projeto solo, feito para o dia a dia do corretor',
     descricao:
-      'Compara SAC e PRICE lado a lado, com seguros, CET, tabela de amortização e gráficos. Calcula o imóvel máximo que o cliente pode comprar, sugere a taxa pela renda (faixas do Minha Casa, Minha Vida), simula amortização com FGTS e evolução de obra para imóvel na planta, e gera o resumo para enviar ao cliente pelo WhatsApp. Dinheiro em centavos inteiros, mais de 390 testes automatizados e testes de ponta a ponta com Playwright a cada deploy.',
+      'Enquadra o cliente na faixa do Minha Casa, Minha Vida pela renda e pelo valor do imóvel e aplica a taxa sozinho. Mostra a PRICE em destaque no MCMV e o SAC no SBPE, com a comparação entre os dois quando precisa. Quando a parcela não cabe na renda, reprova a simulação e mostra o que resolveria: imóvel máximo, entrada ou renda necessária. Também calcula quanto o cliente pode comprar, simula FGTS, subsídio e evolução de obra, e gera o resumo para o WhatsApp. Dinheiro em centavos inteiros, mais de 390 testes automatizados e testes de ponta a ponta com Playwright a cada deploy.',
     tags: ['React', 'TypeScript', 'Vite', 'Tailwind', 'Recharts', 'Vitest', 'Playwright'],
     site: 'https://simulador-financiamento-blush.vercel.app',
     github: 'https://github.com/Jonqry/simulador-financiamento',
     marca: 'mais de 390 testes automatizados',
     destaque: true,
     estudoDeCaso: '/projetos/simulador',
-    imagem: '/simulador-financiamento.jpg',
-    imagemAlt: 'Tela do simulador comparando SAC e PRICE, com tabela e gráficos',
-    imagemLargura: 1600,
-    imagemAltura: 1200,
+    imagem: '/projetos/simulador-uso.jpg',
+    imagemAlt: 'Simulador no MCMV Faixa 3: a PRICE cabe na renda e o SAC não',
+    imagemLargura: 800,
+    imagemAltura: 600,
   },
   {
     id: 'place-brokers',
@@ -51,6 +51,12 @@ const projetos = [
     tags: ['React', 'TypeScript', 'C# e .NET', 'SQLite', 'JWT', 'xUnit'],
     github: 'https://github.com/Jonqry/cashflow-fullstack',
     estudoDeCaso: '/projetos/cashflow',
+    marca: 'falha de mass assignment',
+    destaque: true,
+    imagem: '/projetos/cashflow-uso.jpg',
+    imagemAlt: 'CashFlow bloqueando a receita de uma pessoa com menos de 18 anos',
+    imagemLargura: 942,
+    imagemAltura: 576,
   },
   {
     id: 'curriculo-express',
@@ -128,7 +134,13 @@ function Destaque({ projeto, invertido }) {
           </p>
         )}
       </div>
-      <a href={projeto.site} target="_blank" rel="noopener noreferrer" className="imagem-projeto" tabIndex={-1} aria-hidden="true">
+      <a
+        href={projeto.site ?? projeto.estudoDeCaso}
+        {...(projeto.site ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        className="imagem-projeto"
+        tabIndex={-1}
+        aria-hidden="true"
+      >
         <Image
           src={projeto.imagem}
           alt=""

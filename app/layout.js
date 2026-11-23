@@ -48,9 +48,9 @@ export default function RootLayout({ children }) {
           <div className="max-w-6xl mx-auto flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between text-sm text-[color:var(--tinta-suave)]">
             <p>João Victor Varela, em Recife</p>
             <div className="flex gap-5">
-              <a className="hover:text-[color:var(--tinta)]" href="https://www.linkedin.com/in/joaovictorvarela" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-              <a className="hover:text-[color:var(--tinta)]" href="https://github.com/Jonqry" target="_blank" rel="noopener noreferrer">GitHub</a>
-              <a className="hover:text-[color:var(--tinta)]" href="mailto:joaovictorvarela321@gmail.com">E-mail</a>
+              <a className="inline-block py-3 sm:py-1 hover:text-[color:var(--tinta)]" href="https://www.linkedin.com/in/joaovictorvarela" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+              <a className="inline-block py-3 sm:py-1 hover:text-[color:var(--tinta)]" href="https://github.com/Jonqry" target="_blank" rel="noopener noreferrer">GitHub</a>
+              <a className="inline-block py-3 sm:py-1 hover:text-[color:var(--tinta)]" href="mailto:joaovictorvarela321@gmail.com">E-mail</a>
             </div>
           </div>
         </footer>

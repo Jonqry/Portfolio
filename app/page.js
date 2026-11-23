@@ -5,14 +5,39 @@ import DemoSimulador from './components/DemoSimulador';
 
 // A home é a planta de um apartamento: cada cômodo leva a uma parte do site (DESIGN.md, seção 3).
 // A geometria (em cm) vem da planta.json, a mesma do modelo 3D; aqui ficam só os links e os rótulos.
+// previa: o que aparece embaixo da planta quando o mouse passa pelo cômodo (regras no globals.css)
 const links = {
-  simulador: { href: '#simulador', rotulo: 'Simulador: testar a demo nesta página' },
-  'place-brokers': { href: '/projetos/place-brokers', rotulo: 'Place Brokers: ver o projeto' },
-  cashflow: { href: '/projetos/cashflow', rotulo: 'CashFlow: ler o estudo de caso' },
-  'mais-projetos': { href: '/projetos#curriculo-express', rotulo: 'Mais projetos: Currículo Express e EcoCiclo' },
-  sobre: { href: '/sobre', rotulo: 'Sobre mim' },
-  experiencia: { href: '/profissional', rotulo: 'Experiência profissional e currículo' },
-  contato: { href: 'mailto:joaovictorvarela321@gmail.com', rotulo: 'Contato: enviar e-mail' },
+  simulador: {
+    href: '#simulador',
+    rotulo: 'Simulador: testar a demo nesta página',
+    previa: 'Simulador de financiamento: React, TypeScript e mais de 390 testes.',
+  },
+  'place-brokers': {
+    href: '/projetos/place-brokers',
+    rotulo: 'Place Brokers: ver o projeto',
+    previa: 'Place Brokers: a área do corretor no sistema da imobiliária.',
+  },
+  cashflow: {
+    href: '/projetos/cashflow',
+    rotulo: 'CashFlow: ler o estudo de caso',
+    previa: 'CashFlow: API em C# e .NET, protegida com o OWASP API Top 10.',
+  },
+  'mais-projetos': {
+    href: '/projetos#curriculo-express',
+    rotulo: 'Mais projetos: Currículo Express e EcoCiclo',
+    previa: 'Mais projetos: Currículo Express e EcoCiclo.',
+  },
+  sobre: { href: '/sobre', rotulo: 'Sobre mim', previa: 'Sobre mim: quem eu sou e as tecnologias que uso.' },
+  experiencia: {
+    href: '/profissional',
+    rotulo: 'Experiência profissional e currículo',
+    previa: 'Experiência: o plantão de vendas e o currículo em PDF.',
+  },
+  contato: {
+    href: 'mailto:joaovictorvarela321@gmail.com',
+    rotulo: 'Contato: enviar e-mail',
+    previa: 'Contato: me mande um e-mail.',
+  },
 };
 // Nomes longos quebram em duas linhas para caber no cômodo
 const linhas = {
@@ -80,7 +105,14 @@ function Planta() {
         <path className="cota" d="M-20 -2.5 V262.5 M-26 -2.5 H-14 M-26 262.5 H-14" />
         <text className="cota-texto" x="-24" y="130" textAnchor="middle" transform="rotate(-90 -24 130)">5,30 m</text>
 
-        <text className="cota-texto" x="0" y="365">Planta do site, escala 1:50. Escolha um cômodo.</text>
+        <text className="cota-texto legenda-planta" x="0" y="365">Planta do site, escala 1:50. Escolha um cômodo.</text>
+      </g>
+
+      {/* Prévia de cada cômodo, no lugar da legenda, enquanto o mouse está sobre ele */}
+      <g className="previas" aria-hidden="true">
+        {secoes.map((c) => (
+          <text key={c.id} className={`previa previa-${c.id}`} x="0" y="365">{c.previa}</text>
+        ))}
       </g>
 
       {/* Os nomes vêm por cima das portas para o arco não cortar o texto. O nome acessível de cada
@@ -106,12 +138,20 @@ function Planta() {
 export default function Home() {
   return (
     <div className="max-w-6xl mx-auto">
-      <section className="grid md:grid-cols-[1fr_1.15fr] gap-10 md:gap-14 items-center">
-        <div>
+      {/* No celular a planta vem logo depois da primeira frase; no computador ela ocupa a coluna da direita. */}
+      <section className="grid md:grid-cols-[1fr_1.15fr] md:grid-rows-[auto_auto] gap-x-10 md:gap-x-14 gap-y-8 md:gap-y-0">
+        <div className="md:self-end">
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold mb-6">João Victor Varela</h1>
-          <p className="text-lg sm:text-xl text-[color:var(--tinta-suave)] max-w-xl mb-4">
+          <p className="text-lg sm:text-xl text-[color:var(--tinta-suave)] max-w-xl md:mb-4">
             Desenvolvo com React, TypeScript e C# com .NET, e estudo Sistemas para Internet na Unicap.
           </p>
+        </div>
+
+        <div className="grade-planta p-3 sm:p-5 md:col-start-2 md:row-start-1 md:row-span-2 md:self-center">
+          <Planta />
+        </div>
+
+        <div className="md:self-start">
           <p className="text-lg sm:text-xl text-[color:var(--tinta-suave)] max-w-xl mb-8">
             De dia sou corretor de imóveis na Place Brokers. Por isso a minha casa aqui é{' '}
             <span className="marca-texto ao-abrir">uma planta</span>: é
@@ -123,10 +163,6 @@ export default function Home() {
             <a href="/curriculo-joao-victor-varela.pdf" download className="botao botao-linha">Baixar currículo</a>
             <a href="#simulador" className="botao botao-linha">Testar o simulador</a>
           </div>
-        </div>
-
-        <div className="grade-planta p-3 sm:p-5">
-          <Planta />
         </div>
       </section>
 

@@ -4,6 +4,8 @@ Direção escolhida: **da planta à maquete**. A rolagem conta o que acontece no
 
 **Decisão de 22/11/2026:** o 3D chegou a ir ao ar na home (passos 4 e 5 do plano), mas a maquete por baixo da planta e o mergulho no cômodo ficaram estranhos na prática. A home voltou à planta desenhada em SVG, no fundo claro, com os cômodos clicáveis e as portas abrindo. O pipeline do Blender continua no repositório, e as seções 3, 5 e 6 ficam como registro do plano original.
 
+**Decisão de 23/11/2026:** movimento só em 2D e a serviço da leitura. Entraram três peças: a cota de leitura na lateral dos estudos de caso (telas a partir de 1200 px), a ficha com os números do projeto contando até o valor uma vez, quando aparece, e a parcela da demo rolando até o novo valor. As três respeitam o movimento reduzido e o leitor de tela recebe sempre o valor final. Na home, o mouse sobre um cômodo troca a legenda da planta pela prévia do que tem dentro.
+
 Este arquivo é a referência do projeto. Toda decisão visual nova entra aqui antes de entrar no código.
 
 ## 1. A estratégia antes do visual

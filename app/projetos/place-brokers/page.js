@@ -1,6 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import Comodo from '../../components/Comodo';
+import CotaLeitura from '../../components/CotaLeitura';
+import Ficha from '../../components/Ficha';
+import ProximoComodo from '../../components/ProximoComodo';
 
 export const metadata = {
   title: 'Place Brokers: estudo de caso',
@@ -11,6 +14,11 @@ export const metadata = {
 const resultado = {
   texto: 'Em 17/11/2026 apresentei a plataforma completa para a diretoria da Place, e a recepção foi positiva.',
 };
+
+const numeros = [
+  { valor: 5, rotulo: 'pessoas na equipe' },
+  { valor: 3, rotulo: 'áreas: site público, painel do administrador e área do corretor' },
+];
 
 const tecnologias = [
   'React 19', 'React Router 7', 'Vite', 'Tailwind 4',
@@ -110,6 +118,8 @@ export default function PlaceBrokers() {
         </figcaption>
       </figure>
 
+      <Ficha itens={numeros} />
+
       <section>
         <h2 className="text-2xl font-bold mb-4">Decisões que tomei</h2>
         <div className="grid md:grid-cols-2 gap-6">
@@ -193,6 +203,13 @@ export default function PlaceBrokers() {
       <p className="text-sm text-[color:var(--tinta-suave)]">
         O servidor gratuito pode levar até um minuto para acordar na primeira visita.
       </p>
+
+      <ProximoComodo
+        href="/projetos/cashflow"
+        nome="CashFlow"
+        resumo="Uma API em C# e .NET e a falha de segurança que eu achei nela."
+      />
+      <CotaLeitura />
     </Comodo>
   );
 }
