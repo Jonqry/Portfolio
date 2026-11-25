@@ -59,6 +59,24 @@ const projetos = [
     imagemAltura: 576,
   },
   {
+    id: 'leitor-renda',
+    nome: 'Leitor de Renda',
+    resumo: 'IA lendo holerite e extrato',
+    descricao:
+      'Lê holerites e extratos em PDF com o Gemini e devolve a renda num JSON de formato fixo, validado com Pydantic. Quando um valor não aparece no documento, ele volta vazio em vez de estimado, e o resultado já abre o simulador com a renda preenchida.',
+    tags: ['Python', 'Gemini', 'Pydantic', 'pytest'],
+    github: 'https://github.com/Jonqry/leitor-renda',
+  },
+  {
+    id: 'coletor-taxas',
+    nome: 'Coletor de Taxas',
+    resumo: 'Taxas oficiais conferidas toda semana',
+    descricao:
+      'Confere toda semana TR, Selic, IPCA e as taxas do Minha Casa, Minha Vida no Banco Central e no gov.br, e abre uma issue no GitHub quando algum valor muda. Assim o simulador não fica com taxa desatualizada. Se uma fonte sai do ar, mantém o último valor e segue com as outras.',
+    tags: ['Python', 'Requests', 'BeautifulSoup', 'Playwright', 'GitHub Actions'],
+    github: 'https://github.com/Jonqry/coletor-taxas',
+  },
+  {
     id: 'curriculo-express',
     nome: 'Currículo Express',
     resumo: 'API REST de currículo',

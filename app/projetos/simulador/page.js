@@ -164,6 +164,20 @@ export default function Simulador() {
         </ul>
       </section>
 
+      <section className="bloco">
+        <h2 className="text-2xl font-bold mb-3">Ferramentas em volta dele</h2>
+        <ul className="space-y-2 max-w-3xl list-disc pl-5 text-[color:var(--tinta-suave)]">
+          <li>
+            <a href="https://github.com/Jonqry/coletor-taxas" target="_blank" rel="noopener noreferrer" className="link-texto">Coletor de Taxas</a>:
+            confere toda semana as taxas oficiais que o simulador usa e avisa quando alguma muda.
+          </li>
+          <li>
+            <a href="https://github.com/Jonqry/leitor-renda" target="_blank" rel="noopener noreferrer" className="link-texto">Leitor de Renda</a>:
+            lê o holerite ou o extrato do cliente com IA e abre o simulador com a renda preenchida.
+          </li>
+        </ul>
+      </section>
+
       <div className="flex flex-wrap gap-5">
         <a href="https://simulador-financiamento-blush.vercel.app" target="_blank" rel="noopener noreferrer" className="link-texto">Abrir o simulador</a>
         <a href="https://github.com/Jonqry/simulador-financiamento" target="_blank" rel="noopener noreferrer" className="link-texto">Ver o código</a>
